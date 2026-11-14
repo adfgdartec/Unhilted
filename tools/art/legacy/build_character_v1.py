@@ -1,21 +1,4 @@
-"""Layered pixel-art sprites for the rogue robot, every outfit piece and the blade.
-Run from the project root:  python3 tools/art/build_character.py
 
-How it works
-------------
-A small 2D rig (hips, knees, feet, shoulders, elbows, hands, head) is posed by
-hand for every frame of every animation. Each layer (body, pants, shoes, shirt,
-arm, cloak, face, hood, mask, blade) is drawn from those same joints, so any
-combination of outfit pieces lines up on every frame. Each part is shaded with
-a 5-step ramp lit from the top-left (outline, shadow, base, light, highlight)
-and every layer gets its own dark outline, like the props.
-
-Frames are 48x48, facing right, feet on row 44 (the game offsets sprites so
-row 44 sits on the floor). Output:
-  art/character/<layer>.png            one row of frames, all animations
-  art/character/frames/<layer>.tres    Godot SpriteFrames for that sheet
-  art/ui/cosmetics/<item>.png          32x32 shop / wardrobe icon
-"""
 import colorsys
 import math
 import os
@@ -31,11 +14,10 @@ ICONS = os.path.join(ROOT, "art", "ui", "cosmetics")
 for d in (OUT, FR, ICONS):
     os.makedirs(d, exist_ok=True)
 
-S = 48          # frame size
+S = 48 
 FEET = 44
 
-# --------------------------------------------------------------- animations
-# name: (frame count, fps, loop)
+
 ANIMS = [
     ("idle", 4, 5.0, True), ("run", 8, 14.0, True), ("jump", 2, 10.0, False), ("fall", 2, 8.0, True),
     ("attack", 4, 18.0, False), ("attack_up", 4, 18.0, False), ("attack_down", 4, 18.0, False),
@@ -45,9 +27,8 @@ ANIMS = [
 ]
 
 
-# --------------------------------------------------------------- colour ramps
+
 def ramp_from(rgb, warm=0.02):
-    """outline, shadow, base, light, highlight with hue shifting (cool shadows, warm lights)."""
     r, g, b = [c / 255.0 for c in rgb]
     h, s, v = colorsys.rgb_to_hsv(r, g, b)
 
@@ -67,7 +48,6 @@ CYAN_HI = (190, 252, 255)
 RED = (255, 84, 70)
 
 
-# --------------------------------------------------------------- raster helpers
 YY, XX = np.mgrid[0:S, 0:S]
 PX = XX + 0.5
 PY = YY + 0.5
@@ -117,7 +97,6 @@ class Layer:
         return self.rgba[:, :, 3] > 0
 
     def paint(self, mask, ramp, flat=False, deep=True):
-        """Fill a part with its ramp: light on the top-left rim, shadow bottom-right."""
         if not mask.any():
             return
         lvl = np.full((S, S), 2, dtype=np.int8)
@@ -163,7 +142,6 @@ class Layer:
         return self
 
     def under(self, other):
-        """Composite this layer below `other` (for icons and previews)."""
         out = Layer()
         out.rgba = self.rgba.copy()
         m = other.rgba[:, :, 3] > 0
@@ -171,7 +149,7 @@ class Layer:
         return out
 
 
-# --------------------------------------------------------------- the rig
+
 def v(x, y):
     return np.array([float(x), float(y)])
 
@@ -182,7 +160,6 @@ def norm(a):
 
 
 def knee_for(hip, foot, length=11.5, forward=1.0):
-    """Two-bone IK: the knee bends forward (toward +x * forward)."""
     d = foot - hip
     dist = min(math.hypot(*d), length * 0.999)
     mid = hip + d * 0.5
@@ -209,21 +186,21 @@ def elbow_for(sh, hand, length=10.0, down=True):
 class Pose:
     def __init__(self, **k):
         self.hip = v(23, 33)
-        self.lean = 0.0          # shoulders shift forward (+x)
-        self.bob = 0.0           # whole upper body down (+y)
-        self.head = v(0, 0)      # extra head offset
+        self.lean = 0.0 
+        self.bob = 0.0  
+        self.head = v(0, 0)     
         self.footF = v(27, FEET)
         self.footB = v(20, FEET)
         self.handF = v(28, 32)
         self.handB = v(20, 32)
         self.elbow_down_F = True
         self.elbow_down_B = True
-        self.blade = 72.0        # degrees, 0 = forward, 90 = down, None = no blade
-        self.trail = 0.0         # cloak streaming back (0..1)
-        self.flutter = 0.0       # hem wave phase
-        self.lift = 0.0          # cloak hem lifting (falling = up)
+        self.blade = 72.0 
+        self.trail = 0.0 
+        self.flutter = 0.0  
+        self.lift = 0.0 
         self.eyes = "open"
-        self.tip = v(0, 0)       # hood tip extra offset
+        self.tip = v(0, 0) 
         self.lying = False
         for key, val in k.items():
             setattr(self, key, val)
@@ -247,17 +224,13 @@ class Pose:
         self.back = norm(v(-axis[1], axis[0])) * (-1 if self.lying else 1)
         if not self.lying:
             self.back = v(-1, 0) * 1.0 + v(0, 0)
-
-
+          
 def P(**k):
     return Pose(**k)
-
-
+  
 def poses():
     out = {}
-    # idle: breathing (body dips 1 px), blade hanging forward-down
     out["idle"] = [P(bob=b, flutter=i * 0.8, handF=v(28, 32 + b * 0.5), handB=v(20, 32 + b * 0.5)) for i, b in enumerate((0, 0, 1, 1))]
-    # run: 8-frame cycle, forward lean, arms swing against the legs
     run = []
     for i in range(8):
         p = i / 8 * math.tau
@@ -269,10 +242,9 @@ def poses():
                      handF=v(26 - 4 * math.cos(p), 31 + bob), handB=v(21 + 4 * math.cos(p), 31 + bob),
                      blade=60 - 20 * math.cos(p), trail=0.7, flutter=i * 0.9))
     out["run"] = run
-    out["jump"] = [P(footF=v(27, 41), footB=v(19, 40), handF=v(29, 27), handB=v(17, 27), blade=30, trail=0.3, lift=-0.4),
-                   P(footF=v(27, 40), footB=v(20, 39), handF=v(29, 25), handB=v(17, 25), blade=20, trail=0.3, lift=-0.2, flutter=1)]
+    out["jump"] = [P(footF=v(27, 41), footB=v(19, 40), handF=v(29, 27), handB=v(17, 27), blade=30, trail=0.3, lift=-0.4), P(footF=v(27, 40), footB=v(20, 39), handF=v(29, 25), handB=v(17, 25), blade=20, trail=0.3, lift=-0.2, flutter=1)]
     out["fall"] = [P(footF=v(26, 45), footB=v(20, 44), handF=v(30, 24), handB=v(16, 24), blade=10, trail=0.2, lift=0.8, flutter=f) for f in (0, 1.6)]
-    # attack forward: windup, swing, follow-through, recover
+  
     out["attack"] = [
         P(lean=-1, footF=v(28, FEET), footB=v(18, FEET), handF=v(20, 22), elbow_down_F=False, blade=-150, handB=v(22, 32)),
         P(lean=3, footF=v(30, FEET), footB=v(17, FEET), handF=v(35, 26), blade=0, handB=v(18, 30), trail=0.5),
@@ -300,10 +272,10 @@ def poses():
                         blade=None, trail=0.9, flutter=f) for f in (0, 1.5)]
     out["dash"] = [P(lean=4, bob=1, footF=v(29, 42), footB=v(14, 41), handF=v(28, 31), handB=v(14, 29), blade=20,
                      trail=1.0, flutter=f) for f in (0, 1.2)]
-    # slide: dropped low, leaning back, front leg out along the floor, back hand trailing on the ground
+
     out["slide"] = [P(hip=v(21, 41), lean=-5, footF=v(34, FEET), footB=v(17, FEET), handF=v(29, 33), handB=v(11, 43),
                       blade=8, trail=1.0, flutter=f, lift=-0.2) for f in (0, 1.4)]
-    # wall: back to the wall (the wall is behind, -x), sliding down, cloak lifting, one hand on the wall
+  
     out["wall"] = [P(lean=-1, footF=v(24, 43), footB=v(17, 40), handF=v(31, 29), handB=v(13, 24), elbow_down_B=False,
                      blade=30, trail=0.0, lift=0.7, flutter=f) for f in (0, 1.5)]
     out["hurt"] = [P(lean=-3, head=v(-1, 0), footF=v(26, FEET), footB=v(19, FEET), handF=v(31, 22), handB=v(15, 23),
@@ -318,46 +290,39 @@ def poses():
     return out
 
 
-# --------------------------------------------------------------- body parts
 def draw_body(p, girl):
     L = Layer()
     h = p.headc
     if girl:
-        # cable braid swinging behind the head, glowing bead at the end
+      
         tip = h + v(-7 - p.trail * 3, 7 + p.lift * 3) + v(0, math.sin(p.flutter) * 0.8)
         L.paint(capsule(h + v(-4, -1), tip, 1.4, 1.1), STEEL_BACK)
         L.paint(disk(tip[0], tip[1], 1.6), [STEEL[0], (30, 140, 160), CYAN, CYAN_HI, CYAN_HI], deep=False)
-    # back arm and back leg (further away: darker steel)
+
     L.paint(capsule(p.shB, p.elbowB, 1.6) | capsule(p.elbowB, p.handB, 1.5), STEEL_BACK)
     L.paint(disk(p.handB[0], p.handB[1], 1.9), STEEL_BACK)
     L.paint(capsule(p.hipB, p.kneeB, 1.9, 1.6) | capsule(p.kneeB, p.footB, 1.6, 1.3), STEEL_BACK)
     L.paint(poly([p.footB + v(-2, -1.5), p.footB + v(3, -1.5), p.footB + v(4, 0.5), p.footB + v(-2, 0.5)]), STEEL_BACK)
-    # torso: chest wider than the waist; the girl chassis is narrower with a nipped waist
     sh, hp = p.sh, p.hip
     cw, ww, hw = (4.0, 2.6, 3.6) if girl else (4.8, 3.6, 4.0)
     torso = poly([sh + v(-cw, -1), sh + v(cw, -1), sh + v(cw - 0.5, 3), hp + v(ww, -3), hp + v(hw, 0.5),
                   hp + v(-hw, 0.5), hp + v(-ww, -3), sh + v(-cw + 0.5, 3)])
     L.paint(torso, STEEL)
-    # chest plate seam and the core light
     core = sh + v(1.5 + p.lean * 0.1, 4)
     L.line(sh + v(-2, 2), sh + v(2.5, 2), STEEL[1])
     L.stamp(disk(core[0], core[1], 1.6), CYAN)
     L.dot(core[0] - 0.5, core[1] - 0.5, CYAN_HI)
-    # waist joint
     L.line(hp + v(-ww, -2.5), hp + v(ww, -2.5), STEEL[1])
-    # front leg
     L.paint(capsule(p.hipF, p.kneeF, 2.0, 1.7) | capsule(p.kneeF, p.footF, 1.7, 1.4), STEEL)
     L.paint(disk(p.kneeF[0], p.kneeF[1], 1.6), STEEL, deep=False)
     L.paint(poly([p.footF + v(-2, -1.5), p.footF + v(3.5, -1.5), p.footF + v(4.5, 0.5), p.footF + v(-2, 0.5)]), STEEL)
-    # neck + head shell
     L.paint(capsule(sh + v(0.5, -1), h + v(0, 5), 1.6), STEEL_BACK)
     L.paint(disk(h[0], h[1], 7.0), STEEL)
     if not girl:
-        L.paint(capsule(h + v(-1, -6.5), h + v(-2, -9.5), 0.8), STEEL)   # antenna nub
+        L.paint(capsule(h + v(-1, -6.5), h + v(-2, -9.5), 0.8), STEEL) 
         L.dot(h[0] - 2, h[1] - 10, CYAN)
     else:
-        L.paint(ellipse(h[0] - 0.5, h[1] - 6.2, 4.5, 1.8), STEEL)       # rounded crest
-    # ear plate
+        L.paint(ellipse(h[0] - 0.5, h[1] - 6.2, 4.5, 1.8), STEEL) 
     L.paint(disk(h[0] - 3, h[1] + 0.5, 2.2), STEEL_BACK, deep=False)
     L.dot(h[0] - 3, h[1] + 0.5, CYAN)
     return L.outline(STEEL[0])
@@ -390,7 +355,7 @@ def draw_face(p):
             e = c + v(ex, -0.4)
             L.line(e + v(-1, -1), e + v(1, 1), RED)
             L.line(e + v(-1, 1), e + v(1, -1), RED)
-    else:  # off: a dim line
+    else: 
         L.line(c + v(-2.5, 0), c + v(2.5, 0), (40, 60, 80))
     return L.outline(GLASS[0])
 
@@ -404,12 +369,11 @@ def draw_blade(p):
     n = v(-d[1], d[0])
     hand = p.handF
     pommel = hand - d * 3.5
-    # grip + pommel (brass), guard across the blade
     L.paint(capsule(pommel, hand + d * 0.5, 1.1), BRASS, deep=False)
     L.paint(disk(pommel[0], pommel[1], 1.3), BRASS, deep=False)
     g = hand + d * 1.5
     L.paint(capsule(g - n * 2.8, g + n * 2.8, 0.9), BRASS, deep=False)
-    # the light blade: soft halo, cyan edge, white core, tapering to the tip
+
     base = hand + d * 2.5
     tip = hand + d * 13.5
     for k in range(18):
@@ -421,31 +385,25 @@ def draw_blade(p):
             L.dot(o[0], o[1], CYAN, 70)
     L.stamp(capsule(base, tip, 1.5, 0.4), CYAN)
     L.stamp(capsule(base, tip - d * 2, 0.6, 0.2), CYAN_HI)
-    L.dot(pommel[0] - d[0] * 1.5, pommel[1] - d[1] * 1.5, CYAN)   # where the wire attaches
+    L.dot(pommel[0] - d[0] * 1.5, pommel[1] - d[1] * 1.5, CYAN) 
     return L
 
 
-# --------------------------------------------------------------- outfit parts
 def draw_pants(p, item):
     L = Layer()
     R = ramp_from(item["color"])
     A = ramp_from(item["accent"]) if item["accent"] else R
     hp = p.hip
-    # waistband + seat
     L.paint(poly([hp + v(-4.8, -3), hp + v(4.8, -3), hp + v(5.2, 1.5), hp + v(-5.2, 1.5)]), R)
-    # baggy legs: wide at the thigh and knee, gathered into cuffs at the ankle
     for hip, knee, foot, ramp in ((p.hipB, p.kneeB, p.footB, [R[0], R[0], R[1], R[2], R[3]]), (p.hipF, p.kneeF, p.footF, R)):
         leg = capsule(hip, knee, 3.4, 3.2) | capsule(knee, foot + v(0, -2.5), 3.2, 2.4)
         L.paint(leg, ramp)
         L.paint(capsule(foot + v(-1.5, -2.6), foot + v(1.5, -2.6), 1.2), [ramp[0], ramp[1], ramp[1], ramp[2], ramp[3]], deep=False)
-    # cargo pocket on the front thigh, with its flap
     mid = p.hipF + (p.kneeF - p.hipF) * 0.55
     L.paint(poly([mid + v(-1, -2), mid + v(3, -2), mid + v(3, 2), mid + v(-1, 2)]), A if item["accent"] else R)
     L.line(mid + v(-1, -2), mid + v(3, -2), (A if item["accent"] else R)[3])
-    # belt + buckle
     L.line(hp + v(-4.8, -2.5), hp + v(4.8, -2.5), R[0])
     L.dot(hp[0] + 2, hp[1] - 2.5, BRASS[3])
-    # knee crease
     L.dot(p.kneeF[0] + 1, p.kneeF[1], R[1])
     L.dot(p.kneeF[0] + 1, p.kneeF[1] + 1, R[1])
     return L.outline(R[0])
@@ -457,8 +415,8 @@ def draw_shoes(p, item):
     for foot, ramp in ((p.footB, [R[0], R[0], R[1], R[2], R[2]]), (p.footF, R)):
         boot = poly([foot + v(-2.5, -3.5), foot + v(1.5, -3.5), foot + v(3, -2), foot + v(5, -1.2), foot + v(5, 0.6), foot + v(-2.5, 0.6)])
         L.paint(boot, ramp)
-        L.line(foot + v(-2.5, 0.4), foot + v(5, 0.4), (32, 26, 26))      # sole
-        L.dot(foot[0] + 1, foot[1] - 2.5, ramp[4])                      # laces
+        L.line(foot + v(-2.5, 0.4), foot + v(5, 0.4), (32, 26, 26))
+        L.dot(foot[0] + 1, foot[1] - 2.5, ramp[4]) 
         L.dot(foot[0] + 2, foot[1] - 1.8, ramp[3])
     return L.outline(R[0])
 
@@ -470,10 +428,8 @@ def draw_shirt(p, item):
     vest = poly([sh + v(-5.4, -1.5), sh + v(5.2, -1.5), sh + v(5.0, 3), hp + v(4.6, -1.5), hp + v(4.6, 0),
                  hp + v(-4.6, 0), hp + v(-4.6, -1.5), sh + v(-5.0, 3)])
     L.paint(vest, R)
-    # open V collar shows the chassis
     L.stamp(poly([sh + v(0, -1.6), sh + v(3, -1.6), sh + v(1.5, 2.5)]), STEEL[2])
     if item["id"] == "shirt_hazard_vest":
-        # reflective stripes
         for y in (3.5, 7.0):
             yy = sh[1] + y + (hp[1] - sh[1] - 10) * 0.3
             L.line(v(sh[0] - 5, yy), v(sh[0] + 5, yy), (230, 232, 220))
@@ -483,7 +439,6 @@ def draw_shirt(p, item):
 
 
 def cloak_points(p, length=17.5):
-    """Outline of the back drape: from the shoulders down to a wavy hem behind the body."""
     sh = p.sh
     up = v(0, -1)
     back = v(-1, 0)
@@ -514,26 +469,25 @@ def draw_cloak_back(p, item):
     A = ramp_from(item["accent"]) if item["accent"] else R
     pts, hem = cloak_points(p)
     shape = poly(pts)
-    dark = [R[0], R[0], R[1], R[2], R[2]]          # the inside of the cloak, in shade
+    dark = [R[0], R[0], R[1], R[2], R[2]] 
     L.paint(shape, dark)
-    # folds
     for k in range(1, 4):
         a = pts[1] + (hem[min(k * 2, len(hem) - 1)] - pts[1]) * 0.25
         b = hem[min(k * 2, len(hem) - 1)]
         L.line(a, b, R[0])
     style = item["id"]
-    if style == "cloak_rust":       # tattered hem: notches bitten out
+    if style == "cloak_rust": 
         for i, hpt in enumerate(hem[1:-1]):
             if i % 2 == 0:
                 L.rgba[int(np.clip(hpt[1] - 1, 0, S - 1)), int(np.clip(hpt[0], 0, S - 1)), 3] = 0
                 L.rgba[int(np.clip(hpt[1] - 2, 0, S - 1)), int(np.clip(hpt[0], 0, S - 1)), 3] = 0
-    if style == "cloak_teal":       # neon trim along the hem
+    if style == "cloak_teal":        neon trim along the hem
         for a, b in zip(hem[:-1], hem[1:]):
             L.line(a, b, CYAN)
-    if style == "cloak_wren":       # old tram conductor's coat: brass trim along the hem
+    if style == "cloak_wren": 
         for a, b in zip(hem[:-1], hem[1:]):
             L.line(a, b, BRASS[3])
-    if style == "cloak_bellows":    # Bellows Kin frock coat: a verdigris band above the hem
+    if style == "cloak_bellows": 
         for a, b in zip(hem[:-1], hem[1:]):
             L.line(a + v(0, -1.5), b + v(0, -1.5), A[2])
     if style == "cloak_patchwork":
@@ -544,7 +498,6 @@ def draw_cloak_back(p, item):
 
 
 def draw_cloak_front(p, item):
-    """Short capelet over the shoulders with a clasp at the throat."""
     L = Layer()
     R = ramp_from(item["color"])
     A = ramp_from(item["accent"]) if item["accent"] else BRASS
@@ -573,8 +526,6 @@ def draw_cloak_front(p, item):
 
 
 def draw_hood(p, item):
-    """The pointy hood: a cap around the head with a face opening and a long
-    tip drooping back (the concept's 'Link' cap), frayed at the edge."""
     L = Layer()
     R = ramp_from(item["color"])
     h = p.headc
@@ -591,7 +542,6 @@ def draw_hood(p, item):
     opening = ellipse(h[0] + 2.6, h[1] + 1.0, 5.4, 5.0)
     shape &= ~opening
     L.paint(shape, R)
-    # rim of the opening catches light; a seam down the cap
     rim = shifted(opening, 0, 0) & ~opening
     ring = (shifted(opening, 1, 0) | shifted(opening, -1, 0) | shifted(opening, 0, 1) | shifted(opening, 0, -1)) & shape
     L.stamp(ring, R[1])
@@ -610,7 +560,6 @@ def draw_mask(p, item):
     h = p.headc
     c = h + v(2.2, 0.8)
     if item["id"] == "mask_monocle":
-        # a single round verdigris lens in a brass rim over the front eye, on a fine chain
         e = c + v(1.8, -0.6)
         L.paint(disk(e[0], e[1], 2.4), BRASS, deep=False)
         L.stamp(disk(e[0], e[1], 1.4), A[2] if p.eyes != "hurt" else RED)
@@ -618,7 +567,6 @@ def draw_mask(p, item):
         L.line(e + v(0.5, 2.3), e + v(-1.5, 6.0), BRASS[3])
         return L.outline(R[0])
     if item["id"] == "mask_brass_goggles":
-        # strap round the head, two round brass goggles, glowing glass
         L.line(c + v(-9, -1.5), c + v(-2, -1.5), (60, 40, 30))
         for ex in (-1.6, 2.2):
             e = c + v(ex, -0.6)
@@ -628,7 +576,6 @@ def draw_mask(p, item):
             L.dot(e[0] - 0.6, e[1] - 0.6, A[4])
         L.line(c + v(0, -0.6), c + v(0.6, -0.6), BRASS[1])
     else:
-        # scrap plate over the lower face with two eye slits
         plate = ellipse(c[0] + 0.2, c[1] + 0.6, 4.8, 4.2) & (PY > c[1] - 2.5)
         L.paint(plate, R)
         for ex in (-1.6, 1.8):
@@ -642,7 +589,7 @@ def draw_mask(p, item):
     return L.outline(R[0])
 
 
-# --------------------------------------------------------------- items
+
 def read_cosmetics():
     items = []
     d = os.path.join(ROOT, "data", "cosmetics")
@@ -700,7 +647,6 @@ def write_frames(name):
 
 
 def icon_from(layer):
-    """Crop a layer's idle frame to its content and centre it in a 32x32 icon (2x if it fits)."""
     a = layer.rgba
     ys, xs = np.nonzero(a[:, :, 3])
     if len(xs) == 0:
@@ -730,7 +676,6 @@ def main():
         else:
             icon_layer = DRAW[SLOT_LAYERS[item["slot"]][0]](idle, item)
         icon_from(icon_layer).save(os.path.join(ICONS, item["id"] + ".png"))
-    # the thrown blade (world sprite): 20x9, pointing right
     b = Layer()
     tp = P(handF=v(16, 24), blade=0)
     b = draw_blade(tp)
