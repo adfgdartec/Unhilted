@@ -1,0 +1,15 @@
+# Godot cache and local settings
+.godot/
+*.tmp
+export_credentials.cfg
+
+# exported builds go on GitHub Releases, not in the repo
+build/
+
+# Python caches from the art tools
+__pycache__/
+*.pyc
+
+# OS junk
+.DS_Store
+Thumbs.db
