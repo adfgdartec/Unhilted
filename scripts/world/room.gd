@@ -1,19 +1,10 @@
 @tool
 class_name Room
 extends Node2D
-## A handmade room (one "screen" area, Hollow Knight style).
-## Placeholder level geometry is a list of rectangles in `solids`. Edit them in
-## the Inspector and they redraw live in the editor. When you have real tiles,
-## add a TileMapLayer child instead and leave `solids` empty.
-##
-## Children it expects:
-##   Spawns (Node2D) with Marker2D children: where the player appears (by name)
-##   RoomExit areas, NPCs, pickups, enemies, etc.
 
 @export var room_id: StringName = &"room"
 @export var region_id: StringName = &"heap"
 @export var display_name := ""
-## Camera limits / room size in pixels.
 @export var bounds := Rect2(0, 0, 640, 360):
 	set(v):
 		bounds = v
@@ -22,28 +13,18 @@ extends Node2D
 	set(v):
 		solids = v
 		queue_redraw()
-## How each solid looks (same order as solids): "ground" (packed junk with a
-## sunlit lumpy top), "girder" (painted steel I-beam), "container" (shipping
-## container), "rock" (compacted junk that tunnels are carved through),
-## "ceiling" (cave roof), or "tiles" (the room's tileset). Missing entries default to
-## "tiles" in industrial rooms and "ground" elsewhere.
 @export var solid_styles: PackedStringArray = []:
 	set(v):
 		solid_styles = v
 		queue_redraw()
-## Which tileset paints the solid geometry.
 @export_enum("heap_scrap", "heap_industrial") var tileset := "heap_scrap":
 	set(v):
 		tileset = v
 		queue_redraw()
-## Which parallax background sits behind the room ("none" = flat gradient).
 @export_enum("heap_outdoor", "heap_cave", "intake_interior", "uw_vault", "uw_works", "none") var backdrop := "heap_outdoor"
 @export_group("Atmosphere")
-## Looping track from res://audio/music (cave, camp, hollow, industrial, boss, title).
 @export var music := ""
-## Ambient light level (CanvasModulate). Real lights brighten from here.
 @export var ambient := Color(0.62, 0.6, 0.74)
-## Colour grade used by the post-processing pass (see PostFX.GRADES).
 @export var grade: StringName = &"heap"
 @export_enum("none", "rain") var weather := "none"
 @export var motes_color := Color(0.85, 0.75, 0.8, 0.35)
@@ -57,10 +38,9 @@ const TILESETS := {
 	"heap_scrap": preload("res://art/tiles/heap_scrap.png"),
 	"heap_industrial": preload("res://art/tiles/heap_industrial.png"),
 }
-const T := 16 ## tile size
+const T := 16
 const DECALS := preload("res://art/tiles/ground_decals.png")
 
-# Painterly terrain colours (dusk: warm light from the upper right)
 const GROUND := Color8(44, 32, 34)
 const RIM_HOT := Color8(222, 146, 92)
 const RIM := Color8(140, 90, 70)
@@ -104,9 +84,6 @@ func _ready() -> void:
 
 var _painted := false
 
-## A pixel-painted terrain layer (tools/art/build_room_art.py) replaces the
-## code-drawn solids when an art variant is active and this room has one.
-## Collision is unchanged: it still comes from solids.
 func _apply_painted_art() -> void:
 	if Fx.art_variant == "":
 		return
@@ -146,7 +123,6 @@ func _add_atmosphere() -> void:
 		r.emitting = true
 
 
-## World position of a spawn marker (falls back to the room centre).
 func get_spawn(spawn_name: StringName) -> Vector2:
 	var marker := get_node_or_null("Spawns/" + String(spawn_name)) as Node2D
 	if marker == null:
@@ -168,7 +144,6 @@ func _spawn_lost_scrap() -> void:
 
 
 func _draw() -> void:
-	# Flat gradient only in the editor (or with no backdrop); in game the Backdrop draws behind.
 	if Engine.is_editor_hint() or backdrop == "none":
 		var bands := 12
 		for b in bands:
@@ -202,9 +177,6 @@ func _hash(a: int, b: int) -> int:
 	return absi((a * 73856093) ^ (b * 19349663)) % 1009
 
 
-## Packed junk: flat body, a few pressed-in debris shapes, and a lumpy top edge
-## lit by the low sun (hotter where the surface tilts toward it), with moss and
-## the odd bit of rebar. Edges stay within 2 px of the collision box.
 func _draw_ground(r: Rect2) -> void:
 	draw_rect(r, GROUND)
 	var gy := r.position.y + 7.0
@@ -217,7 +189,6 @@ func _draw_ground(r: Rect2) -> void:
 				draw_texture_rect_region(DECALS, Rect2(gx, gy + jitter, 14, 10), Rect2((h / 4 % 6) * 14, 0, 14, 10))
 			gx += 26.0 + float(h % 31)
 		gy += 15.0
-	# exposed sides first, so the top edge draws over their corners
 	if not _solid_at(Vector2(r.position.x - 1.0, r.position.y + 4.0)):
 		var y := r.position.y
 		while y < r.end.y:
@@ -250,18 +221,13 @@ func _draw_ground(r: Rect2) -> void:
 		draw_line(a, b, RIM_HOT if b.y >= a.y else RIM, 1.0)
 		draw_line(a + Vector2(0, 1), b + Vector2(0, 1), RIM.darkened(0.35), 1.0)
 		var h := _hash(int(a.x), 17)
-		if h % 5 == 0:  # moss tufts
+		if h % 5 == 0:
 			draw_line(a, a + Vector2(-1, -3), MOSS, 1.0)
 			draw_line(a + Vector2(1, 0), a + Vector2(2, -2), MOSS, 1.0)
-		elif h % 13 == 0:  # rebar sticking out of the pile
+		elif h % 13 == 0:
 			draw_line(a + Vector2(0, 1), a + Vector2(3, -6), Color8(84, 62, 58), 1.0)
 
 
-## Compacted junk the tunnels are cut through. Unlike "ground", every edge is
-## worked out per 4 px against the other solids, so a tunnel carved out of many
-## rectangles reads as one mass: lumpy cave-lit tops (cooler than the sunlit
-## surface ground), ragged undersides that drip cables and grit, shaded sides,
-## and pressed-in junk inside. Edges stay within 3 px of the collision box.
 func _draw_rock(r: Rect2) -> void:
 	var body := GROUND.darkened(0.18)
 	draw_rect(r, body)
@@ -276,7 +242,6 @@ func _draw_rock(r: Rect2) -> void:
 		gy += 14.0
 	var top_lit := Color8(156, 120, 104)
 	var top_hot := Color8(196, 150, 112)
-	# a slightly lighter band just inside every open edge, so tunnel walls read as rounded
 	var band := body.lightened(0.07)
 	var by := r.position.y
 	while by < r.end.y:
@@ -294,7 +259,6 @@ func _draw_rock(r: Rect2) -> void:
 		if not _solid_at(Vector2(bx + bw * 0.5, r.end.y + 1.0)):
 			draw_rect(Rect2(bx, r.end.y - minf(6.0, r.size.y), bw, minf(6.0, r.size.y)), band.darkened(0.15))
 		bx += 4.0
-	# sides
 	var y := r.position.y
 	while y < r.end.y:
 		var hh := minf(4.0, r.end.y - y)
@@ -303,17 +267,16 @@ func _draw_rock(r: Rect2) -> void:
 		if not _solid_at(Vector2(r.end.x + 1.0, y + hh * 0.5)):
 			draw_rect(Rect2(r.end.x - 2.0, y, 2.0, hh), SHADE)
 		y += 4.0
-	# top and bottom edges
 	var x := r.position.x
 	while x < r.end.x:
 		var w := minf(4.0, r.end.x - x)
 		var h := _hash(int(x), int(r.position.y) + 5)
 		if not _solid_at(Vector2(x + w * 0.5, r.position.y - 1.0)):
-			var off := float(h % 3) - 1.0          # lumpy, -1..1 px
+			var off := float(h % 3) - 1.0
 			draw_rect(Rect2(x, r.position.y + minf(off, 0.0), w, 3.0 - minf(off, 0.0)), body)
 			draw_rect(Rect2(x, r.position.y + off, w, 1.0), top_hot if h % 5 == 0 else top_lit)
 			draw_rect(Rect2(x, r.position.y + off + 1.0, w, 1.0), RIM.darkened(0.4))
-			if h % 9 == 0:   # a tuft of cave moss
+			if h % 9 == 0:
 				draw_line(Vector2(x + 1.0, r.position.y + off), Vector2(x, r.position.y + off - 2.0), MOSS.darkened(0.2), 1.0)
 		var hb := _hash(int(x), int(r.end.y) + 31)
 		if not _solid_at(Vector2(x + w * 0.5, r.end.y + 1.0)):
@@ -327,7 +290,6 @@ func _draw_rock(r: Rect2) -> void:
 		x += 4.0
 
 
-# ------------------------------------------------------------------ Underworks
 const BRICK := Color8(78, 42, 34)
 const BRICK_LO := Color8(58, 30, 26)
 const BRICK_HI := Color8(104, 58, 44)
@@ -346,10 +308,6 @@ const IRON := Color8(40, 40, 46)
 const IRON_HI := Color8(90, 92, 100)
 
 
-## Vault brick, the Underworks' walls and floors: courses of dark red brick in
-## black mortar, a pale stone coping lit by gaslight along every open top
-## edge, verdigris weeping from the undersides, shaded sides. Edges are worked
-## out per 4 px against the other solids, like "rock".
 func _draw_brick(r: Rect2) -> void:
 	draw_rect(r, MORTAR)
 	var row := 0
@@ -369,7 +327,6 @@ func _draw_brick(r: Rect2) -> void:
 			x += 16.0
 		y += 6.0
 		row += 1
-	# top: stone coping; bottom: verdigris drips; sides: shade
 	var cx := r.position.x
 	while cx < r.end.x:
 		var w := minf(4.0, r.end.x - cx)
@@ -398,8 +355,6 @@ func _draw_brick(r: Rect2) -> void:
 		sy += 4.0
 
 
-## A copper steam pipe you can stand on: rounded shading top to bottom,
-## flanges with bolts every 48 px. Tall thin rects become upright pipes.
 func _draw_pipe(r: Rect2) -> void:
 	var vertical := r.size.y > r.size.x * 1.5
 	var thick := r.size.x if vertical else r.size.y
@@ -421,15 +376,13 @@ func _draw_pipe(r: Rect2) -> void:
 			draw_rect(Rect2(r.position.x + t, r.position.y - 1, 4, r.size.y + 2), BRASS_LO)
 			draw_rect(Rect2(r.position.x + t, r.position.y - 1, 1, r.size.y + 2), BRASS_HI)
 			draw_rect(Rect2(r.position.x + t + 1, r.position.y + 1, 1, 1), BRASS_HI)
-			if h % 4 == 0: # a weep of verdigris at the joint
+			if h % 4 == 0:
 				draw_rect(Rect2(r.position.x + t + 1, r.end.y, 1, 2 + h % 3), VERDIGRIS)
 		t += 48.0
 	if not vertical:
 		draw_rect(Rect2(r.position.x, r.position.y, r.size.x, 1), COPPER_HI.lightened(0.15))
 
 
-## An iron walkway grate: a frame with see-through slats (the room behind
-## shows between them), rivets at the ends.
 func _draw_grate(r: Rect2) -> void:
 	draw_rect(Rect2(r.position.x, r.position.y, r.size.x, 2), IRON_HI)
 	draw_rect(Rect2(r.position.x, r.position.y + 2, r.size.x, 1), IRON)
@@ -444,7 +397,6 @@ func _draw_grate(r: Rect2) -> void:
 	draw_rect(Rect2(r.position.x, r.end.y, r.size.x, 1), Color(0, 0, 0, 0.35))
 
 
-## Riveted brass plate, for machinery floors and The Pendulum's hall.
 func _draw_plate(r: Rect2) -> void:
 	draw_rect(r, BRASS_LO)
 	var y := r.position.y
@@ -470,9 +422,6 @@ func _draw_plate(r: Rect2) -> void:
 		cx += 4.0
 
 
-## The cave roof: the underside of the heap. Darker than the ground, with
-## pressed-in junk, a ragged underside that drips cables and grit, and a
-## faint warm bounce light along the lower edge. Stays within 3 px of the box.
 func _draw_ceiling(r: Rect2) -> void:
 	var body := GROUND.darkened(0.35)
 	draw_rect(r, body)
@@ -490,17 +439,16 @@ func _draw_ceiling(r: Rect2) -> void:
 	var x := r.position.x
 	while x < r.end.x:
 		var h := _hash(int(x), int(r.end.y) + 31)
-		var lip := float(h % 4)                     # ragged edge, 0-3 px below the box
+		var lip := float(h % 4)
 		draw_rect(Rect2(x, r.end.y - 2.0, 4.0, 2.0 + lip), body)
 		draw_rect(Rect2(x, r.end.y + lip - 1.0, 4.0, 1.0), RIM.darkened(0.45))
-		if h % 11 == 0:   # a dangling cable end
+		if h % 11 == 0:
 			draw_line(Vector2(x + 2.0, r.end.y + lip), Vector2(x + 2.0, r.end.y + lip + 4.0 + float(h % 5)), Color8(30, 22, 26), 1.0)
-		elif h % 17 == 0: # a grit drip catching the light
+		elif h % 17 == 0:
 			draw_rect(Rect2(x + 1.0, r.end.y + lip + 1.0, 1.0, 2.0), RIM)
 		x += 4.0
 
 
-## Painted steel I-beam (horizontal, or vertical when tall and thin).
 func _draw_girder(r: Rect2) -> void:
 	var vertical := r.size.y > r.size.x * 1.5
 	draw_rect(r, GIRDER_DARK)
@@ -533,7 +481,6 @@ func _draw_girder(r: Rect2) -> void:
 	draw_rect(Rect2(r.end.x - 2.0, r.position.y, 2, h), GIRDER_MID)
 
 
-## Oxidised shipping container used as a platform.
 func _draw_container(r: Rect2) -> void:
 	draw_rect(r, CONT)
 	var x := r.position.x + 4.0
@@ -553,8 +500,6 @@ func _draw_container(r: Rect2) -> void:
 		draw_rect(Rect2(r.position.x + 7.0, r.position.y + 5.0, 8, 2), Color(0.88, 0.85, 0.78, 0.55))
 
 
-## Paints one solid rectangle cell by cell: a fill variant, then a top cap,
-## side edges and an underside wherever that side is open (no solid there).
 func _draw_tiles(r: Rect2, tex: Texture2D) -> void:
 	var x := r.position.x
 	while x < r.end.x - 0.01:

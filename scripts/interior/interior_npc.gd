@@ -1,9 +1,5 @@
 class_name InteriorNPC
 extends Node2D
-## Puts an ordinary NPC (look, lines, quest, shop) into a top-down interior.
-## The NPC node stands in the room and draws itself as usual; this node makes
-## it talkable from the room, gives it a solid footprint and has it turn to
-## face the robot. Sits at the same position as its NPC.
 
 @export var npc_path: NodePath
 @export var footprint := Vector2(12, 6)
@@ -22,7 +18,6 @@ func _setup() -> void:
 	if npc == null:
 		push_warning("InteriorNPC %s: no NPC at %s" % [name, npc_path])
 		return
-	# talking goes through the room, not the NPC's own trigger area
 	npc.set_deferred("monitoring", false)
 	npc.set_deferred("monitorable", false)
 	npc.collision_layer = 0

@@ -1,7 +1,4 @@
 extends Node
-## Runs every side quest from QuestData resources. Objectives progress by
-## listening to EventBus signals, so adding a quest never needs new code.
-## Quest flow: LOCKED -> AVAILABLE -> ACTIVE -> COMPLETE (ready to turn in) -> TURNED_IN
 
 const S := GameState.QuestState
 
@@ -31,7 +28,6 @@ func accept(id: StringName) -> void:
 		return
 	var progress := []
 	for obj in quest.objectives:
-		# Items found before the quest was accepted still count.
 		if obj.type == QuestObjective.Type.COLLECT:
 			progress.append(mini(GameState.key_item_count(obj.target_id), obj.count))
 		else:
@@ -63,7 +59,6 @@ func turn_in(id: StringName) -> void:
 	EventBus.quest_updated.emit(id)
 
 
-## Text for the HUD tracker: the first active quest and its objectives.
 func tracker_text() -> String:
 	for id in GameState.quest_states:
 		var state := get_state(id)

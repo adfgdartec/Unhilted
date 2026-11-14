@@ -1,13 +1,5 @@
 class_name Keybinds
 extends RefCounted
-## Control schemes and rebinding. The keyboard and mouse bindings of every
-## action come from a preset (Standard, Arrows + ZXC, WASD + JKL) and can be
-## overridden per action from Settings > Controls. Gamepad bindings are never
-## touched, so a controller always works. Fx loads and saves the choice in
-## user://settings.cfg ([controls] preset / custom).
-##
-## Bindings are written as short strings: "key:Space", "key:Shift",
-## "mouse:1" (left), "mouse:2" (right), "mouse:3" (middle).
 
 const PRESET_ORDER := ["standard", "arrows", "jkl"]
 const PRESET_NAMES := {
@@ -16,7 +8,6 @@ const PRESET_NAMES := {
 	"jkl": "WASD + J K L",
 }
 
-## The actions a player can rebind, in menu order, with their names.
 const ACTIONS := [
 	["move_left", "Move left"], ["move_right", "Move right"], ["move_up", "Look / aim up"],
 	["move_down", "Look / aim down"], ["jump", "Jump"], ["attack", "Attack"], ["throw", "Throw blade"],
@@ -24,8 +15,6 @@ const ACTIONS := [
 	["map", "Map"],
 ]
 
-## move_up / move_down feed aim_up / aim_down; move_left / move_right feed
-## both the move_ and aim_ actions.
 const PRESETS := {
 	"standard": {
 		"move_left": ["key:A", "key:Left"], "move_right": ["key:D", "key:Right"],
@@ -76,7 +65,6 @@ static func _event(desc: String) -> InputEvent:
 	return k
 
 
-## A binding string for an event the player just pressed (null if it can't be bound).
 static func describe_event(event: InputEvent) -> String:
 	if event is InputEventKey:
 		var code: int = event.physical_keycode if event.physical_keycode != KEY_NONE else event.keycode
@@ -95,19 +83,16 @@ static func pretty(desc: String) -> String:
 	return desc.trim_prefix("key:")
 
 
-## The bindings an action ends up with for this preset + custom overrides.
 static func bindings(action: String, preset: String, custom: Dictionary) -> Array:
 	if custom.has(action):
 		return custom[action]
 	return PRESETS.get(preset, PRESETS["standard"]).get(action, [])
 
 
-## "Space", "Shift / L": what to show in menus and on the title screen.
 static func label(action: String, preset: String, custom: Dictionary) -> String:
 	return " / ".join(bindings(action, preset, custom).map(func(d): return pretty(d)))
 
 
-## Rewrite the keyboard and mouse events of every action. Gamepad events stay.
 static func apply(preset: String, custom: Dictionary) -> void:
 	for entry in ACTIONS:
 		var action: String = entry[0]
@@ -124,7 +109,6 @@ static func apply(preset: String, custom: Dictionary) -> void:
 					InputMap.action_add_event(target, ev)
 
 
-## One line per scheme for the title screen and the opening tip.
 static func summary(preset: String, custom: Dictionary) -> String:
 	var mv := "%s %s %s %s" % [label("move_up", preset, custom).get_slice(" / ", 0), label("move_left", preset, custom).get_slice(" / ", 0),
 		label("move_down", preset, custom).get_slice(" / ", 0), label("move_right", preset, custom).get_slice(" / ", 0)]

@@ -1,9 +1,5 @@
 class_name Hitbox
 extends Area2D
-## Deals damage to Hurtboxes it overlaps.
-## - Swing mode (player melee): call begin_swing()/end_swing(); each target is hit once per swing.
-## - Continuous mode (enemy contact damage): keeps hitting while overlapping;
-##   the target's invulnerability frames stop it from hitting every frame.
 
 signal hit_landed(hurtbox: Hurtbox)
 

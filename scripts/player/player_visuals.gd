@@ -1,16 +1,5 @@
 class_name PlayerVisuals
 extends Node2D
-## "Paper doll" renderer: one AnimatedSprite2D per layer, all playing the same
-## animation in sync. Back to front:
-##   cloak_back, blade_back, body, pants, shoes, shirt, arm, cloak_front, face, hood, mask, blade
-## The sheets are drawn for a 1280x720 screen (96x96 frames) and shown at half
-## scale, so the robot keeps its size in the 640x360 world with 4x the pixels.
-## Sprites come from tools/art/build_character.py (one rig, every layer drawn
-## from the same joints, so any outfit lines up on every frame). If the body
-## sheets are missing it falls back to the old coloured placeholder shapes.
-##
-## Animation names every layer must provide:
-##   idle, run, jump, fall, attack, attack_up, attack_down, throw, grapple, dash, hurt, dead
 
 const LAYER_ORDER := ["cloak_back", "blade_back", "body", "pants", "shoes", "shirt", "arm", "cloak_front", "face", "hood", "mask", "blade"]
 const BODY_PATHS := ["res://art/character/frames/body_boy.tres", "res://art/character/frames/body_girl.tres"]
@@ -20,8 +9,8 @@ const SHARED := {
 	"blade": "res://art/character/frames/blade.tres",
 	"blade_back": "res://art/character/frames/blade_back.tres",
 }
-const FEET_OFFSET := Vector2(0, -40) ## 96x96 frames with the feet on row 88
-const SPRITE_SCALE := 0.5            ## sheets are drawn at 2x detail
+const FEET_OFFSET := Vector2(0, -40)
+const SPRITE_SCALE := 0.5
 const SLOT_LAYERS := {
 	CosmeticItem.Slot.HOOD: ["hood"],
 	CosmeticItem.Slot.MASK: ["mask"],
@@ -30,23 +19,21 @@ const SLOT_LAYERS := {
 	CosmeticItem.Slot.PANTS: ["pants"],
 	CosmeticItem.Slot.SHOES: ["shoes"],
 }
-## Real body art per chassis goes here later (index = GameState.Gender).
 @export var body_frames: Array[SpriteFrames] = [null, null]
 
-## Preview mode (title screen / wardrobe): don't read GameState automatically.
 @export var preview := false
 @export var preview_gender: GameState.Gender = GameState.Gender.BOY
 
-var sway := 0.0            ## Set by the player: -1..1 horizontal speed, makes the cloak trail.
+var sway := 0.0
 var blade_in_hand := true
 
 var anim := "idle"
 var _time := 0.0
 var _land_squash := 0.0
-var _pop := -1.0         ## respawn bounce timer, -1 when idle
+var _pop := -1.0
 var _gender: int = GameState.Gender.BOY
-var _colors: Dictionary = {}    ## slot -> [color, accent]
-var _layers: Dictionary = {}    ## layer name -> AnimatedSprite2D
+var _colors: Dictionary = {}
+var _layers: Dictionary = {}
 
 const STEEL := Color(0.55, 0.6, 0.66)
 const STEEL_DARK := Color(0.32, 0.36, 0.42)
@@ -74,7 +61,6 @@ func _ready() -> void:
 	refresh()
 
 
-## Re-reads chassis + outfit and assigns sprites / placeholder colours.
 func refresh(outfit_override: Variant = null) -> void:
 	_gender = preview_gender if preview else GameState.gender
 	var outfit: Dictionary = outfit_override if outfit_override is Dictionary else GameState.outfit
@@ -113,7 +99,6 @@ func land() -> void:
 	_land_squash = 1.0
 
 
-## Respawn: start squashed flat, spring up past full height, settle.
 func respawn_pop() -> void:
 	_pop = 0.0
 
@@ -126,7 +111,6 @@ func _sync_sprites() -> void:
 			sprite.frame = 0
 
 
-## Afterimages: show one exact frame and hold it.
 func freeze_frame(anim_name: String, frame_index: int) -> void:
 	anim = anim_name
 	for sprite: AnimatedSprite2D in _layers.values():
@@ -150,21 +134,17 @@ func _process(delta: float) -> void:
 	if not _uses_real_art():
 		queue_redraw()
 		return
-	# landing squash (sprites scale around the feet), and the blade layer only
-	# while the blade is actually in hand
 	var sq := Vector2(1.0 + _land_squash * 0.12, 1.0 - _land_squash * 0.14)
 	if _pop >= 0.0:
 		_pop += delta
 		var t := _pop / 0.7
-		var s := 1.0 - cos(t * PI * 2.5) * exp(-t * 3.5) * 0.45   # 0.55 squashed -> overshoot -> 1
+		var s := 1.0 - cos(t * PI * 2.5) * exp(-t * 3.5) * 0.45
 		sq *= Vector2(clampf(2.0 - s, 0.7, 1.4), s)
 		if t >= 1.0:
 			_pop = -1.0
 	for sprite: AnimatedSprite2D in _layers.values():
 		sprite.scale = sq * SPRITE_SCALE
 	_layers["blade"].visible = blade_in_hand and _layers["blade"].sprite_frames != null
-	# smooth motion on top of the frames: lean into speed (pivot at the feet),
-	# stretch on the way up, ease back to upright
 	if not preview:
 		var want := clampf(sway, -1.0, 1.0) * (0.07 if anim == "run" else 0.03)
 		if anim in ["dead", "hurt", "wall", "slide"]:
@@ -175,10 +155,6 @@ func _process(delta: float) -> void:
 				sprite.scale *= Vector2(0.96, 1.05)
 
 
-# ======================================================================
-# Placeholder drawing. Feet are at (0, 0); the robot is ~36 px tall.
-# Facing is handled by the parent flipping scale.x, so draw facing right.
-# ======================================================================
 func _draw() -> void:
 	if _uses_real_art():
 		return
@@ -212,59 +188,50 @@ func _draw() -> void:
 	var cloak: Array = _colors.get(CosmeticItem.Slot.CLOAK, [])
 	var trail := clampf(-absf(sway) * 6.0, -6.0, 0.0) - (4.0 if anim == "dash" else 0.0)
 
-	# --- cloak (back) ---
 	if not cloak.is_empty():
 		var flutter := sin(_time * 7.0) * 1.0
 		draw_colored_polygon(PackedVector2Array([
 			Vector2(-6, -27), Vector2(6, -27), Vector2(5 + trail * 0.3, -6),
 			Vector2(-9 + trail + flutter, -4), Vector2(-10 + trail, -14)]), cloak[1])
 
-	# --- legs + body (the robot chassis) ---
 	var narrow := 1.0 if _gender == GameState.Gender.GIRL else 0.0
 	draw_rect(Rect2(-4 + leg * 0.5, -8, 3, 8), STEEL_DARK)
 	draw_rect(Rect2(1 - leg * 0.5, -8, 3, 8), STEEL_DARK)
 	draw_rect(Rect2(-5 + narrow, -22, 10 - narrow * 2.0, 14), STEEL)
-	draw_rect(Rect2(-3 + narrow, -19, 6 - narrow * 2.0, 3), STEEL_DARK) # chest plate
-	draw_circle(Vector2(0, -16), 1.5, GLOW * Color(1, 1, 1, 0.8))      # core light
+	draw_rect(Rect2(-3 + narrow, -19, 6 - narrow * 2.0, 3), STEEL_DARK)
+	draw_circle(Vector2(0, -16), 1.5, GLOW * Color(1, 1, 1, 0.8))
 
-	# --- pants ---
 	var pants: Array = _colors.get(CosmeticItem.Slot.PANTS, [])
 	if not pants.is_empty():
 		draw_rect(Rect2(-5, -10, 10, 4), pants[0])
-		draw_rect(Rect2(-5 + leg * 0.5, -7, 4, 5), pants[0])   # baggy legs
+		draw_rect(Rect2(-5 + leg * 0.5, -7, 4, 5), pants[0])
 		draw_rect(Rect2(1 - leg * 0.5, -7, 4, 5), pants[0])
-		draw_rect(Rect2(-5, -10, 10, 1), pants[1])               # belt
+		draw_rect(Rect2(-5, -10, 10, 1), pants[1])
 
-	# --- shoes ---
 	var shoes: Array = _colors.get(CosmeticItem.Slot.SHOES, [])
 	var shoe_col: Color = shoes[0] if not shoes.is_empty() else STEEL_DARK.darkened(0.3)
 	draw_rect(Rect2(-5 + leg * 0.5, -2, 5, 2), shoe_col)
 	draw_rect(Rect2(1 - leg * 0.5, -2, 5, 2), shoe_col)
 
-	# --- shirt ---
 	var shirt: Array = _colors.get(CosmeticItem.Slot.SHIRT, [])
 	if not shirt.is_empty():
 		draw_rect(Rect2(-5 + narrow, -22, 10 - narrow * 2.0, 11), shirt[0])
 		draw_rect(Rect2(-5 + narrow, -18, 10 - narrow * 2.0, 1), shirt[1])
 
-	# --- cloak (front drape over the shoulders) ---
 	if not cloak.is_empty():
 		draw_colored_polygon(PackedVector2Array([
 			Vector2(-7, -27), Vector2(7, -27), Vector2(6, -19), Vector2(-7, -18)]), cloak[0])
 
-	# --- blade in hand (sigil blade) ---
 	if blade_in_hand and anim != "dead":
 		var hand := Vector2(6, -14)
 		var tip := hand + (Vector2(4, -12) if anim == "attack_up" else Vector2(10, 4) if anim == "attack_down" else Vector2(9, -6))
 		draw_line(hand, tip, GLOW, 2.0)
 		draw_line(hand, tip, Color.WHITE, 1.0)
 
-	# --- girl chassis: cable "braid" at the back of the head ---
 	if _gender == GameState.Gender.GIRL:
 		draw_line(Vector2(-5, -30), Vector2(-9, -22 + sin(_time * 4.0)), STEEL_DARK, 2.0)
 		draw_circle(Vector2(-9, -22 + sin(_time * 4.0)), 1.5, GLOW)
 
-	# --- hood (pointy cap that droops backwards) ---
 	var hood: Array = _colors.get(CosmeticItem.Slot.HOOD, [])
 	if not hood.is_empty():
 		var tip_sway := trail * 0.6 + sin(_time * 5.0) * 0.8
@@ -276,7 +243,6 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([
 			Vector2(-8, -27), Vector2(-8, -24), Vector2(-4, -23), Vector2(-6, -27)]), hood[1])
 
-	# --- face (round robot screen with two eyes) ---
 	var face_center := Vector2(1, -29)
 	draw_circle(face_center, 5.5, SCREEN)
 	var blink := fmod(_time + 0.3, 3.2) < 0.12
@@ -286,7 +252,6 @@ func _draw() -> void:
 		draw_rect(Rect2(face_center.x - 2.5, face_center.y - eye_h * 0.5, 1.5, eye_h), eye_col)
 		draw_rect(Rect2(face_center.x + 1.5, face_center.y - eye_h * 0.5, 1.5, eye_h), eye_col)
 
-	# --- mask (covers the screen, keeps eye slits) ---
 	var mask: Array = _colors.get(CosmeticItem.Slot.MASK, [])
 	if not mask.is_empty():
 		draw_circle(face_center, 5.0, mask[0])

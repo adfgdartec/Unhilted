@@ -1,5 +1,4 @@
 extends Node2D
-## Fading ghost of the robot left behind while dashing.
 
 var _age := 0.0
 const DURATION := 0.22

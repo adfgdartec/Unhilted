@@ -1,15 +1,9 @@
 extends PlayerState
-## Melee slash with the blade in hand: forward, up, or down (down = pogo in the air).
-## Feels like Hollow Knight's nail: you keep full movement while swinging, can
-## jump mid-swing, and can dash out once the hit frames are over.
-## Hold attack to keep swinging (Terraria autoswing); swings alternate sides.
-## Rush slash: swinging while moving fast (dash, zip, grapple, a long fall)
-## does +1 damage with a bigger arc, so momentum turns into damage.
 
 const DURATION := 0.24
 const ACTIVE_START := 0.03
 const ACTIVE_END := 0.14
-const CANCEL_AFTER := 0.14   ## dash / throw may interrupt after the hit frames
+const CANCEL_AFTER := 0.14
 
 var _time := 0.0
 var _combo := 1
@@ -22,7 +16,6 @@ func enter(msg := {}) -> void:
 	_time = 0.0
 	_swinging = false
 	_combo = int(msg.get("combo", 1))
-	# Right click swings toward the cursor; keys/stick use the 8-way aim.
 	var aim := player.aim_vector
 	if player.attack_from_mouse:
 		aim = (player.get_global_mouse_position() - (player.global_position + Player.BODY_CENTER)).normalized()
@@ -31,7 +24,7 @@ func enter(msg := {}) -> void:
 	_rush = player.recent_speed >= Player.RUSH_SPEED
 	hb.damage = int(player.stats.get_stat("melee_damage")) + (1 if _rush else 0)
 	if player.take_rebound():
-		hb.damage *= 2   # Rebound Strike: knocked down, hit back harder
+		hb.damage *= 2
 	match _direction:
 		"up": hb.rotation = -PI / 2.0
 		"down": hb.rotation = PI / 2.0
@@ -44,7 +37,7 @@ func physics_update(delta: float) -> void:
 	var keep_facing := player.facing
 	player.free_move(delta)
 	if _swinging:
-		player.facing = keep_facing # don't flip the hitbox mid-swing
+		player.facing = keep_facing
 
 	if _time >= ACTIVE_START and not _swinging and _time < ACTIVE_END:
 		_swinging = true
@@ -65,7 +58,7 @@ func physics_update(delta: float) -> void:
 
 	var next_at := Player.AUTOSWING_DELAY if player.attack_held and not player.attack_pressed else DURATION
 	if player.attack_pressed and _time >= CANCEL_AFTER:
-		next_at = _time # a fresh click chains straight into the next swing
+		next_at = _time
 	if _time >= next_at and (player.attack_held or player.attack_pressed) and player.blade == null:
 		player.consume_attack()
 		machine.transition("attack", {"combo": _combo + 1})
@@ -84,12 +77,11 @@ func is_rush() -> bool:
 
 func on_hit_landed() -> void:
 	if _rush:
-		Fx.hit_stop(0.04) # on top of the normal melee hit-stop
+		Fx.hit_stop(0.04)
 		Fx.shake(2.0)
 	if _direction == "down":
-		# Pogo: bounce off whatever we hit, Hollow Knight style.
 		player.velocity.y = player.jump_velocity * 0.85
 		player.jump_cut_armed = false
 		player.can_air_dash = true
 	elif _direction == "forward":
-		player.velocity.x -= player.facing * 90.0 # recoil, like the nail's knockback
+		player.velocity.x -= player.facing * 90.0

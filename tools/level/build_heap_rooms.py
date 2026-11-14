@@ -13,7 +13,6 @@ import re
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "scenes", "rooms", "heap")
 H = "res://scenes/rooms/heap/"
-# room id prefix -> scene folder, so exits can cross regions (heap_13 -> uw_01)
 REGION_DIRS = {"heap_": "heap", "uw_": "underworks"}
 
 
@@ -24,7 +23,6 @@ def room_path(room_id):
     return H + room_id + ".tscn"
 
 
-# ------------------------------------------------------------------ godot literals
 def V(x, y): return "Vector2(%g, %g)" % (x, y)
 def R(x, y, w, h): return "Rect2(%g, %g, %g, %g)" % (x, y, w, h)
 def C(r, g, b, a=1.0): return "Color(%g, %g, %g, %g)" % (r, g, b, a)
@@ -41,18 +39,17 @@ class RoomBuilder:
         self.id = room_id
         self.region = region
         self.out_dir = out_dir or OUT
-        self.bg = bg  # (top, bottom) colour hex strings for the room's sky fill
+        self.bg = bg
         self.head = dict(name=name, bounds=bounds, backdrop=backdrop, tileset=tileset, grade=grade, music=music,
                          ambient=ambient, motes=motes, motes_amount=motes_amount)
         self.solids = []
-        self.ext = {}       # path -> (id, type)
-        self.subs = []      # (id, text)
-        self.nodes = []     # text blocks
+        self.ext = {}
+        self.subs = []
+        self.nodes = []
         self.spawns = {}
         self.caps = 0
         self._n = 0
 
-    # resources
     def res(self, path, kind):
         if path not in self.ext:
             self.ext[path] = ("e%d" % (len(self.ext) + 1), kind)
@@ -63,14 +60,12 @@ class RoomBuilder:
         self.subs.append((sid, '[sub_resource type="RectangleShape2D" id="%s"]\nsize = Vector2(%g, %g)\n' % (sid, w, h)))
         return 'SubResource("%s")' % sid
 
-    # geometry
     def solid(self, x, y, w, h, style="ground"):
         self.solids.append(((x, y, w, h), style))
 
     def spawn(self, name, x, y):
         self.spawns[name] = (x, y)
 
-    # nodes
     def node(self, name, typ=None, script=None, scene=None, pos=None, props=None, parent="."):
         head = '[node name="%s"' % name
         if scene:
@@ -162,11 +157,9 @@ class RoomBuilder:
     def scaffold(self, name, columns=(), ties=(), stilts=(), hangers=(), ground_y=336, hang_top=0):
         props = {"columns": RA(columns), "ties": "PackedFloat32Array(%s)" % ", ".join("%g" % t for t in ties),
                  "stilts": RA(stilts), "ground_y": "%g" % ground_y, "hangers": RA(hangers), "hang_top": "%g" % hang_top}
-        # scaffolds go first so they draw behind everything
         self.node(name, "Node2D", "res://scripts/world/scaffold.gd", props=props)
         self.nodes.insert(0, self.nodes.pop())
 
-    # output
     def save(self):
         h = self.head
         room_script = self.res("res://scripts/world/room.gd", "Script")
@@ -205,7 +198,6 @@ CAVE = dict(backdrop="heap_cave", grade="cave", music="cave", ambient=(0.6, 0.55
 INDUSTRIAL = dict(backdrop="intake_interior", tileset="heap_industrial", grade="intake", music="industrial", ambient=(0.82, 0.72, 0.72), motes=(1, 0.7, 0.5, 0.25))
 
 
-# ------------------------------------------------------------------ 05 Scrap Fields
 def fields():
     r = RoomBuilder("heap_05_fields", "Scrap Fields", (0, 0, 1600, 480))
     r.solid(0, 0, 16, 368)
@@ -218,7 +210,7 @@ def fields():
     r.solid(1320, 312, 280, 40)
     r.solid(1380, 272, 220, 40)
     r.solid(1584, 0, 16, 208)
-    for i, y in enumerate((232, 192, 152, 112, 72, 32)):   # the old crane mast (columns 44 px apart)
+    for i, y in enumerate((232, 192, 152, 112, 72, 32)):
         r.solid(1256 if i % 2 == 0 else 1380, y, 80, 12, "girder")
     r.scaffold("CraneMast", columns=[(1256, 72, 80, 280), (1380, 32, 80, 240)], ties=(32, 72, 112, 152, 192, 232, 272))
     r.exit("ExitToCamp", 4, 400, 8, 64, "heap_02_camp", "from_fields")
@@ -251,7 +243,6 @@ def fields():
     return r.save()
 
 
-# ------------------------------------------------------------------ 07 Crane Yard
 def crane():
     r = RoomBuilder("heap_07_crane", "Crane Yard", (0, 0, 720, 600))
     r.solid(0, 0, 16, 600)
@@ -283,7 +274,6 @@ def crane():
     return r.save()
 
 
-# ------------------------------------------------------------------ 08 Conveyor Hall
 def conveyor():
     r = RoomBuilder("heap_08_conveyor", "Conveyor Hall", (0, 0, 1280, 360), **INDUSTRIAL)
     r.solid(0, 0, 16, 272, "tiles")
@@ -293,7 +283,7 @@ def conveyor():
     r.solid(1020, 336, 260, 24, "tiles")
     r.solid(16, 0, 344, 40, "tiles")
     r.solid(554, 0, 710, 40, "tiles")
-    for i, y in enumerate((296, 256, 216, 176, 136, 96)):    # a service ladder up to the pit
+    for i, y in enumerate((296, 256, 216, 176, 136, 96)):
         r.solid(360 if i % 2 == 0 else 484, y, 80 if i % 2 == 0 else 70, 12, "girder")
     r.scaffold("LadderFrame", columns=[(360, 136, 80, 200), (484, 96, 70, 240)], ties=(96, 136, 176, 216, 256, 296))
     r.conveyor("Belt", 600, 336, 420, -45)
@@ -322,7 +312,6 @@ def conveyor():
     return r.save()
 
 
-# ------------------------------------------------------------------ 12 Compactor Pit (arena)
 def compactor_pit():
     r = RoomBuilder("heap_12_compactor", "Compactor Pit", (0, 0, 640, 360), **INDUSTRIAL)
     r.solid(0, 0, 16, 360, "tiles")
@@ -345,7 +334,6 @@ def compactor_pit():
     return r.save()
 
 
-# ------------------------------------------------------------------ 10 Sinkhole
 def sinkhole():
     r = RoomBuilder("heap_10_sinkhole", "Sinkhole", (0, 0, 400, 720), **CAVE)
     r.solid(0, 0, 16, 632)
@@ -354,7 +342,7 @@ def sinkhole():
     r.solid(16, 0, 104, 24, "ceiling")
     r.solid(280, 0, 104, 24, "ceiling")
     tops = list(range(656, 55, -40))
-    for i, y in enumerate(tops):    # junk ledges zig-zagging up the shaft
+    for i, y in enumerate(tops):
         r.solid(184 if i % 2 == 0 else 60, y, 80, 12)
     r.solid(310, 336, 74, 12)
     r.shaft("ShaftTop", 200, 24, 420, 60, 110, 10, 0.8)
@@ -372,7 +360,6 @@ def sinkhole():
     return r.save()
 
 
-# ------------------------------------------------------------------ 04 Seep Tunnels
 def seep():
     r = RoomBuilder("heap_04_seep", "Seep Tunnels", (0, 0, 3000, 300), backdrop="heap_cave", grade="cave", music="cave",
                     ambient=(0.55, 0.62, 0.55), motes=(0.7, 1, 0.6, 0.18), motes_amount=24)
@@ -380,10 +367,9 @@ def seep():
     r.solid(2984, 0, 16, 212)
     r.solid(16, 0, 1660, 40, "ceiling")
     r.solid(1784, 0, 1200, 40, "ceiling")
-    r.solid(1676, 0, 24, 100, "ceiling")    # the shaft up to the Hollow
+    r.solid(1676, 0, 24, 100, "ceiling")
     r.solid(1760, 0, 24, 100, "ceiling")
     r.solid(1700, 0, 60, 40, "ceiling")
-    # 80 px pits clear with a running jump; 168 px pits need a slide-jump or dash-jump
     segs = [(0, 420), (500, 300), (968, 442), (1490, 610), (2268, 732)]
     pits = [(420, 80), (800, 168), (1410, 80), (2100, 168)]
     for x, w in segs:
@@ -391,7 +377,6 @@ def seep():
     for i, (x, w) in enumerate(pits):
         r.solid(x, 292, w, 8)
         r.hazard("Sludge%d" % (i + 1), x, 280, w, 12)
-    # the lowest girder leaves 8 px over the robot's head (28 px tall) so you can walk under it
     for i, y in enumerate((228, 188, 148)):
         r.solid(1690 if i % 2 == 0 else 1814, y, 80 if i % 2 == 0 else 70, 12, "girder")
     r.scaffold("ShaftFrame", stilts=[(1690, 228, 80, 12), (1814, 188, 70, 12)], ground_y=276, hangers=[(1690, 148, 80, 12)], hang_top=100)
@@ -417,7 +402,6 @@ def seep():
     return r.save()
 
 
-# ------------------------------------------------------------------ 11 Old Tram Stop (secret)
 def tram():
     r = RoomBuilder("heap_11_tram", "Old Tram Stop", (0, 0, 600, 300), backdrop="heap_cave", grade="cave", music="hollow",
                     ambient=(0.62, 0.56, 0.62), motes_amount=18)
@@ -442,7 +426,6 @@ def tram():
     return r.save()
 
 
-# ------------------------------------------------------------------ 13 Underworks Gate (demo end)
 def gate():
     r = RoomBuilder("heap_13_gate", "Underworks Gate", (0, 0, 520, 360), backdrop="intake_interior", tileset="heap_industrial",
                     grade="intake", music="hollow", ambient=(0.95, 0.8, 0.66), motes=(1, 0.8, 0.5, 0.35), motes_amount=40)
@@ -452,7 +435,7 @@ def gate():
         r.solid(120 + i * 40, 152 + i * 32, 40, 8, "girder")
     r.solid(300, 336, 220, 24, "tiles")
     r.solid(16, 0, 504, 24, "tiles")
-    r.solid(504, 0, 16, 272, "tiles")            # opening at the bottom right: the way down
+    r.solid(504, 0, 16, 272, "tiles")
     r.solid(0, 136, 16, 224, "tiles")
     r.scaffold("Stairs", stilts=[(120 + i * 40, 152 + i * 32, 40, 8) for i in range(5)], ground_y=360)
     for i, (x, y) in enumerate(((180, 100), (330, 200), (460, 150))):
@@ -470,7 +453,6 @@ def gate():
     return r.save()
 
 
-# ------------------------------------------------------------------ 09 Giant's Brow (mini-boss)
 def giant():
     r = RoomBuilder("heap_09_giant", "Giant's Brow", (0, 0, 640, 480), music="industrial", ambient=(0.92, 0.82, 0.76))
     r.solid(0, 0, 16, 368)
@@ -492,7 +474,6 @@ def giant():
     return r.save()
 
 
-# ------------------------------------------------------------------ 01 Under the Heap (start)
 def carve_rock(r, W, H, air, rock_back=(), cell=8):
     """Fill the room with compacted junk, cut out the `air` rects, put the
     `rock_back` rects back, and add the rock as merged rectangles (style "rock")."""
@@ -507,8 +488,7 @@ def carve_rock(r, W, H, air, rock_back=(), cell=8):
                         grid[cy][cx] = val
     paint(air, False)
     paint(rock_back, True)
-    # merge row runs, then stack identical runs downwards
-    open_runs = {}   # (x0, x1) -> start row
+    open_runs = {}
     rects = []
     for cy in range(rows + 1):
         runs = set()
@@ -543,25 +523,24 @@ def pit():
     r = RoomBuilder("heap_01_pit", "Under the Heap", (0, 0, 1280, 720), backdrop="heap_cave", grade="cave", music="cave",
                     ambient=(0.6, 0.54, 0.66), motes=(1, 0.86, 0.66, 0.22), motes_amount=34)
     air = [
-        (16, 528, 240, 128),     # A  wake chamber, floor 656
-        (256, 528, 240, 128),    # B  tunnel east (128 tall: a full jump off the step needs 86 px)
-        (368, 656, 64, 32),      #    the spike pit
-        (496, 224, 160, 432),    # C  the chimney
-        (440, 400, 56, 56),      #    secret alcove (behind the scrap wall)
-        (656, 448, 48, 48),      #    vest nook
-        (656, 240, 400, 96),     # D  upper tunnel, floor 336
-        (896, 336, 176, 80),     #    the gap: too far to jump; dash-jump or slide-jump it
-        (1056, 160, 160, 176),   # E  hook chamber
-        (1216, 160, 64, 96),     # F  way out, floor 256
+        (16, 528, 240, 128),
+        (256, 528, 240, 128),
+        (368, 656, 64, 32),
+        (496, 224, 160, 432),
+        (440, 400, 56, 56),
+        (656, 448, 48, 48),
+        (656, 240, 400, 96),
+        (896, 336, 176, 80),
+        (1056, 160, 160, 176),
+        (1216, 160, 64, 96),
     ]
     rock_back = [
-        (304, 624, 64, 32),      # B  the step up
-        (432, 624, 64, 32),      #    landing after the pit
-        (720, 320, 48, 16),      # D  hump with the power cell
-        (1168, 256, 48, 80),     # E  the wall you hook up
+        (304, 624, 64, 32),
+        (432, 624, 64, 32),
+        (720, 320, 48, 16),
+        (1168, 256, 48, 80),
     ]
     carve_rock(r, 1280, 720, air, rock_back)
-    # chimney girders: 40 px apart, alternating sides with a 44 px gap between columns
     tops = [616, 576, 536, 496, 456, 416, 376, 336]
     for i, y in enumerate(tops):
         if i % 2 == 0:
@@ -571,10 +550,8 @@ def pit():
     r.scaffold("ChimneyFrame", stilts=[(496, 616, 64, 12)], ground_y=656,
                hangers=[(604, 576, 52, 12), (496, 536, 64, 12), (604, 496, 52, 12), (496, 456, 64, 12),
                         (604, 416, 52, 12), (496, 376, 64, 12)], hang_top=224)
-    # hazards
     r.hazard("Spikes1", 368, 676, 64, 12, "spikes")
     r.hazard("Spikes2", 896, 404, 176, 12, "spikes")
-    # the way through
     r.prop("WakePod", "ancient_casing", 66, 658, light_radius="40", light_energy="0.45",
            glow_color=C(0.22, 0.95, 1, 0.35), glow_radius="14", glow_offset=V(17, -14))
     r.item("ChipLongTether", 336, 606, 3, "long_tether")
@@ -589,18 +566,15 @@ def pit():
     r.gate("ScrapWall", 490, 456, 14, 56)
     r.item("ChipScrapPlating", 462, 440, 3, "scrap_plating")
     r.item("VestHazard", 684, 480, 4, "shirt_hazard_vest")
-    # pickups
     r.cap("Cap1", 200, 636)
     r.cap("Cap2", 400, 580)
     r.cap("Cap3", 520, 516)
     r.cap("Cap4", 984, 300)
     r.scrap("Scrap1", 150, 640, 3)
     r.scrap("Scrap2", 840, 320, 3)
-    # enemies
-    r.drone("Drone1", 610, 656)        # waits at the foot of the chimney, away from the wake-up spot
+    r.drone("Drone1", 610, 656)
     r.drone("Drone2", 800, 336)
-    r.spotter("Spotter1", 984, 280)      # over the dash gap, not in the hook's throw line
-    # light and dressing
+    r.spotter("Spotter1", 984, 280)
     r.shaft("ShaftWake", 112, 528, 130, 6, 46, -26, 1.0, C(1, 0.84, 0.6, 0.2))
     r.shaft("ShaftChimney", 584, 224, 432, 8, 70, -12, 0.7)
     r.shaft("ShaftHook", 1150, 160, 176, 6, 40, 14, 0.6)

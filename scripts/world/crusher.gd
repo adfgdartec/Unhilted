@@ -1,15 +1,11 @@
 @tool
 class_name Crusher
 extends Node2D
-## A hydraulic press that slams down on a rhythm. It shakes and its lamp
-## flashes before it drops (the tell). Getting caught under it hurts and
-## sends you back to safe ground. The block is solid: you can ride it up.
-## The node's position is the top-centre of the rail (the block hangs below).
 
 @export var width := 48.0
-@export var drop := 96.0          ## how far the block travels
-@export var period := 2.6         ## seconds per cycle
-@export var offset := 0.0         ## phase offset (seconds) to stagger several
+@export var drop := 96.0
+@export var period := 2.6
+@export var offset := 0.0
 const BLOCK_H := 24.0
 
 var _t := 0.0
@@ -45,7 +41,6 @@ func _ready() -> void:
 	_place()
 
 
-## 0..0.45 up and waiting, 0.45..0.6 shaking (tell), 0.6..0.66 slam, 0.66..0.8 down, 0.8..1 rising
 func _phase() -> float:
 	return fposmod(_t, period) / period
 
@@ -88,7 +83,6 @@ func _place() -> void:
 
 func _draw() -> void:
 	var p := _phase() if not Engine.is_editor_hint() else 0.0
-	# piston rod and rail
 	draw_rect(Rect2(-width * 0.5 - 4, -4, width + 8, 4), Color8(58, 30, 26))
 	draw_rect(Rect2(-3, 0, 6, _y), Color8(138, 118, 108))
 	draw_rect(Rect2(-3, 0, 1, _y), Color8(192, 170, 150))
@@ -98,7 +92,7 @@ func _draw() -> void:
 	draw_rect(Rect2(r.position, Vector2(r.size.x, 3)), Color8(160, 78, 52))
 	draw_rect(Rect2(r.position.x, r.end.y - 4, r.size.x, 4), Color8(38, 20, 18))
 	var x := r.position.x + 2
-	while x < r.end.x - 4:  # hazard teeth on the bottom
+	while x < r.end.x - 4:
 		draw_rect(Rect2(x, r.end.y - 4, 3, 4), Color8(240, 207, 115) if int((x - r.position.x) / 4) % 2 == 0 else Color8(30, 20, 22))
 		x += 4
 	var warn := p > 0.45 and p < 0.66 and fmod(_t, 0.12) < 0.06

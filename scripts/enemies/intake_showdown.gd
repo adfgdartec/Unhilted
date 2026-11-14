@@ -1,27 +1,11 @@
 class_name IntakeShowdown
 extends Node2D
-## The demo's boss: The Pendulum, then INTAKE UNIT 7.
-##
-##   1. The Pendulum has broken loose into the Intake. Climb the girder
-##      ledges beside its crown and hit it when it overpressures. Every
-##      quarter of its health it lurches and smashes a ledge; at the last
-##      quarter it's off balance; at zero it topples and crashes down.
-##   2. It looks won: the shard glows in the wreck. Then the crane drops off
-##      its rail, smashes the wreck to bits, hauls it away, comes back for the
-##      shard and absorbs it.
-##   3. The real fight: INTAKE UNIT 7, empowered by the shard. Beat it and it
-##      gives the shard up (BossArena spawns it). The music winds up at each
-##      turn.
-## Works as BossArena's boss: signal defeated, start(player), set_wrecked(),
-## MAX_HP. Sits at the room origin next to the IntakeCrane.
-## Demo only: in the full game The Pendulum is the Underworks boss, so here
-## the showdown steps aside and the arena runs the plain crane fight.
 
 signal defeated
 
-const MAX_HP := 12                     ## The Pendulum's health in this fight
+const MAX_HP := 12
 const SHARD_POS := Vector2(334, 292)
-const LEDGES := [                      ## [position, width], knocked out in this order
+const LEDGES := [
 	[Vector2(150, 272), 64.0], [Vector2(490, 272), 64.0],
 	[Vector2(262, 226), 48.0], [Vector2(378, 226), 48.0],
 ]
@@ -29,7 +13,7 @@ const PADS := [Vector2(212, 320), Vector2(428, 320)]
 
 var governor: GreatGovernor
 var crane: IntakeCrane
-var phase := "idle"                    ## idle, governor, cutscene, crane, done
+var phase := "idle"
 var player: Player
 var _shard_glow := false
 var _shard_at := SHARD_POS
@@ -73,7 +57,6 @@ func start(p: Player) -> void:
 	AudioManager.set_music_pitch(1.0, 0.5)
 
 
-## Already beaten: just the crane's wreck, no Governor, no ledges.
 func set_wrecked() -> void:
 	phase = "done"
 	crane.set_wrecked()
@@ -111,18 +94,18 @@ func _move_head(to: Vector2, time: float, trans := Tween.TRANS_SINE, carry: Node
 var _shard_follow := false
 
 
-## The fake win, and the crane taking over.
 func _cutscene() -> void:
 	phase = "cutscene"
 	GameState.lock_ui()
-	EventBus.boss_ended.emit()                 # the bar goes: it looks over
-	AudioManager.set_music_pitch(0.8, 1.6)     # the score sags with the machine
+	AudioManager.keep_music_on_boss_end = true
+	EventBus.boss_ended.emit()
+	AudioManager.set_music_pitch(0.8, 1.6)
 	await _wait(0.9)
-	_shard_glow = true                         # there's the shard, in the wreck
+	_shard_glow = true
 	AudioManager.sfx(&"heal", -2.0)
 	Fx.ring(to_global(SHARD_POS), Color(0.45, 0.95, 1.0), 26.0, 0.5)
 	await _wait(1.4)
-	# a horn: the crane drops off its rail
+	AudioManager.set_override("silence")
 	AudioManager.sfx(&"horn")
 	Fx.shake(3.0)
 	crane.state = IntakeCrane.S.CUTSCENE
@@ -130,7 +113,6 @@ func _cutscene() -> void:
 	await _wait(0.35)
 	crane.claw_closed = true
 	await _move_head(Vector2(IntakeCrane.CENTER_X, IntakeCrane.SLAM_Y), 0.16, Tween.TRANS_QUAD)
-	# smash the wreck to bits
 	governor.smash()
 	AudioManager.sfx(&"slam", 4.0)
 	Fx.shake(10.0)
@@ -141,14 +123,12 @@ func _cutscene() -> void:
 	if Fx.post:
 		Fx.post.hit()
 	await _wait(0.7)
-	# haul the wreckage away, off the side of the hall
 	await _move_head(Vector2(IntakeCrane.CENTER_X - 30, IntakeCrane.SLAM_Y - 6), 0.3, Tween.TRANS_SINE, governor)
 	await _move_head(Vector2(720, IntakeCrane.UP_Y + 30), 1.6, Tween.TRANS_SINE, governor)
 	governor.queue_free()
 	governor = null
 	crane.claw_closed = false
 	await _wait(0.4)
-	# back for the shard
 	await _move_head(Vector2(SHARD_POS.x, IntakeCrane.UP_Y), 1.1)
 	await _move_head(Vector2(SHARD_POS.x, SHARD_POS.y - 34), 0.6)
 	crane.claw_closed = true
@@ -156,7 +136,6 @@ func _cutscene() -> void:
 	AudioManager.sfx(&"valve", -2.0)
 	await _wait(0.3)
 	await _move_head(Vector2(IntakeCrane.CENTER_X, IntakeCrane.UP_Y), 0.9)
-	# absorb it
 	_shard_follow = false
 	for i in 6:
 		_shard_at = _shard_at.lerp(crane.head, 0.45)
@@ -170,7 +149,7 @@ func _cutscene() -> void:
 	Fx.shake(8.0)
 	if Fx.post:
 		Fx.post.hit()
-	AudioManager.set_music_pitch(1.12, 1.2)
+	AudioManager.set_music_pitch(1.0, 0.1)
 	await DialogueManager.say(["> ITEM OF VALUE RECOVERED.", "> INTEGRATING...  POWER OUTPUT: EXCEEDING SPECIFICATION.",
 		"> FOREIGN OBJECT STILL ON INTAKE FLOOR.  RESUMING PROCESSING."], "INTAKE UNIT 7")
 	GameState.unlock_ui()

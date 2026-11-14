@@ -1,8 +1,4 @@
 extends Node
-## Effects hub: hit-stop, screen shake, sparks, shockwave rings, slash arcs,
-## dash afterimages, dust, the post-processing pass, and the shared light
-## texture. Also owns the effect toggles in Settings (saved to user://settings.cfg).
-## Every world effect spawns into the current room, so room changes clean it up.
 
 const SETTINGS_PATH := "user://settings.cfg"
 const DUST := preload("res://scripts/effects/dust_fx.gd")
@@ -11,25 +7,21 @@ const SLASH := preload("res://scripts/effects/slash_fx.gd")
 const AFTERIMAGE := preload("res://scripts/effects/afterimage_fx.gd")
 const NUMBER := preload("res://scripts/effects/damage_number_fx.gd")
 
-## Painted-art variant being trialled ("" = the current generated look).
-## Rooms with art in res://art/rooms/<variant>/ use it instead of drawing
-## their solids; backdrops and props use res://art/.../<variant>/ copies.
-## Made by tools/art/build_room_art.py (gothic, verdigris, ember).
 var art_variant := ""
 var shake_enabled := true
 var hitstop_enabled := true
-var post_enabled := true      ## bloom, grade, vignette, lens fringe
-var flashes_enabled := true   ## red damage pulse and bright flashes
-var click_throw := false      ## accessibility: left click throws at the cursor instead of a flick
+var post_enabled := true
+var flashes_enabled := true
+var click_throw := false
 var fullscreen := false
 var master_volume := 0.9
 var music_volume := 0.7
 var sfx_volume := 0.9
-var damage_numbers := true    ## Terraria-style floating damage numbers
-var flick_sensitivity := 1    ## 0 low, 1 normal, 2 high (how easy a flick charges the blade)
-var control_preset := "standard" ## Keybinds.PRESET_ORDER
-var custom_binds := {}          ## action -> [binding strings], overrides the preset
-var post: PostFX              ## registered by Main
+var damage_numbers := true
+var flick_sensitivity := 1
+var control_preset := "standard"
+var custom_binds := {}
+var post: PostFX
 
 var _light_tex: GradientTexture2D
 
@@ -56,7 +48,6 @@ func _ready() -> void:
 	apply_display.call_deferred()
 
 
-## Push the chosen control scheme + custom keys into the InputMap.
 func apply_controls() -> void:
 	Keybinds.apply(control_preset, custom_binds)
 
@@ -97,12 +88,10 @@ func toggle_fullscreen() -> void:
 	save_settings()
 
 
-## Multiplier on the flick speed thresholds (higher sensitivity = lower thresholds).
 func flick_scale() -> float:
 	return [1.35, 1.0, 0.7][flick_sensitivity]
 
 
-## Soft radial texture shared by every PointLight2D in the game.
 func light_texture() -> GradientTexture2D:
 	if _light_tex == null:
 		var g := Gradient.new()
@@ -119,7 +108,6 @@ func light_texture() -> GradientTexture2D:
 	return _light_tex
 
 
-## A ready PointLight2D (radius in pixels).
 func make_light(color: Color, radius: float, energy := 1.0) -> PointLight2D:
 	var l := PointLight2D.new()
 	l.texture = light_texture()
@@ -166,7 +154,6 @@ func damage_number(at_position: Vector2, amount: int) -> void:
 	_spawn(n, at_position)
 
 
-## A word that pops up and floats away ("REBOUND!", "BOUNCED BACK").
 func float_text(at_position: Vector2, text: String, color := Color(0.45, 0.95, 1.0)) -> void:
 	var n: Node2D = NUMBER.new()
 	n.word = text
@@ -174,13 +161,11 @@ func float_text(at_position: Vector2, text: String, color := Color(0.45, 0.95, 1
 	_spawn(n, at_position)
 
 
-## Hit sparks: a pixel spray plus a tiny flash ring.
 func spark(at_position: Vector2, color := Color.WHITE, count := 8) -> void:
 	_spawn_particles(FxParticles.burst(color, count, 140.0), at_position)
 	ring(at_position, color, 8.0, 0.12, 2.0)
 
 
-## Bigger explosion for kills and wrecks.
 func burst(at_position: Vector2, color := Color(1.0, 0.7, 0.35), count := 22) -> void:
 	_spawn_particles(FxParticles.burst(color, count, 190.0), at_position)
 	_spawn_particles(FxParticles.burst(Color(0.6, 0.58, 0.62), count / 2, 110.0, 300.0), at_position)
@@ -196,14 +181,12 @@ func ring(at_position: Vector2, color := Color.WHITE, radius := 24.0, duration :
 	_spawn(r, at_position)
 
 
-## Ground puff (landings, slams).
 func dust(at_position: Vector2, strength := 1.0) -> void:
 	var d: Node2D = DUST.new()
 	_spawn(d, at_position)
 	_spawn_particles(FxParticles.puff(Color(0.75, 0.7, 0.72, 0.6), int(6 * strength), 50.0 * strength), at_position)
 
 
-## Melee swing arc. direction_angle in radians (0 = right).
 func slash(at_position: Vector2, direction_angle: float, reach := 24.0, flip := false) -> void:
 	var s: Node2D = SLASH.new()
 	s.reach = reach
@@ -212,7 +195,6 @@ func slash(at_position: Vector2, direction_angle: float, reach := 24.0, flip := 
 	_spawn(s, at_position)
 
 
-## Ghost of the robot (dash trail). Copies its current look.
 func afterimage(player: Node2D, visuals: PlayerVisuals) -> void:
 	var holder: Node2D = AFTERIMAGE.new()
 	var ghost := PlayerVisuals.new()

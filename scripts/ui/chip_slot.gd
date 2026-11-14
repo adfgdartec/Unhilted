@@ -1,8 +1,5 @@
 class_name ChipSlot
 extends Button
-## One round slot in the loadout screen: either a port socket (with or
-## without a chip seated in it) or a chip in the collection tray.
-## Draws itself from pixel textures; focus/hover shows a cyan ring.
 
 const SOCKETS := {
 	"empty": preload("res://art/ui/socket_empty.png"),
@@ -12,13 +9,13 @@ const SOCKETS := {
 }
 const CONDUIT := preload("res://art/ui/socket_conduit.png")
 
-var socket := ""                ## "" = a tray slot (no socket ring), else a SOCKETS key
-var chip: Texture2D = null      ## chip seated here / shown in the tray
+var socket := ""
+var chip: Texture2D = null
 var chip_id: StringName = &""
-var linked := false             ## second socket of a 2-port chip: draw the conduit in from the left
-var dimmed := false             ## tray chip that's already in use / can't fit
-var seat := 1.0                 ## chip scale, animated when a chip clicks in
-var flash := 0.0                ## 1 -> 0 ring flash after inserting
+var linked := false
+var dimmed := false
+var seat := 1.0
+var flash := 0.0
 
 
 func _init() -> void:
@@ -27,7 +24,7 @@ func _init() -> void:
 	flat = true
 	for st in ["normal", "hover", "pressed", "focus", "disabled", "hover_pressed"]:
 		add_theme_stylebox_override(st, StyleBoxEmpty.new())
-	mouse_entered.connect(grab_focus) # mouse and pad share one "selected" slot
+	mouse_entered.connect(grab_focus)
 	focus_entered.connect(queue_redraw)
 	focus_entered.connect(func(): AudioManager.sfx(&"ui_move", -10.0, 0.02))
 	focus_exited.connect(queue_redraw)
@@ -45,7 +42,7 @@ func _draw() -> void:
 		var tex: Texture2D = SOCKETS[socket]
 		draw_texture(tex, (c - tex.get_size() * 0.5).round())
 	else:
-		draw_circle(c, 13.0, Color(0, 0, 0, 0.35)) # tray: a soft shadow under the chip
+		draw_circle(c, 13.0, Color(0, 0, 0, 0.35))
 	if linked:
 		draw_texture(CONDUIT, Vector2(-7, c.y - 3).round())
 	if chip:

@@ -1,5 +1,4 @@
 extends PlayerState
-## Knockback after taking damage.
 
 const DURATION := 0.25
 var _time := 0.0

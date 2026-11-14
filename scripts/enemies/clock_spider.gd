@@ -1,12 +1,7 @@
 class_name ClockSpider
 extends EnemyBase
-## A wind-up spider. It skitters a little, then crouches (key spinning
-## faster: the tell) and leaps at you in an arc. Small and quick; two hits.
-## Each leap winds it down a little: after three it has to stop and rewind,
-## which is your opening.
-##   SKITTER -> CROUCH -> LEAP -> (land) SKITTER ... -> REWIND
 
-const TEX := preload("res://art/enemies/clock_spider.png") # idle, crouch, leap
+const TEX := preload("res://art/enemies/clock_spider.png")
 enum S { SKITTER, CROUCH, LEAP, REWIND }
 
 var state := S.SKITTER

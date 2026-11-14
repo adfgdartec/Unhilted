@@ -1,8 +1,4 @@
 extends PlayerState
-## Zip: dash while the blade is pinned in an enemy and the robot rides the wire
-## to it. Arriving strikes the enemy, catches the blade and bounces the robot
-## up off it with the air dash restored, ready to flick the next throw.
-## Invulnerable while travelling (like a dash).
 
 const SPEED := 560.0
 const MAX_TIME := 0.45
@@ -30,7 +26,7 @@ func enter(_msg := {}) -> void:
 func physics_update(delta: float) -> void:
 	_time += delta
 	if player.blade == null or not player.blade.is_pinned():
-		_end_without_strike() # enemy died or the pin ran out mid-zip
+		_end_without_strike()
 		return
 	var to := player.blade.global_position - (player.global_position + Player.BODY_CENTER)
 	if to.length() < ARRIVE_DIST:
@@ -43,7 +39,7 @@ func physics_update(delta: float) -> void:
 	if _time > MAX_TIME:
 		_end_without_strike()
 	elif _time > 0.08 and player.get_slide_collision_count() > 0 and player.get_real_velocity().length() < 40.0:
-		_end_without_strike() # wedged against level geometry
+		_end_without_strike()
 
 
 func _strike() -> void:
@@ -57,7 +53,7 @@ func _strike() -> void:
 			Fx.burst(target.global_position, Color(0.5, 1.0, 1.0), 14)
 			Fx.slash(target.global_position, _dir.angle(), 30.0)
 			player.register_close_hit()
-	player.blade.landed_hit = false # the bounce below already restores the air dash
+	player.blade.landed_hit = false
 	player.blade.catch()
 	player.can_air_dash = true
 	player.velocity = Vector2(-_dir.x * 90.0, player.jump_velocity * 0.8)

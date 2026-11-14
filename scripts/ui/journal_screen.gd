@@ -1,7 +1,5 @@
 class_name JournalScreen
 extends PanelContainer
-## Pause screen and journal in one: MAP, QUESTS, LORE and CONTROLS tabs,
-## plus Resume / Settings / Quit. Opened with Esc (pause) or Tab/M (map).
 
 signal resume_requested
 signal settings_requested
@@ -82,7 +80,6 @@ const TAB_TEX := preload("res://art/ui/tab.png")
 const TAB_ON_TEX := preload("res://art/ui/tab_on.png")
 
 
-## Folder tabs: the open one is teal with a lit top edge; the others are dark.
 func _style_tab(b: Button, on: bool) -> void:
 	var off := _tab_box(TAB_TEX)
 	var lit := _tab_box(TAB_ON_TEX)
@@ -138,8 +135,6 @@ func _empty_note(text: String) -> void:
 	_content.add_child(c)
 
 
-## One quest per iron card: title, who gave it, an ink stamp for its state,
-## the description and a brass checkbox per objective.
 func _quests() -> void:
 	var list := VBoxContainer.new()
 	list.add_theme_constant_override("separation", 5)
@@ -196,7 +191,6 @@ func _stamp(text: String) -> Control:
 	return c
 
 
-## Entries down the left as iron plates; the text in a display case.
 func _lore() -> void:
 	if GameState.lore.is_empty():
 		_empty_note("Nothing written down yet. Read tablets, notes and signs (press E) to fill this in.")
@@ -250,7 +244,6 @@ const CONTROLS := [
 ]
 
 
-## Two columns of key caps and what they do. Gamepad: A jump, B dash, X attack, RB throw, Y talk, LB heal.
 func _controls() -> void:
 	var col := VBoxContainer.new()
 	col.add_theme_constant_override("separation", 6)

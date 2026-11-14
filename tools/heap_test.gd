@@ -1,9 +1,4 @@
 extends Node
-## Level playthrough test for the Heap. Run:
-##   godot --headless --path . res://tools/heap_test.tscn
-## Checks every exit/spawn link, then has a bot actually traverse the new
-## rooms (running jumps, hooks, dash-jumps), clear the arena, open the brass
-## door, take the stairs down into the Underworks, and beat the Brass Brow.
 
 var main: Node
 var player: Player
@@ -29,19 +24,17 @@ func _ready() -> void:
 func goto(room: String, spawn: StringName) -> void:
 	await WorldManager.change_room("res://scenes/rooms/heap/%s.tscn" % room, spawn)
 	player.hurtbox.invulnerable = true
-	player.health.refill() # each section starts healthy (hazard falls in earlier checks cost cells)
+	player.health.refill()
 	await frames(20)
 
 
 func place(pos: Vector2) -> void:
-	# a hazard respawn's i-frame timer clears invulnerability when it ends; keep the bot safe
 	player.hurtbox.invulnerable = true
 	player.global_position = pos
 	player.velocity = Vector2.ZERO
 	await frames(12)
 
 
-## Running jump onto a point ~10 px inside a platform's near edge (see smoke test).
 func hop_to(target: Vector2, dash := false) -> bool:
 	var jumped := false
 	var airborne := 0
@@ -81,9 +74,6 @@ func hop_to(target: Vector2, dash := false) -> bool:
 	return absf(player.global_position.y - target.y) < 2.0 and absf(player.global_position.x - target.x) < 48.0
 
 
-## Run right at full speed and take off at the edge: "jump" (plain running jump),
-## "slide" (slide into the edge, jump out of it) or "dash" (dash at the edge,
-## jump out of the dash). True if it lands at land_y past land_x.
 func leap(land_x: float, land_y: float, mode: String, dir := 1) -> bool:
 	var key := "move_right" if dir > 0 else "move_left"
 	Input.action_press(key)
@@ -107,7 +97,7 @@ func leap(land_x: float, land_y: float, mode: String, dir := 1) -> bool:
 		if took_off and player.is_on_floor():
 			break
 		if player.global_position.y > land_y + 40.0:
-			break # fell into the gap
+			break
 	Input.action_release("jump")
 	Input.action_release(key)
 	Input.action_release("slide")
@@ -164,7 +154,7 @@ func _run() -> void:
 		await frames(2)
 		var up := InputEventAction.new(); up.action = "interact"; up.pressed = false; Input.parse_input_event(up)
 		await frames(2)
-	player.hurtbox.invulnerable = true # traversal tests: don't let stray enemies interrupt the bot
+	player.hurtbox.invulnerable = true
 
 	var pit_only := "pit_only" in OS.get_cmdline_user_args()
 	if pit_only:
@@ -173,7 +163,6 @@ func _run() -> void:
 		get_tree().quit(1 if fails > 0 else 0)
 		return
 
-	# --- 1. Every exit points at a real room + spawn; every spawn stands on ground
 	var dir := DirAccess.open("res://scenes/rooms/heap")
 	var bad_links := []
 	var rooms := []
@@ -187,7 +176,6 @@ func _run() -> void:
 			if n is RoomExit or n is BrassDoor:
 				targets.append([n.target_room, n.target_spawn])
 			elif n is Door:
-				# a walk-in building: its interior must exist, and so must the marker you come back out at
 				if not ResourceLoader.exists(n.interior):
 					bad_links.append("%s/%s -> missing interior %s" % [f, n.name, n.interior])
 				if inst.get_node_or_null("Spawns/" + String(n.return_spawn)) == null:
@@ -216,7 +204,6 @@ func _run() -> void:
 			await goto(room_id, StringName(sname))
 			var start := player.global_position
 			await frames(50)
-			# drop-in spawns (from above) are allowed to fall; everything else must stand
 			var ok := player.is_on_floor()
 			if not ok:
 				floating.append("%s/%s %s" % [room_id, sname, str(start)])
@@ -224,7 +211,6 @@ func _run() -> void:
 
 	await _pit_section()
 
-	# --- 2. Scrap Fields: up the hill and the crane mast to the Crane Yard
 	await goto("heap_05_fields", &"from_camp")
 	await place(Vector2(1150, 432))
 	var path := [Vector2(1210, 392), Vector2(1270, 352), Vector2(1330, 312), Vector2(1390, 272),
@@ -242,7 +228,6 @@ func _run() -> void:
 	await frames(30)
 	check(WorldManager.current_room.room_id == &"heap_07_crane", "jumping off the top of the mast reaches the Crane Yard")
 
-	# --- 3. Crane Yard: three hooks over the spikes, then the landing
 	await goto("heap_07_crane", &"from_fields")
 	await place(Vector2(210, 568))
 	var hooks_ok: bool = await reel("Hook1")
@@ -261,7 +246,6 @@ func _run() -> void:
 	await frames(30)
 	check(WorldManager.current_room.room_id == &"heap_08_conveyor", "the landing leads into Conveyor Hall")
 
-	# --- 4. Conveyor Hall: the belt + crushers are passable; the ladder reaches the pit
 	await goto("heap_08_conveyor", &"from_crane")
 	await place(Vector2(560, 336))
 	await walk_to(1100, 600)
@@ -280,7 +264,6 @@ func _run() -> void:
 	await frames(30)
 	check(WorldManager.current_room.room_id == &"heap_12_compactor", "the ladder leads up into the Compactor Pit")
 
-	# --- 5. Compactor Pit arena: waves, seals, reward
 	await goto("heap_12_compactor", &"from_conveyor")
 	var arena: ArenaWaves = WorldManager.current_room.get_node("Arena")
 	await walk_to(450)
@@ -308,7 +291,6 @@ func _run() -> void:
 		await frames(20)
 	check(&"piston_heart" in GameState.owned_chips, "picked up the Piston Heart chip")
 
-	# --- 6. Sinkhole: climb from the bottom back up to the fields
 	await goto("heap_10_sinkhole", &"from_seep")
 	ok = true
 	var y := 656
@@ -323,7 +305,7 @@ func _run() -> void:
 			break
 		y -= 40
 		i += 1
-	ok = ok or WorldManager.current_room.room_id == &"heap_05_fields" # the last hop can carry you straight out the top
+	ok = ok or WorldManager.current_room.room_id == &"heap_05_fields"
 	check(ok, "Sinkhole: the ledges climb all the way up")
 	Input.action_press("jump")
 	Input.action_press("move_right")
@@ -333,16 +315,13 @@ func _run() -> void:
 	await frames(30)
 	check(WorldManager.current_room.room_id == &"heap_05_fields", "the top of the sinkhole comes out in the fields")
 
-	# --- 7. Seep Tunnels: east to west across the sludge (two pits need a slide- or dash-jump)
 	await goto("heap_04_seep", &"from_sinkhole")
-	# traversal check, not a fight: clear the patrolling Compactor so its body can't block the walkway
 	var comp_node := WorldManager.current_room.get_node_or_null("Compactor")
 	if comp_node:
 		comp_node.queue_free()
 	GameState.shards[0] = false
 	var hp_before := player.health.current
 	ok = true
-	# start of each pit (walking west) and a landing point just past it
 	for leg in [[2420.0, Vector2(2085, 276), true], [1505.0, Vector2(1395, 276), false], [1120.0, Vector2(785, 276), true], [515.0, Vector2(405, 276), false]]:
 		var t: Vector2 = leg[1]
 		var need_dash: bool = leg[2]
@@ -356,7 +335,6 @@ func _run() -> void:
 		print("  seep: health %d -> %d" % [hp_before, player.health.current])
 	check(ok and player.health.current == hp_before, "Seep Tunnels: every sludge pit can be cleared (two with a dash-jump)")
 
-	# --- 8. The brass door, the Underworks Gate, the way down
 	await goto("heap_02b_undercamp", &"from_camp")
 	var door: BrassDoor = WorldManager.current_room.get_node("BrassDoor")
 	await place(Vector2(690, 176))
@@ -374,7 +352,6 @@ func _run() -> void:
 	check(WorldManager.current_room.room_id == &"uw_01_descent", "the stairs at the bottom of the Gate lead down into the Underworks")
 	await goto("heap_02b_undercamp", &"from_gate")
 
-	# --- 9. The Seep shaft shortcut opens with Shard I
 	await place(Vector2(150, 320))
 	var hatch = WorldManager.current_room.get_node_or_null("SeepHatch")
 	if hatch:
@@ -384,7 +361,6 @@ func _run() -> void:
 	await frames(30)
 	check(WorldManager.current_room.get_node_or_null("ShaftGate") == null, "the same shaft is open from below too")
 
-	# --- 9b. Back in the starting tunnels, Shard I cuts the scrap wall in the chimney
 	await goto("heap_01_pit", &"from_camp")
 	await place(Vector2(520, 456))
 	var pit_wall = WorldManager.current_room.get_node_or_null("ScrapWall")
@@ -394,7 +370,6 @@ func _run() -> void:
 	await walk_to(455, 120)
 	check(&"scrap_plating" in GameState.owned_chips, "Shard I opens the chimney alcove: Scrap Plating chip")
 
-	# --- 10. Giant's Brow: the Brass Brow mini-boss
 	await goto("heap_09_giant", &"from_fields")
 	var head: BrassHead = WorldManager.current_room.get_node("BrassHead")
 	await place(Vector2(250, 432))
@@ -422,9 +397,7 @@ func _run() -> void:
 	get_tree().quit(1 if fails else 0)
 
 
-## The starting tunnels, start to finish (also run alone with -- pit_only).
 func _pit_section() -> void:
-	# --- 1b. Under the Heap: the starting tunnels, start to finish
 	await goto("heap_01_pit", &"wake")
 	await place(Vector2(80, 656))
 	var near_drones := 0
@@ -449,7 +422,6 @@ func _pit_section() -> void:
 	var on_hump: bool = await hop_to(Vector2(744, 320))
 	check(on_hump and GameState.key_item_count(&"power_cell") == 1, "the upper tunnel's hump has Tinker's power cell")
 	check(await hop_to(Vector2(880, 336)), "on to the edge of the dash gap")
-	# traversal check, not a fight: clear the Spotter that guards the gap (it can drift into the jump arc)
 	var spotter_node := WorldManager.current_room.get_node_or_null("Spotter1")
 	if spotter_node:
 		spotter_node.queue_free()
@@ -468,7 +440,6 @@ func _pit_section() -> void:
 	await walk_to(1300)
 	await frames(30)
 	check(WorldManager.current_room.room_id == &"heap_02_camp", "the tunnel comes out in the camp")
-	# optional bits off the chimney
 	await goto("heap_01_pit", &"from_camp")
 	await place(Vector2(630, 496))
 	await walk_to(690)
@@ -476,4 +447,3 @@ func _pit_section() -> void:
 	await place(Vector2(520, 456))
 	await walk_to(450, 60)
 	check(player.global_position.x > 500.0, "the scrap wall blocks the alcove without Shard I")
-

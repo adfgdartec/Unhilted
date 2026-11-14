@@ -1,24 +1,10 @@
 class_name Lamplighter
 extends CharacterBody2D
-## MINI-BOSS: THE LAMPLIGHTER. The last of the automata that kept the
-## Underworks' gaslights. Something went wrong with its rounds: now it puts
-## them out.
-##
-## How the fight reads:
-##   - It stalks you with its long hook-pole. When it draws the pole back
-##     (lantern flares: the tell) it sweeps at chest height. Slide under it or
-##     jump over it. It's open while it recovers from a sweep.
-##   - Every few attacks it leaps to a lit lamp and snuffs it. The room gets
-##     darker; with every lamp out, only its lantern head shows.
-##   - Hit a dark lamp to light it again. Relighting one right next to it
-##     dazzles it (stunned, open to everything).
-##   - Half health: faster, and it snuffs more often.
-## The node is placed on the floor; BossArena drives it (start/defeated).
 
 signal defeated
 
 const MAX_HP := 14
-const TEX := preload("res://art/enemies/lamplighter.png") # walk 0-1, windup 2, sweep 3, leap 4
+const TEX := preload("res://art/enemies/lamplighter.png")
 const GRAVITY := 900.0
 enum S { IDLE, STALK, WINDUP, SWEEP, RECOVER, LEAP, SNUFF, DAZZLED, DYING, WRECKED }
 
@@ -54,7 +40,7 @@ func _ready() -> void:
 	_head_light = Fx.make_light(Color(1.0, 0.78, 0.4), 70.0, 0.8)
 	_head_light.position = Vector2(0, -56)
 	add_child(_head_light)
-	_connect_lamps.call_deferred() # the room's lamps may not be ready yet
+	_connect_lamps.call_deferred()
 
 
 func _connect_lamps() -> void:
@@ -171,7 +157,6 @@ func _physics_process(delta: float) -> void:
 				state = S.WRECKED
 				_relight_all()
 				EventBus.enemy_killed.emit(&"lamplighter", global_position)
-				# its lantern is the proof Wick asks for (counts even before the quest)
 				GameState.add_key_item(&"lamplighters_lantern")
 				EventBus.item_collected.emit(&"lamplighters_lantern")
 				defeated.emit()
@@ -248,7 +233,6 @@ func _draw() -> void:
 	var h := TEX.get_height()
 	var tint := Color(3, 3, 3) if _flash > 0.0 else (Color(1, 1, 1, 0.18) if dark else Color.WHITE)
 	if state == S.WRECKED:
-		# collapsed on its side, lantern dim
 		draw_set_transform(Vector2(0, -6), -PI * 0.5 * facing, Vector2(facing, 1))
 		draw_texture_rect_region(TEX, Rect2(-fw / 2.0, -h / 2.0, fw, h), Rect2(0, 0, fw, h), Color(0.6, 0.55, 0.55))
 		draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
@@ -256,7 +240,6 @@ func _draw() -> void:
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2(facing, 1))
 	draw_texture_rect_region(TEX, Rect2(-fw / 2.0, -h, fw, h), Rect2(frame * fw, 0, fw, h), tint)
 	if dark:
-		# in the dark you can only see the lantern
 		draw_texture_rect_region(TEX, Rect2(-fw / 2.0 + 22, -h + 6, 12, 14), Rect2(frame * fw + 22, 6, 12, 14))
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	if state == S.WINDUP and fmod(_t, 0.14) < 0.07:

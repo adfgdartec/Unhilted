@@ -11,7 +11,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from pix import Spr, PAL  # noqa: E402
+from pix import Spr, PAL
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "art", "ui")
@@ -35,13 +35,10 @@ def lit(angle):
     return math.cos(angle - math.pi / 4)
 
 
-# ------------------------------------------------------------------ disc
 def disc():
     s = Spr(28, 28)
     c = 14.0
-    # face: dark enamel with a soft top-left sheen
     ring(s, c, c, 0, 11, lambda a, r: "d" if (lit(a) < -0.4 and r > 7) else "z")
-    # brass rim: bright on the lit side, deep on the shadow side
     def rim(a, r):
         l = lit(a)
         if r >= 12.5:
@@ -52,9 +49,7 @@ def disc():
             return "y" if r < 11.8 else "B"
         return "B" if r < 11.8 else "b"
     ring(s, c, c, 11, 13.5, rim)
-    # inner bevel line where the face meets the rim
     ring(s, c, c, 10.4, 11, lambda a, r: "k" if lit(a) < 0 else "m")
-    # four tiny contact notches on the rim (they meet the socket's pads)
     for a in (0, math.pi / 2, math.pi, 3 * math.pi / 2):
         x, y = int(c + math.cos(a) * 12.4), int(c + math.sin(a) * 12.4)
         s.px(x, y, "k")
@@ -77,10 +72,8 @@ def emb():
     return Spr(16, 16)
 
 
-# ------------------------------------------------------------------ emblems
 def long_tether():
     e = emb()
-    # coiled wire: a spiral of 1.7 turns around the lower-left
     cx, cy = 6.5, 9.5
     pts = []
     for i in range(80):
@@ -90,10 +83,8 @@ def long_tether():
         pts.append((round(cx + math.cos(a) * r), round(cy + math.sin(a) * r)))
     for i, (x, y) in enumerate(pts):
         e.px(x, y, "c" if i % 9 else "C")
-    # the wire runs off the coil toward the blade
     ex, ey = pts[-1]
     e.line(ex, ey, 11, 4, "c")
-    # blade diamond at the top-right
     e.ascii(10, 0, [
         "..CW.",
         ".CWWC",
@@ -106,7 +97,6 @@ def long_tether():
 
 def magnet_coil():
     e = emb()
-    # horseshoe: thick U, amber body with a highlight band, white pole tips
     cx, cy = 8.0, 8.5
     for y in range(16):
         for x in range(16):
@@ -119,12 +109,10 @@ def magnet_coil():
                 if in_leg and y <= 4:
                     key = "W"
                 e.px(x, y, key)
-    # shading on the right leg / bottom of the arc
     for y in range(5, 15):
         for x in range(9, 15):
             if e.get(x, y)[3] and e.get(x + 1, y)[3] == 0:
                 e.px(x, y, "o")
-    # field sparks between the poles
     e.px(8, 1, "A")
     e.px(7, 2, "a")
     e.px(9, 2, "a")
@@ -137,7 +125,6 @@ def magnet_coil():
 def recall_saw():
     e = emb()
     cx, cy = 8.0, 8.0
-    # body disc, then 8 separate hooked teeth with gaps between them
     for y in range(16):
         for x in range(16):
             dx, dy = x + 0.5 - cx, y + 0.5 - cy
@@ -148,7 +135,6 @@ def recall_saw():
                 e.px(x, y, "X" if (lit(a) < -0.3 and r > 2.8) else "x")
             elif tooth < 0.6 and r < 4.8 + 2.8 * (1.0 - tooth / 0.6):
                 e.px(x, y, "W" if lit(a) < -0.5 else ("X" if lit(a) < 0.3 else "x"))
-    # hub
     e.ellipse(8, 8, 1.6, 1.6, "k")
     e.px(7, 7, "l")
     e.outline("k")
@@ -157,7 +143,6 @@ def recall_saw():
 
 def reflex_core():
     e = emb()
-    # shield
     rows = [
         "..vvvvvvvvvv..",
         ".vVVVVVVVVVvv.",
@@ -174,7 +159,6 @@ def reflex_core():
         "......vv......",
     ]
     e.ascii(1, 1, rows)
-    # hourglass in white: time slowed
     e.ascii(5, 3, [
         "WWWWWW",
         ".WAAW.",
@@ -189,7 +173,6 @@ def reflex_core():
 
 def scrap_plating():
     e = emb()
-    # a riveted armour plate with bevelled corners
     e.rect(2, 2, 12, 12, "g")
     e.rect(2, 2, 12, 1, "w")
     e.rect(2, 2, 1, 12, "l")
@@ -200,7 +183,6 @@ def scrap_plating():
     for x, y in [(4, 4), (11, 4), (4, 11), (11, 11)]:
         e.px(x, y, "W")
         e.px(x + 1, y + 1, "m")
-    # +1 health: a cyan battery cell with a plus
     e.rect(6, 5, 4, 7, "s")
     e.rect(7, 4, 2, 1, "s")
     e.rect(7, 6, 2, 5, "c")
@@ -212,7 +194,6 @@ def scrap_plating():
 
 def steam_vent():
     e = emb()
-    # valve wheel at the bottom
     cx, cy = 8.0, 10.5
     ring(e, cx, cy, 3.6, 5.2, lambda a, r: "y" if lit(a) < 0 else "B")
     for a in (0, math.pi / 2, math.pi, 3 * math.pi / 2):
@@ -220,7 +201,6 @@ def steam_vent():
             e.px(int(cx + math.cos(a) * d), int(cy + math.sin(a) * d), "B")
     e.px(7, 10, "Y")
     e.px(8, 10, "y")
-    # steam puffs rising off it (rounded clusters, lit from the top-left)
     for (px, py, r) in [(5.5, 4.0, 2.2), (9.5, 2.6, 2.0), (12.2, 4.6, 1.5)]:
         e.ellipse(px, py, r, r * 0.85, "w")
         e.ellipse(px - 0.6, py - 0.6, r * 0.6, r * 0.5, "W")
@@ -230,7 +210,6 @@ def steam_vent():
 
 def piston_heart():
     e = emb()
-    # a piston in its cylinder with a spark at the top: faster dashes
     e.rect(5, 6, 6, 9, "g")
     e.rect(5, 6, 1, 9, "l")
     e.rect(10, 6, 1, 9, "m")
@@ -246,7 +225,6 @@ def piston_heart():
 
 def piston_legs():
     e = emb()
-    # a robot leg on a brass piston spring: jump higher
     e.rect(6, 1, 4, 5, "g")
     e.rect(6, 1, 1, 5, "l")
     for y in (7, 9, 11):
@@ -262,7 +240,6 @@ def piston_legs():
 
 def ball_bearings():
     e = emb()
-    # a ring of bearings in a brass race: run faster
     e.ellipse(8, 8, 6, 6, "B")
     e.ellipse(8, 8, 4, 4, None)
     for (x, y) in ((8, 3), (12, 6), (11, 11), (5, 11), (4, 6)):
@@ -286,18 +263,15 @@ EMBLEMS = {
 }
 
 
-# ------------------------------------------------------------------ sockets
 def socket(kind):
     s = Spr(32, 32)
     c = 16.0
-    # outer collar
     def collar(a, r):
         l = lit(a)
         if r >= 15.0:
             return "k"
         return "g" if l < -0.5 else ("m" if l < 0.4 else "d")
     ring(s, c, c, 13.5, 16, collar)
-    # the recess: shadowed on the lit side (it's a hole), with a dark floor
     ring(s, c, c, 0, 13.5, lambda a, r: "k" if (r > 11.5 and lit(a) < 0.2) else "z")
     contact = {"empty": "m", "lit": "c", "over": "x", "locked": None}[kind]
     if contact:
@@ -308,7 +282,6 @@ def socket(kind):
             if kind != "empty":
                 s.px(int(c + math.cos(a) * 13.4), int(c + math.sin(a) * 13.4), "C" if kind == "lit" else "X")
     if kind == "locked":
-        # a bolted cap: plate with two screws and a seam
         ring(s, c, c, 0, 12, lambda a, r: "g" if lit(a) < -0.3 else "m")
         ring(s, c, c, 11, 12, lambda a, r: "k")
         s.hline(7, 16, 18, "k")

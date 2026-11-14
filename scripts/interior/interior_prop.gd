@@ -1,12 +1,5 @@
 class_name InteriorProp
 extends Node2D
-## A piece of pixel art in an interior (top-down, Undertale style):
-##   "stand" - furniture standing on the floor, feet at this node; sorts in depth
-##             with the robot (walk behind a shelf, in front of a counter)
-##   "wall"  - hung on the back wall, centred on this node (windows, maps)
-##   "floor" - lying on the floor under everything, centred on this node (rugs)
-## footprint (px) is the solid part at the base you can't walk through.
-## look_lines makes it something you can look at with [E].
 
 @export var texture: Texture2D
 @export_enum("stand", "wall", "floor") var mode := "stand"

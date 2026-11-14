@@ -1,9 +1,5 @@
 class_name Rustcrawler
 extends EnemyBase
-## A scrap tick that clings to ceilings. When you pass underneath it lets go,
-## lands, and hops after you. Two hits. Place it with its position on the
-## ceiling's underside (it hangs from there).
-##   CLING -> DROP (falls) -> CHASE (scuttles, hops at you when close)
 
 const TEX := preload("res://art/enemies/rustcrawler.png")
 enum S { CLING, DROP, CHASE }
@@ -21,7 +17,6 @@ func _ready() -> void:
 	setup(2, Vector2(14, 10), Vector2(18, 14), Vector2(14, 10))
 	state = S.CLING if start_on_ceiling else S.CHASE
 	if state == S.CLING:
-		# hang below the anchor: the body sits just under the ceiling
 		position.y += 14
 
 
@@ -54,7 +49,7 @@ func _tick(delta: float) -> void:
 					velocity.x = facing * 140.0
 					_hop_cd = 1.1
 				elif is_on_wall():
-					velocity.y = -200.0 # hop over small junk
+					velocity.y = -200.0
 			move_and_slide()
 
 

@@ -1,10 +1,9 @@
 extends PlayerState
-## Rising part of a jump. Releasing jump early cuts the jump short.
 
 func enter(msg := {}) -> void:
 	if msg.get("launched", false):
 		player.visuals.play("jump")
-		return # a wall jump / launch already set the velocity
+		return
 	player.start_jump(float(msg.get("power", 1.0)))
 
 

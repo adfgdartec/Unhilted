@@ -1,6 +1,4 @@
 extends Node2D
-## Melee swing smear: a bright crescent that sweeps and fades in 0.13 s.
-## Rotation = attack direction. Tells the player exactly where the hit lands.
 
 var color := Color(0.45, 0.9, 1.0)
 var reach := 24.0
@@ -8,7 +6,7 @@ var _age := 0.0
 const DURATION := 0.13
 
 
-var flip := false ## sweep the other way (alternating combo swings)
+var flip := false
 
 
 func _ready() -> void:

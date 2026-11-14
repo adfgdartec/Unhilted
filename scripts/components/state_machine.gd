@@ -1,7 +1,5 @@
 class_name StateMachine
 extends Node
-## Holds State children and runs exactly one at a time.
-## Switch with machine.transition("fall") (names are the child node names, lowercase).
 
 signal state_changed(new_state: String)
 

@@ -154,7 +154,7 @@ position = Vector2(220, 440)
 script = ExtResource("e11")
 prompt = "Read"
 title = "MAKER'S PLATE"
-lines = Array[String](["> BOILER 3. INSTALLED BY THE GUILD OF THE SEVEN HAMMERS.", "> PRESSURE SET BY The Pendulum. DO NOT ADJUST.", "> Somebody has adjusted it. The needle is wedged with a spoon."])
+lines = Array[String](["> BOILER 3. INSTALLED BY THE GUILD OF THE SEVEN HAMMERS.", "> PRESSURE SET BY THE PENDULUM. DO NOT ADJUST.", "> Somebody has adjusted it. The needle is wedged with a spoon."])
 size = Vector2(24, 32)
 lore_id = "uw_boiler_plate"
 

@@ -1,5 +1,4 @@
 extends Hitbox
-## Short-lived damaging steam cloud (spawned by the Steam Vent chip).
 
 const LIFETIME := 0.6
 var _age := 0.0
@@ -8,7 +7,7 @@ var _age := 0.0
 func _init() -> void:
 	damage = 1
 	collision_layer = 0
-	collision_mask = 16 # enemy_hurtbox
+	collision_mask = 16
 	var shape := CollisionShape2D.new()
 	var circle := CircleShape2D.new()
 	circle.radius = 14.0

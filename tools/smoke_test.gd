@@ -1,9 +1,6 @@
 extends Node
 
 const TEST_PIT := "res://tools/fixtures/test_pit.tscn"
-## Automated playtest. Run:
-##   godot --headless --path . res://tools/smoke_test.tscn
-## Drives a real game session and prints PASS/FAIL lines.
 
 var main: Node
 var player: Player
@@ -44,11 +41,7 @@ func press(action: String, hold_frames := 2) -> void:
 	await frames(1)
 
 
-## Platforming bot: walk toward a platform-top point, jump when within reach,
-## steer onto it. Returns true if it ends up standing at that height.
 func hop_to(target: Vector2) -> bool:
-	# like a player: a running jump that takes off ~30 px before the platform
-	# edge (targets are points ~10 px inside the near edge)
 	var jumped := false
 	var airborne := 0
 	for i in 150:
@@ -80,7 +73,6 @@ func hop_to(target: Vector2) -> bool:
 	return absf(player.global_position.y - target.y) < 2.0
 
 
-## Walk into a camp building through its door (2.5D interior).
 func enter_building(door_name: String) -> void:
 	var door: Door = WorldManager.current_room.get_node(door_name)
 	player.global_position = door.global_position
@@ -132,7 +124,6 @@ func _run() -> void:
 	player = main.get_node("World/Player")
 	EventBus.toast.connect(func(t): toasts.append(t))
 
-	# --- New game as GIRL chassis
 	main._on_new_game(GameState.Gender.GIRL)
 	await frames(40)
 	check(DialogueManager.active, "intro dialogue plays")
@@ -141,7 +132,7 @@ func _run() -> void:
 	check(GameState.gender == GameState.Gender.GIRL, "chassis = girl")
 	check(DialogueManager.format_text("{They} found {their} blade") == "She found her blade", "pronoun tokens")
 	check(WorldManager.current_room != null and WorldManager.current_room.room_id == &"heap_01_pit", "spawned in the Pit")
-	check(AudioManager.current_track() == "cave", "the cave plays its own music")
+	check(AudioManager.current_track() == "beginning_underground", "the cave plays the underground theme")
 	var missing_sfx := []
 	for f in ["res://scripts", "res://autoload"]:
 		for path in _all_gd(f):
@@ -154,23 +145,18 @@ func _run() -> void:
 	check(GameState.outfit.size() == 4, "starting outfit equipped")
 	check(player.visuals._uses_real_art(), "the robot renders with real layered sprites")
 	check(player.visuals._layers["hood"].sprite_frames != null and player.visuals._layers["cloak_back"].sprite_frames != null, "outfit pieces have sprite layers (hood, cloak back)")
-	# The system checks below run in a fixture copy of the old flat cave layout
-	# (tools/fixtures/test_pit.tscn), so level redesigns don't break them.
-	# The real starting tunnels are played through in heap_test.
 	await WorldManager.change_room(TEST_PIT, &"wake", false)
 	await frames(30)
 	check(player.is_on_floor(), "player lands on floor")
 
-	# --- Run
 	var x0 := player.global_position.x
 	Input.action_press("move_right")
 	await frames(30)
 	Input.action_release("move_right")
 	check(player.global_position.x > x0 + 30, "runs right (%.0f -> %.0f)" % [x0, player.global_position.x])
 
-	# --- Jump
 	await frames(20)
-	player.global_position = Vector2(110, 432) # open headroom (running is faster now, so pin the spot)
+	player.global_position = Vector2(110, 432)
 	player.velocity = Vector2.ZERO
 	await frames(6)
 	var y0 := player.global_position.y
@@ -181,18 +167,15 @@ func _run() -> void:
 	await frames(60)
 	check(player.is_on_floor(), "lands after jump")
 
-	# --- Attack direction from a mouse aim (cursor above = up, beside = forward and turn)
 	check(player.attack_direction(Vector2(0.1, -0.95)) == "up", "cursor above aims the swing up")
 	check(player.attack_direction(Vector2(-0.98, 0.1)) == "forward" and player.facing == -1, "cursor to the left swings left and turns the robot")
 	check(player.attack_direction(Vector2(0.0, 1.0)) == "forward", "no pogo swing while standing")
 	player.facing = 1
 
-	# --- Attack
 	await press("attack")
 	check(player.state_machine.current_name() == "attack", "attack state")
 	await frames(30)
 
-	# --- Throw + recall
 	await press("throw")
 	await frames(3)
 	check(player.blade != null, "blade thrown")
@@ -201,7 +184,6 @@ func _run() -> void:
 	await frames(60)
 	check(player.blade == null, "blade returns by itself")
 
-	# --- Dash
 	await frames(30)
 	x0 = player.global_position.x
 	await press("dash")
@@ -209,10 +191,8 @@ func _run() -> void:
 	check(absf(player.global_position.x - x0) > 25, "dash moves")
 	await frames(30)
 
-	# --- Fluid movement (Ultrakill feel), in a flat test arena built off to the side
 	await _movement_checks()
 
-	# --- Kill a drone with blade hits
 	var drone := WorldManager.current_room.get_node_or_null("Drone1")
 	check(drone != null, "drone exists")
 	if drone:
@@ -224,7 +204,6 @@ func _run() -> void:
 		await frames(5)
 		check(killed[0], "drone dies and emits enemy_killed")
 
-	# --- Feel: move/jump during attacks, autoswing, dash-slash, corner correction, camera fit
 	check(ProjectSettings.get_setting("display/window/stretch/aspect") == "expand", "stretch expands to any window shape (no black bars)")
 	player.global_position = Vector2(80, 432)
 	player.velocity = Vector2.ZERO
@@ -256,7 +235,6 @@ func _run() -> void:
 	await press("attack")
 	check(player.state_machine.current_name() == "attack" and player.state_machine.current.is_rush(), "attacking mid-dash cancels into a Rush slash")
 	await frames(30)
-	# rising into the corner of the first girder (4 px overlap) slides past it
 	player.global_position = Vector2(247, 432)
 	player.velocity = Vector2.ZERO
 	await frames(10)
@@ -277,7 +255,6 @@ func _run() -> void:
 	player.fit_camera_to_room()
 	check(player.camera.zoom.x >= 1.0, "big rooms stay at zoom 1")
 
-	# --- New hazards and enemies
 	var room := WorldManager.current_room
 	player.global_position = Vector2(120, 432)
 	player.velocity = Vector2.ZERO
@@ -329,7 +306,6 @@ func _run() -> void:
 	press.queue_free()
 	player.health.refill()
 	await frames(80)
-	# Rustcrawler: hangs from the ceiling, drops on you, then chases
 	player.global_position = Vector2(140, 432)
 	player.velocity = Vector2.ZERO
 	await frames(10)
@@ -347,7 +323,6 @@ func _run() -> void:
 	await frames(40)
 	check(crawler.global_position.x < cx - 15.0, "then scuttles after you")
 	crawler.queue_free()
-	# Compactor: armoured front, charges, stuns on walls
 	player.global_position = Vector2(400, 432)
 	await frames(10)
 	var comp := Compactor.new()
@@ -380,7 +355,6 @@ func _run() -> void:
 	player.health.refill()
 	await frames(10)
 
-	# --- Flick throw gesture (pure reader, viewport px and seconds)
 	var t0 := 10.0
 	var fast := Player.read_flick([{"t": t0 - 0.2, "p": Vector2(100, 100)}, {"t": t0 - 0.08, "p": Vector2(100, 100)}], t0, Vector2(100, 100), Vector2(260, 60))
 	check(not fast.is_empty() and fast.charged and fast.dir.x > 0.9, "hard flick right: charged throw to the right")
@@ -392,7 +366,6 @@ func _run() -> void:
 	var sens := Player.read_flick([{"t": t0 - 0.08, "p": Vector2(100, 100)}], t0, Vector2(100, 100), Vector2(190, 100), 0.7)
 	check(sens.get("charged", false), "high flick sensitivity charges a smaller flick")
 
-	# --- Combat flow vs a parked drone: pin, rip, zip, catch hop, rush, charged pierce
 	var dummy_scene := load("res://scenes/enemies/scrap_drone.tscn")
 	var spawn_dummy := func(pos: Vector2) -> ScrapDrone:
 		var d: ScrapDrone = dummy_scene.instantiate()
@@ -423,7 +396,6 @@ func _run() -> void:
 	await frames(40)
 	check(player.blade == null, "blade back in hand after the rip")
 	dummy.health.refill()
-	# zip
 	player.global_position = Vector2(250, 432)
 	player.velocity = Vector2.ZERO
 	await frames(10)
@@ -445,7 +417,6 @@ func _run() -> void:
 	check(player.velocity.y < -100.0 and player.can_air_dash, "zip bounces the robot up with the air dash back")
 	await frames(40)
 	dummy.health.refill()
-	# catch hop: a blade that hit something, caught in the air
 	player.global_position = Vector2(250, 432)
 	player.velocity = Vector2.ZERO
 	await frames(10)
@@ -459,7 +430,6 @@ func _run() -> void:
 	await frames(4)
 	check(player.blade == null and player.can_air_dash and player.velocity.y < 0.0, "catching a blade that hit, in mid-air: air dash back + hop")
 	await frames(40)
-	# rush slash
 	player.global_position = Vector2(250, 432)
 	player.velocity = Vector2.ZERO
 	await frames(10)
@@ -472,10 +442,9 @@ func _run() -> void:
 	await press("attack")
 	check(player.state_machine.current_name() == "attack" and player.state_machine.current.is_rush() and player.melee_hitbox.damage == 2, "swing while moving fast is a Rush slash (+1)")
 	await frames(25)
-	# charged throw: double damage, pierces, doesn't pin
 	dummy.health.refill()
 	var dummy2: ScrapDrone = spawn_dummy.call(Vector2(380, 424))
-	dummy.global_position = Vector2(330, 424) # earlier hits knocked it back
+	dummy.global_position = Vector2(330, 424)
 	player.global_position = Vector2(250, 432)
 	player.velocity = Vector2.ZERO
 	await frames(15)
@@ -485,7 +454,6 @@ func _run() -> void:
 	await frames(12)
 	check(dummy.health.current == 6 and dummy2.health.current == 6, "charged blade hits both drones for 4 (hp %d, %d)" % [dummy.health.current, dummy2.health.current])
 	await frames(60)
-	# aim-assist bends a loose throw onto an enemy
 	var loose := player.aim_toward(dummy.hurtbox.global_position).rotated(-0.2)
 	var bent: Node2D = player.enemy_target(loose)
 	check(bent != null, "throw ~11 degrees off still targets the drone")
@@ -493,7 +461,6 @@ func _run() -> void:
 	dummy2.queue_free()
 	await frames(5)
 
-	# --- Gamepad: hold RB to charge, release to throw
 	player.global_position = Vector2(250, 432)
 	player.velocity = Vector2.ZERO
 	await frames(10)
@@ -505,7 +472,6 @@ func _run() -> void:
 	check(player.blade != null and player.blade.charged, "releasing after a long hold throws a charged blade")
 	await frames(60)
 
-	# --- Spotter drone: telegraphs, fires a bolt, bolt can be destroyed, dies to 2 hits
 	var spotter = WorldManager.current_room.get_node_or_null("Spotter1")
 	check(spotter != null, "spotter exists")
 	if spotter:
@@ -540,7 +506,6 @@ func _run() -> void:
 		check(not is_instance_valid(spotter), "spotter dies after 2 hits")
 		player.health.refill()
 
-	# --- Grapple to the crane hook ledge
 	player.global_position = Vector2(880, 300)
 	player.velocity = Vector2.ZERO
 	await frames(20)
@@ -558,7 +523,6 @@ func _run() -> void:
 	await frames(60)
 	check(player.global_position.y < 230 and player.is_on_floor(), "grappled up onto ledge (y=%.0f)" % player.global_position.y)
 
-	# --- Level reachability: the opening climb works with a plain jump (jump height 58 px)
 	player.global_position = Vector2(110, 432)
 	player.velocity = Vector2.ZERO
 	await frames(15)
@@ -581,7 +545,6 @@ func _run() -> void:
 	Input.action_release("move_right")
 	await frames(30)
 	check(player.is_on_floor() and absf(player.global_position.y - 336.0) < 2.0, "girder to container jump works (y=%.0f)" % player.global_position.y)
-	# tutorial hook: aim at it (as the mouse would), throw, reel in, land on the vest ledge
 	player.global_position = Vector2(300, 336)
 	player.velocity = Vector2.ZERO
 	await frames(10)
@@ -589,21 +552,19 @@ func _run() -> void:
 	var aim: Vector2 = player.aim_toward(tut_hook.global_position)
 	check(player.grapple_target(aim) == tut_hook, "aiming at the tutorial hook targets it")
 	player.aim_vector = aim
-	player.throw_blade() # same path a mouse click takes, with the aim it would compute
+	player.throw_blade()
 	await frames(20)
 	check(player.blade != null and player.blade.is_hooked(), "blade catches the tutorial hook")
 	await press("throw")
 	await frames(60)
 	check(player.is_on_floor() and absf(player.global_position.y - 228.0) < 2.0, "reeled up onto the vest ledge (y=%.0f)" % player.global_position.y)
 
-	# --- Ability gate needs Shard I
 	var gate := WorldManager.current_room.get_node_or_null("ScrapWall")
 	if gate:
 		gate._hurtbox.take_hit(1, gate.global_position)
 		await frames(3)
 		check(is_instance_valid(gate) and not gate.is_queued_for_deletion(), "gate holds without Shard I")
 
-	# --- Pick up power cell (walk onto it)
 	player.global_position = Vector2(1030, 214)
 	await frames(10)
 	check(GameState.key_item_count(&"power_cell") == 1, "power cell collected")
@@ -611,13 +572,11 @@ func _run() -> void:
 	await frames(10)
 	check(GameState.get_balance(&"heap") >= 1, "bottlecap collected (%d)" % GameState.get_balance(&"heap"))
 
-	# --- Go to camp
 	await WorldManager.change_room("res://scenes/rooms/heap/heap_02_camp.tscn", &"from_pit")
 	await frames(10)
 	check(WorldManager.current_room.room_id == &"heap_02_camp", "entered camp")
-	check(AudioManager.current_track() == "camp", "camp music crossfades in")
+	check(AudioManager.current_track() == "beginning_aboveground", "the above-ground theme crossfades in at the camp")
 
-	# --- Quest with Tinker (item found before accepting still counts)
 	var tinker: NPC = WorldManager.current_room.get_node("Tinker")
 	tinker.interact(player)
 	await frames(5)
@@ -632,7 +591,6 @@ func _run() -> void:
 	check(GameState.get_balance(&"heap") == caps_before + 4, "quest paid 4 bottlecaps")
 	check(&"recall_saw" in GameState.owned_chips, "quest gave Recall Saw chip")
 
-	# --- Bigger camp: tower, hook alcove, readables, hatch to the Hollow
 	check(WorldManager.current_room.bounds.size.x >= 1900.0, "camp is twice as wide")
 	player.global_position = Vector2(1040, 336)
 	player.velocity = Vector2.ZERO
@@ -654,7 +612,6 @@ func _run() -> void:
 	await frames(20)
 	check(player.blade != null and player.blade.is_hooked(), "lookout: blade reaches the alcove hook")
 	await press("throw")
-	# the reel flings you on past the hook (momentum); give it time to land
 	for k in 120:
 		await frames(1)
 		if player.is_on_floor() and k > 20:
@@ -705,7 +662,6 @@ func _run() -> void:
 	player.global_position = Vector2(600, 336)
 	await frames(10)
 
-	# --- Map and journal
 	var map_ok := true
 	var region_dirs := {&"heap": "heap", &"underworks": "underworks"}
 	for region in MapData.REGIONS:
@@ -759,9 +715,7 @@ func _run() -> void:
 	await frames(2)
 	await gui.close()
 
-	# --- Shop
 	var ui = main.get_node("GameUI")
-	# --- Walk-in building (top-down, Undertale style): Rusty's shop
 	var outside_room := WorldManager.current_room
 	await enter_building("DoorRusty")
 	var inside: InteriorRoom = WorldManager.interior
@@ -845,7 +799,6 @@ func _run() -> void:
 	await skip_dialogue()
 	await leave_building()
 
-	# --- Dock: heal, save, loadout, overclock
 	var dock = WorldManager.current_room.get_node("ChargingDock")
 	player.health.damage(2)
 	dock.interact(player)
@@ -894,7 +847,6 @@ func _run() -> void:
 	check(GameState.outfit.has(CosmeticItem.Slot.CLOAK), "wardrobe cycles cloak")
 	await ui.close()
 
-	# --- Boss: INTAKE UNIT 7
 	GameState.equipped_chips.clear()
 	EventBus.loadout_changed.emit()
 	await WorldManager.change_room("res://scenes/rooms/heap/heap_03_intake.tscn", &"from_camp")
@@ -908,10 +860,9 @@ func _run() -> void:
 	await skip_dialogue()
 	await frames(10)
 	check(boss.state != IntakeCrane.S.IDLE, "boss fight starts")
-	check(AudioManager.current_track() == "boss", "boss music takes over during the fight")
+	check(AudioManager.current_track() == "boss_final", "the crane fights to its own boss track")
 	check(arena._door != null, "arena door shuts")
 	check(not boss._hurtbox.take_hit(1, player.global_position), "raised boss is armoured")
-	# side platforms reachable with a plain jump
 	var boss_was = boss.state
 	boss.set_physics_process(false)
 	player.global_position = Vector2(30, 320)
@@ -926,7 +877,6 @@ func _run() -> void:
 	await frames(30)
 	check(player.is_on_floor() and absf(player.global_position.y - 272.0) < 2.0, "Intake side platform reachable by jump (y=%.0f)" % player.global_position.y)
 	boss.set_physics_process(true)
-	# throw at the armour: blade glances off
 	boss._enter(IntakeCrane.S.TRACK)
 	boss.head = Vector2(320, IntakeCrane.UP_Y)
 	player.global_position = Vector2(300, 236)
@@ -943,7 +893,6 @@ func _run() -> void:
 			break
 	check(glanced and boss.hp == IntakeCrane.MAX_HP, "blade glances off armour, no damage")
 	await frames(40)
-	# full slam cycle on its own: wait for STUCK
 	player.global_position = Vector2(100, 320)
 	var reached_stuck := false
 	for i in 400:
@@ -953,7 +902,6 @@ func _run() -> void:
 			break
 	check(reached_stuck, "boss tracks, warns and slams on its own")
 	check(boss.is_vulnerable(), "core open after slam")
-	# punish windows until dead
 	var guard := 0
 	while boss.hp > 0 and guard < 60:
 		guard += 1
@@ -976,12 +924,10 @@ func _run() -> void:
 		await frames(10)
 	check(GameState.has_shard(1), "Shard I collected")
 	await skip_dialogue()
-	# re-entering shows the wreck, no second fight
 	await WorldManager.change_room("res://scenes/rooms/heap/heap_02_camp.tscn", &"from_intake")
 	await WorldManager.change_room("res://scenes/rooms/heap/heap_03_intake.tscn", &"from_camp")
 	await frames(5)
 	check(WorldManager.current_room.get_node("BossArena/IntakeCrane").state == IntakeCrane.S.WRECKED, "beaten boss stays beaten")
-	# progression loop: the Pit's scrap wall now splits
 	await WorldManager.change_room(TEST_PIT, &"from_camp")
 	await frames(5)
 	var wall = WorldManager.current_room.get_node_or_null("ScrapWall")
@@ -996,7 +942,6 @@ func _run() -> void:
 	await WorldManager.change_room("res://scenes/rooms/heap/heap_02_camp.tscn", &"dock")
 	await frames(5)
 
-	# --- Settings
 	Fx.shake_enabled = false
 	Fx.save_settings()
 	Fx.shake_enabled = true
@@ -1005,7 +950,6 @@ func _run() -> void:
 	Fx.shake_enabled = true
 	Fx.save_settings()
 
-	# --- Death drops scrap, respawn at dock
 	await frames(5)
 	GameState.add_scrap(30)
 	var scrap_before := GameState.scrap
@@ -1019,7 +963,6 @@ func _run() -> void:
 	check(player.global_position.distance_to(Vector2(480, 336)) < 20, "respawned at dock")
 	check(GameState.lost_scrap.get("amount", 0) == scrap_before, "lost scrap remembered")
 	check(toasts.any(func(t): return t.begins_with("Dropped %d scrap" % scrap_before)), "death tells you what you dropped")
-	# die again with new scrap before recovering: old drop is replaced, and you are told
 	GameState.add_scrap(12)
 	player.health.damage(99)
 	await frames(5)
@@ -1027,7 +970,6 @@ func _run() -> void:
 	await get_tree().create_timer(3.0).timeout
 	check(GameState.lost_scrap.get("amount", 0) == 12, "newest drop is the one remembered")
 
-	# --- Residents: one family, no twins, stable looks
 	var L: Lineage = load("res://data/lineages/heapfolk.tres")
 	var a := NPCLook.build(L, NPCLook.roll(L, 1234, "adult", {}))[0].get_image()
 	var a2 := NPCLook.build(L, NPCLook.roll(L, 1234, "adult", {}))[0].get_image()
@@ -1046,7 +988,6 @@ func _run() -> void:
 			lens_found += 1
 	check(lens_found == 2, "every resident carries the family's amber lens")
 
-	# --- Save / load round trip
 	SaveManager.save_game()
 	var snapshot := JSON.stringify(GameState.to_dict())
 	GameState.reset()
@@ -1058,7 +999,6 @@ func _run() -> void:
 	get_tree().quit(1 if fails > 0 else 0)
 
 
-## A long flat floor with a wall at each end, far from the room's own geometry.
 func _make_arena() -> StaticBody2D:
 	var body := StaticBody2D.new()
 	for r in [Rect2(0, 2400, 3000, 40), Rect2(-40, 1600, 40, 840), Rect2(3000, 1600, 40, 840)]:
@@ -1078,7 +1018,6 @@ func _put(pos: Vector2, vel := Vector2.ZERO) -> void:
 	player.state_machine.transition("idle" if vel == Vector2.ZERO else "fall")
 
 
-## Runs right, jumps (held), returns the distance covered from takeoff to landing.
 func _jump_distance(slide: bool) -> float:
 	_put(Vector2(200, 2400))
 	await frames(4)
@@ -1121,11 +1060,9 @@ func _movement_checks() -> void:
 	var plain := await _jump_distance(false)
 	var slid := await _jump_distance(true)
 	check(slid > plain * 1.5, "a slide-jump goes much farther than a running jump (%.0f vs %.0f px)" % [slid, plain])
-	# momentum in the air
 	_put(Vector2(1500, 2100), Vector2(420, 0))
 	await frames(15)
 	check(player.velocity.x > 340.0, "speed above a run is kept in the air (420 -> %.0f px/s after 0.25 s)" % player.velocity.x)
-	# wall slide and wall jumps
 	_put(Vector2(2990, 2200), Vector2(0, 60))
 	Input.action_press("move_right")
 	await frames(12)
@@ -1144,7 +1081,6 @@ func _movement_checks() -> void:
 	_put(Vector2(1000, 2400))
 	await frames(6)
 	check(player.wall_jumps_left == Player.MAX_WALL_JUMPS, "landing gives the wall jumps back")
-	# dash-jump
 	_put(Vector2(400, 2400))
 	await frames(10)
 	player.dash_cooldown.stop()
@@ -1154,7 +1090,6 @@ func _movement_checks() -> void:
 	await frames(3)
 	check(player.velocity.y < 0.0 and absf(player.velocity.x) > 300.0, "jumping out of a ground dash keeps its speed (%.0f px/s)" % absf(player.velocity.x))
 	await frames(60)
-	# close-hit healing
 	player.health.damage(2)
 	var hp := player.health.current
 	player.heal_charge = 0

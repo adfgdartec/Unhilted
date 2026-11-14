@@ -1,7 +1,5 @@
 class_name FxParticles
 extends RefCounted
-## Ready-made CPUParticles2D setups. Particles are square pixels (no texture)
-## so they match the art; colour ramps fade them out instead of popping.
 
 static var _streak: Texture2D
 
@@ -22,7 +20,6 @@ static func _fade(c: Color, hold := 0.5) -> Gradient:
 	return g
 
 
-## One-shot spray of debris/sparks (hits, deaths, pickups).
 static func burst(color: Color, amount := 12, speed := 130.0, gravity := 380.0) -> CPUParticles2D:
 	var p := _base(amount, 0.5)
 	p.one_shot = true
@@ -40,7 +37,6 @@ static func burst(color: Color, amount := 12, speed := 130.0, gravity := 380.0) 
 	return p
 
 
-## Sideways ground puff (landings, slams).
 static func puff(color: Color, amount := 8, speed := 60.0) -> CPUParticles2D:
 	var p := _base(amount, 0.45)
 	p.one_shot = true
@@ -58,7 +54,6 @@ static func puff(color: Color, amount := 8, speed := 60.0) -> CPUParticles2D:
 	return p
 
 
-## Slow drifting dust/ash across a whole room.
 static func motes(area: Rect2, color: Color, amount: int) -> CPUParticles2D:
 	var p := _base(amount, 7.0)
 	p.preprocess = 7.0
@@ -81,7 +76,6 @@ static func motes(area: Rect2, color: Color, amount: int) -> CPUParticles2D:
 	return p
 
 
-## Light slanted drizzle over a room.
 static func rain(area: Rect2) -> CPUParticles2D:
 	if _streak == null:
 		var img := Image.create(1, 6, false, Image.FORMAT_RGBA8)
@@ -104,7 +98,6 @@ static func rain(area: Rect2) -> CPUParticles2D:
 	return p
 
 
-## Rising embers (fires).
 static func embers() -> CPUParticles2D:
 	var p := _base(12, 1.6)
 	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_SPHERE
@@ -118,7 +111,6 @@ static func embers() -> CPUParticles2D:
 	return p
 
 
-## Thin smoke (exhausts).
 static func smoke() -> CPUParticles2D:
 	var p := _base(10, 2.4)
 	p.direction = Vector2.UP
@@ -132,7 +124,6 @@ static func smoke() -> CPUParticles2D:
 	return p
 
 
-## Occasional spits of sparks (faulty neon, broken cables).
 static func sparks() -> CPUParticles2D:
 	var p := _base(7, 2.8)
 	p.explosiveness = 1.0
@@ -145,7 +136,6 @@ static func sparks() -> CPUParticles2D:
 	return p
 
 
-## Falling grit (chutes, ceilings).
 static func trickle(color: Color) -> CPUParticles2D:
 	var p := _base(14, 1.8)
 	p.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE

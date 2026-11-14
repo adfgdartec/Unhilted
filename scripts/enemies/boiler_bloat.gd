@@ -1,12 +1,7 @@
 class_name BoilerBloat
 extends EnemyBase
-## A floating pressure tank that drifts toward you. Close up it swells,
-## glows red and bursts (the swell is the tell: get away). Killing it sets
-## it off too, a beat later, so pop it from range with the thrown blade, or
-## hit it and dash clear. The burst hurts other enemies as well.
-##   DRIFT -> SWELL -> BURST
 
-const TEX := preload("res://art/enemies/boiler_bloat.png") # calm, swelling, about to burst
+const TEX := preload("res://art/enemies/boiler_bloat.png")
 const BURST_RADIUS := 52.0
 enum S { DRIFT, SWELL }
 
@@ -56,7 +51,6 @@ func _swell(t: float) -> void:
 
 
 func _on_died() -> void:
-	# killed: it goes off a beat later instead of dropping quietly
 	hurtbox.set_deferred("monitorable", false)
 	hitbox.set_deferred("monitoring", false)
 	_swell(0.3)

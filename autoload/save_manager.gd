@@ -1,7 +1,4 @@
 extends Node
-## Writes GameState to a JSON file and reads it back.
-## Saves happen at charging docks and on every room transition (pickups stick),
-## but you always *respawn* at the last dock, Hollow Knight style.
 
 const SAVE_PATH := "user://save_slot_1.json"
 
@@ -12,7 +9,7 @@ func has_save() -> bool:
 
 func save_game() -> void:
 	if DemoMode.enabled():
-		return # the showcase demo never writes a save
+		return
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		push_error("SaveManager: could not write save (%s)" % FileAccess.get_open_error())

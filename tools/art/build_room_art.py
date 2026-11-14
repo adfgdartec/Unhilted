@@ -45,12 +45,7 @@ def hexc(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-# ------------------------------------------------------------------ variants
-# Each ramp runs dark -> light. "void" is the colour deep inside walls.
-# The light is painted in, so the room's ambient stays fairly bright.
 VARIANTS = {
-    # Blasphemous-leaning: near-black, cold grey-brown stone, gilt brass, a
-    # deep red accent; very high contrast; gold light.
     "gothic": dict(
         void="0b0a0e", mortar="15121a",
         stone=["1d1a22", "2a252d", "3a333a", "4d444a", "675b5c", "8a7a74"],
@@ -60,8 +55,6 @@ VARIANTS = {
         light=["8c6a3c", "c99a52", "f0cf8a"], light_strength=1.0, noise=0.06,
         sky_top="06060a", sky_bot="1a1418", fog="241e24", fog2="3a2e30",
         win=["4a2e18", "a8702e", "f2c26a"], ambient=(0.86, 0.84, 0.88)),
-    # The region's own colour pushed hard: green-black, oxidised copper,
-    # cold mist, amber lamps.
     "verdigris": dict(
         void="070d0c", mortar="0d1513",
         stone=["14201d", "1e2e2a", "2a3f39", "3a544b", "4f6e62", "6f8f80"],
@@ -71,8 +64,6 @@ VARIANTS = {
         light=["7a5a30", "c08a46", "f5c878"], light_strength=0.95, noise=0.08,
         sky_top="040808", sky_bot="0f1c18", fog="15241f", fog2="22382f",
         win=["3e2a14", "a06a28", "f0b85a"], ambient=(0.82, 0.88, 0.86)),
-    # Warm soot and rust, bigger cleaner clusters (less noise): punchier and
-    # more readable, Dead Cells-leaning saturation in the highlights.
     "ember": dict(
         void="0d0807", mortar="170e0c",
         stone=["21140f", "321e16", "4a2c1e", "653c26", "8a5232", "b8763e"],
@@ -90,14 +81,12 @@ def pal(v, key):
     return [hexc(x) for x in c] if isinstance(c, list) else hexc(c)
 
 
-# ------------------------------------------------------------------ scene parsing
 def parse_room(room_id):
     folder = "underworks" if room_id.startswith("uw_") else "heap"
     t = open(os.path.join(ROOT, "scenes", "rooms", folder, room_id + ".tscn")).read()
     b = [float(x) for x in re.search(r"bounds = Rect2\(([^)]*)\)", t).group(1).split(",")]
     solids = [tuple(float(x) for x in m.split(",")) for m in re.findall(r"Rect2\(([^)]*)\)", re.search(r"solids = Array\[Rect2\]\(\[(.*?)\]\)", t).group(1))]
     styles = re.findall(r'"(\w+)"', re.search(r"solid_styles = PackedStringArray\((.*?)\)", t).group(1))
-    # light sources: gas lamps (+ their radius), wall lamps
     lamp_ext = re.search(r'path="res://scripts/world/gas_lamp.gd" id="(\w+)"', t)
     lamps = []
     if lamp_ext:
@@ -113,7 +102,6 @@ def parse_room(room_id):
     return dict(id=room_id, w=int(b[2]), h=int(b[3]), solids=solids, styles=styles, lamps=lamps)
 
 
-# ------------------------------------------------------------------ helpers
 class Canvas:
     """An RGBA canvas that only ever receives palette colours."""
 
@@ -160,7 +148,6 @@ def band(value, x, y):
     return int(math.floor(value + BAYER[y % 4, x % 4]))
 
 
-# ------------------------------------------------------------------ terrain
 def paint_terrain(room, vname):
     v = VARIANTS[vname]
     W, H = room["w"], room["h"]
@@ -172,7 +159,6 @@ def paint_terrain(room, vname):
     lights = pal(v, "light")
     stain, stain2, moss = pal(v, "stain"), pal(v, "stain2"), pal(v, "moss")
 
-    # solid mask (grates are thin and drawn separately)
     mask = np.zeros((chh, cw), bool)
     kind = np.full((chh, cw), "", object)
     for (x, y, w, h), st in zip(room["solids"], room["styles"]):
@@ -181,7 +167,6 @@ def paint_terrain(room, vname):
             continue
         mask[y:y + h, x:x + w] = True
         kind[y:y + h, x:x + w] = st
-    # room edges count as solid beyond the bounds, so walls at the border don't get lit rims outside
     outside = np.ones((chh, cw), bool)
     outside[pad:pad + H, pad:pad + W] = False
     solid_or_out = mask | outside
@@ -195,7 +180,6 @@ def paint_terrain(room, vname):
     air_left[:, 1:] = air[:, :-1]
     air_right = np.zeros_like(mask)
     air_right[:, :-1] = air[:, 1:]
-    # distance down from the nearest top surface (for floor courses)
     top_dist = np.full((chh, cw), 999, np.int32)
     for x in range(cw):
         run = 999
@@ -208,7 +192,6 @@ def paint_terrain(room, vname):
     L = np.zeros((chh, cw), np.float32)
     L[pad:pad + H, pad:pad + W] = light_map(room, W, H, v)
 
-    # --- brick layout in world coordinates (random bond, rows 5..8 px)
     row_of = {}
     yb = -pad
     row = 0
@@ -246,7 +229,6 @@ def paint_terrain(room, vname):
         k = kind[y, x]
         lit = L[y, x]
         if k == "plate" and top_dist[y, x] < 10:
-            # the walking surface: riveted plates of varying width (seams every 28..52 px)
             sx = -pad
             pid = 0
             while True:
@@ -259,15 +241,15 @@ def paint_terrain(room, vname):
             ty = top_dist[y, x]
             base = {0: 5, 1: 4, 2: 3, 7: 1, 8: 0, 9: 0}.get(ty, 2)
             if lx == 0:
-                base = 0                      # seam
+                base = 0
             elif lx == 1 and ty > 0:
                 base = min(base + 1, 4)
             if ty == 4 and (lx % 12 == 5):
-                base = 4                      # rivet
+                base = 4
             if ty == 5 and (lx % 12 == 5):
-                base = 1                      # its shadow
+                base = 1
             if ty == 0 and hsh(x, 9) % 5 == 0:
-                base = 4                      # scuffed edge
+                base = 4
             lb = band(lit * 3.0, x, y)
             if lb >= 1 and ty <= 1:
                 out[y, x] = lights[min(2, lb)]
@@ -277,37 +259,35 @@ def paint_terrain(room, vname):
             out[y, x] = plate[max(0, min(5, base))]
             alpha[y, x] = 255
             continue
-        # stone (brick walls, ceilings, and under the floor plates)
         row, sid, sx, sy, sw, shh = stone_at(x, y)
         if sy == shh - 1 or sx == 0:
             col = mortar
         else:
-            v0 = 2 + (hsh(row, sid, 13) % 3) - 1          # per-stone value
+            v0 = 2 + (hsh(row, sid, 13) % 3) - 1
             if sy == 0 or sx == 1:
-                v0 += 1                                      # lit top-left edge
+                v0 += 1
             if sy == shh - 2 or sx == sw - 1:
-                v0 -= 1                                      # shaded bottom-right
+                v0 -= 1
             if (sx in (1, sw - 1)) and (sy in (0, shh - 2)) and hsh(row, sid, 21) % 3 == 0:
-                v0 = -9                                      # chipped corner
+                v0 = -9
             if hsh(row, sid, 31) % 9 == 0 and abs((sx - 2) - (sy * 2)) == 0:
-                v0 = -9                                      # a hairline crack
-            # light from above: top courses lit, falling off fast into the mass
+                v0 = -9
             td = top_dist[y, x]
             if td < 2:
                 v0 += 2
             elif td < 6:
                 v0 += 1
             if air_below[y, x] or (d < 3 and td > 900):
-                v0 -= 1                                      # undersides sit in shadow
-            v0 -= band(min(d, 40) / 7.0, x, y)               # mass: deeper = darker, hard dithered bands
+                v0 -= 1
+            v0 -= band(min(d, 40) / 7.0, x, y)
             lb = band(lit * 3.2, x, y)
             if lb >= 2 and d <= 3 and (sy == 0 or td == 0):
-                out[y, x] = lights[min(2, lb - 1)]           # drawn lamplight catching an edge
+                out[y, x] = lights[min(2, lb - 1)]
                 alpha[y, x] = 255
                 continue
             v0 += min(lb, 2)
             if hsh(row, sid, 6) % 100 < noise * 100:
-                v0 += 1                                      # a paler stone here and there
+                v0 += 1
             if v0 <= -9:
                 col = mortar
             elif v0 < 0:
@@ -320,27 +300,25 @@ def paint_terrain(room, vname):
     C.a[..., :3] = out
     C.a[..., 3] = alpha
 
-    # --- edge work: ledge lips on floors, drips and soot under ceilings
     for y, x in zip(*np.nonzero(mask & air_above)):
         if kind[y, x] == "brick" and hsh(x, 41) % 11 == 0 and y > 0:
-            C.px(x, y - 1, stone[3])                     # a broken lip sticking up
+            C.px(x, y - 1, stone[3])
         if hsh(x, y, 43) % 23 == 0 and kind[y, x] != "plate":
-            C.px(x, y - 1, moss[1])                      # moss tufts on stone ledges
+            C.px(x, y - 1, moss[1])
             if hsh(x, 44) % 2:
                 C.px(x + 1, y - 1, moss[0])
     for y, x in zip(*np.nonzero(mask & air_below)):
         if hsh(x, 51) % 7 == 0:
-            ln = 2 + hsh(x, 52) % 9                      # soot / water drips hanging off undersides
+            ln = 2 + hsh(x, 52) % 9
             for k in range(ln):
                 if hsh(x, k, 53) % 4 != 0:
                     C.px(x, y + 1 + k, stain if k < ln - 1 else stone[1])
         if hsh(x, 54) % 31 == 0:
-            ln = 8 + hsh(x, 55) % 28                     # hanging chains
+            ln = 8 + hsh(x, 55) % 28
             for k in range(ln):
                 C.px(x, y + 1 + k, iron[2] if k % 3 != 2 else iron[4])
                 if k % 3 == 1:
                     C.px(x + 1, y + 1 + k, iron[1])
-    # stains running down wall faces (verdigris / rust streaks)
     for y, x in zip(*np.nonzero(mask & (air_left | air_right))):
         if hsh(x, y // 24, 61) % 6 == 0 and top_dist[y, x] < 999:
             for k in range(1, 4):
@@ -348,12 +326,10 @@ def paint_terrain(room, vname):
                 if 0 <= xx < cw and mask[y, xx] and hsh(x, y, k) % 3:
                     C.px(xx, y, stain2)
 
-    # --- rubble and junk on floor tops
     tops = [(y, x) for y, x in zip(*np.nonzero(mask & air_above)) if top_dist[y, x] == 0]
     for (y, x) in tops:
         h_ = hsh(x, y, 71) % 97
         if h_ < 3:
-            # a little pile of broken stone
             n = 2 + hsh(x, 72) % 4
             for i in range(n):
                 dx = (hsh(x, i, 73) % 9) - 4
@@ -362,16 +338,13 @@ def paint_terrain(room, vname):
                     for xx in range(s + 1):
                         C.px(x + dx + xx, y - 1 - yy, stone[2 + (xx + yy) % 2] if yy < s - 1 or xx else stone[4])
         elif h_ < 4:
-            # a broken cog
             for (dx, dy, c) in ((0, -1, 4), (1, -1, 3), (2, -1, 4), (0, -2, 3), (2, -2, 5), (1, -3, 4)):
                 C.px(x + dx, y + dy, plate[c])
         elif h_ < 5:
-            # a puddle catching the light
             for dx in range(6 + hsh(x, 75) % 6):
                 C.px(x + dx, y, iron[1])
             C.px(x + 2, y, lights[1] if L[y, x] > 0.15 else iron[3])
 
-    # --- grates: catwalks with see-through bars and brackets underneath
     for (x, y, w, h), st in zip(room["solids"], room["styles"]):
         if st != "grate":
             continue
@@ -388,12 +361,12 @@ def paint_terrain(room, vname):
                 elif (xx - x) % 4 == 2 and yy == y + h // 2:
                     C.px(xx, yy, iron[1])
         bx = x + 6
-        while bx < x + w - 4:                            # brackets under the catwalk
+        while bx < x + w - 4:
             for k in range(6):
                 C.px(bx + k // 2, y + h + k, iron[1])
                 C.px(bx, y + h + k, iron[2])
             bx += 30 + hsh(bx, 81) % 14
-        for xx in range(x, x + w):                       # rust drip
+        for xx in range(x, x + w):
             if hsh(xx, 82) % 13 == 0:
                 for k in range(1 + hsh(xx, 83) % 4):
                     C.px(xx, y + h + k, stain2)
@@ -417,7 +390,7 @@ def paint_front(room, vname):
     while x < W - 20:
         kind = hsh(x, 2) % 3
         y0 = top[min(W - 1, x)]
-        if kind == 0:   # a heavy chain hanging in front
+        if kind == 0:
             ln = 30 + hsh(x, 3) % 70
             for k in range(ln):
                 C.px(x, y0 + k, void)
@@ -426,12 +399,12 @@ def paint_front(room, vname):
                     C.px(x + 1, y0 + k, void)
             for k in range(3):
                 C.rect(x - 3, y0 + ln + k, 7, 1, void)
-        elif kind == 1:  # a pipe dropping out of the ceiling, with a flange
+        elif kind == 1:
             ln = 16 + hsh(x, 4) % 30
             C.rect(x - 4, y0, 9, ln, void)
             C.rect(x - 6, y0 + ln - 3, 13, 3, void)
             C.px(x - 3, y0 + 2, iron[1])
-        else:            # a broken cable loop
+        else:
             for t in range(40):
                 a = t / 39.0
                 cx = int(x + a * 46)
@@ -442,7 +415,6 @@ def paint_front(room, vname):
     return C.image()
 
 
-# ------------------------------------------------------------------ backdrops
 def dither_mix(c0, c1, t, x, y):
     return c1 if t > BAYER[y % 4, x % 4] else c0
 
@@ -455,8 +427,6 @@ def paint_backdrop(vname):
     fog, fog2 = hexc(v["fog"]), hexc(v["fog2"])
     top, bot = hexc(v["sky_top"]), hexc(v["sky_bot"])
     win = pal(v, "win")
-    # far: dark vault, dithered fog bands, a far arcade with uneven bays,
-    # lit windows of houses on the pipes, a flywheel silhouette.
     far = Canvas(W, H)
     for y in range(H):
         t = y / H
@@ -471,7 +441,7 @@ def paint_backdrop(vname):
     sil = stone[0]
     sil2 = stone[1]
     x = -10
-    while x < W + 20:   # far arcade: piers of uneven width, arches of uneven span, some broken
+    while x < W + 20:
         pw = 10 + hsh(x, 1) % 10
         span = 44 + hsh(x, 2) % 34
         base_top = 150 + hsh(x, 3) % 30
@@ -494,7 +464,7 @@ def paint_backdrop(vname):
     for xx in range(W):
         for yy in range(122, 130 + (hsh(xx // 37, 9) % 3)):
             far.px(xx, yy, sil)
-    for i in range(9):  # houses on the pipes, lit windows of mixed sizes, some dark
+    for i in range(9):
         hx = (i * 73 + hsh(i, 11) % 40) % W
         hw = 18 + hsh(i, 12) % 22
         hh = 26 + hsh(i, 13) % 34
@@ -520,14 +490,14 @@ def paint_backdrop(vname):
                 for a in range(ww):
                     for b in range(wh):
                         far.px((wx + a) % W, wy + b, c if (a, b) != (0, 0) else win[0])
-    for xx in range(W):  # the carrying pipe, with brackets
+    for xx in range(W):
         far.px(xx, 240, sil2)
         for yy in range(241, 247):
             far.px(xx, yy, sil)
         if xx % 41 == 7:
             for yy in range(238, 250):
                 far.px(xx, yy, sil2)
-    cx, cy, r = 470, 150, 84  # flywheel silhouette, pixel-plotted
+    cx, cy, r = 470, 150, 84
     for a in range(0, 720):
         t = a / 720 * math.tau
         for rr in range(r - 6, r + 1):
@@ -537,15 +507,12 @@ def paint_backdrop(vname):
         for k in range(r):
             for w_ in (-1, 0, 1):
                 far.px(int(cx + math.cos(t) * k + w_) % W, int(cy + math.sin(t) * k), sil)
-    for y in range(260, H):  # dithered fog veil over the lower third
+    for y in range(260, H):
         t = (y - 260) / (H - 260)
         for x in range(W):
             if (t * 0.6) > BAYER[y % 4, x % 4] and (x + y) % 2 == 0:
                 far.px(x, y, fog2)
 
-    # mid: dark stone piers with real coursing, cross pipes with flanges,
-    # catenary cables, bracket lamps. Kept darker and flatter than the
-    # playable terrain so the eye can always tell what's walkable.
     mid = Canvas(W, H)
     for (px, pw) in ((40, 34), (262, 44), (488, 30)):
         row = 0
@@ -564,13 +531,13 @@ def paint_backdrop(vname):
                             if b == y or a == xx + 1:
                                 v0 += 1
                             if a > px + pw * 0.66:
-                                v0 = 0       # the pier's shaded side
+                                v0 = 0
                             c = stone[max(0, min(1, v0))] if v0 < 2 else hexc(v["fog2"])
                         mid.px(a, b, c)
                 xx += sw
             y += hgt
             row += 1
-        for b in (96, 97, 98, 300, 301):  # capital and base bands
+        for b in (96, 97, 98, 300, 301):
             for a in range(px - 3, px + pw + 3):
                 mid.px(a, b, stone[2] if b in (96, 300) else stone[0])
     for (y0, th) in ((70, 11), (226, 8)):
@@ -587,7 +554,7 @@ def paint_backdrop(vname):
             t = (xx - x0) / (x1 - x0)
             yy = int(110 + math.sin(t * math.pi) * sag)
             mid.px(xx % W, yy, iron[0])
-    for (lx, ly) in ((74, 150), (300, 132), (500, 160)):  # bracket lamps
+    for (lx, ly) in ((74, 150), (300, 132), (500, 160)):
         for b in range(6):
             mid.px(lx + b, ly, iron[2])
         mid.rect(lx + 5, ly - 4, 4, 6, win[1])
@@ -651,7 +618,7 @@ def main():
         for fn in sorted(os.listdir(pdir)):
             if fn.endswith(".png") and (fn.startswith("uw_") or fn.startswith("front_")):
                 remap_prop(os.path.join(pdir, fn), vname)
-        remap_prop(os.path.join(ROOT, "art", "backdrops", "uw_works.png"), vname)  # the machinery layer
+        remap_prop(os.path.join(ROOT, "art", "backdrops", "uw_works.png"), vname)
         for rid in rooms:
             room = parse_room(rid)
             paint_terrain(room, vname).save(os.path.join(out, rid + "_terrain.png"))

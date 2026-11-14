@@ -1,8 +1,5 @@
 class_name Door
 extends Interactable
-## A doorway into a walk-in building (a 2.5D interior). Stand in it and press
-## [E] to go inside; walking out over the doormat brings you back here, to the
-## camp marker named return_spawn.
 
 @export_file("*.tscn") var interior := ""
 @export var return_spawn: StringName = &""

@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="e1"]
 [ext_resource type="Script" path="res://scripts/world/hazard.gd" id="e2"]
@@ -21,6 +21,8 @@
 [ext_resource type="Texture2D" path="res://art/props/hang_c.png" id="e19"]
 [ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e20"]
 [ext_resource type="Script" path="res://scripts/world/room.gd" id="e21"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="e22"]
+[ext_resource type="Resource" path="res://data/lineages/heapfolk.tres" id="e23"]
 
 [sub_resource type="RectangleShape2D" id="s1"]
 size = Vector2(8, 64)
@@ -32,7 +34,7 @@ region_id = &"heap"
 tileset = "heap_scrap"
 solid_styles = PackedStringArray("rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "rock", "girder", "girder", "girder", "girder", "girder", "girder", "girder", "girder")
 backdrop = "heap_cave"
-music = "cave"
+music = "beginning_underground"
 ambient = Color(0.6, 0.54, 0.66, 1)
 grade = &"cave"
 weather = "none"
@@ -267,3 +269,12 @@ position = Vector2(80, 656)
 
 [node name="from_camp" type="Marker2D" parent="Spawns"]
 position = Vector2(1236, 256)
+
+[node name="TrashCollector" parent="." instance=ExtResource("e22")]
+position = Vector2(150, 656)
+npc_id = &"trash_collector"
+display_name = "Trash Collector"
+lineage = ExtResource("e23")
+age = "elder"
+pin_goggles = "cracked"
+idle_lines = Array[String](["Still here, still counting. Two thousand years and four months, give or take a crack in the glass.", "The camp's up and to the right. Tinker will know what to make of you.", "If you hear the crane's horn, don't stop to look. Just keep going.", "We waited a long time for one like you. Don't make me wait for you to come back down."])

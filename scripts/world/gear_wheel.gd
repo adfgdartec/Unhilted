@@ -1,16 +1,11 @@
 @tool
 class_name GearWheel
 extends Node2D
-## A great turning gear with platforms hung from its rim, like a paternoster.
-## The platforms stay level as the wheel turns and carry whoever stands on
-## them (AnimatableBody2D, so the physics moves the rider). They're one-way:
-## jump up through them from below.
-## The node's position is the wheel's hub.
 
 @export var radius := 72.0
 @export var platforms := 4
 @export var platform_width := 36.0
-@export var speed := 0.5            ## radians per second; negative turns the other way
+@export var speed := 0.5
 @export var start_angle := 0.0
 
 var _angle := 0.0
@@ -41,7 +36,6 @@ func _physics_process(delta: float) -> void:
 		return
 	var before := _angle
 	_angle += speed * delta
-	# a soft clunk each time a tooth passes the top
 	if int(before / (TAU / 12.0)) != int(_angle / (TAU / 12.0)) and randf() < 0.35:
 		AudioManager.sfx(&"gear", -16.0)
 	_place()
@@ -62,7 +56,6 @@ func _draw() -> void:
 	var rim := Color8(68, 54, 54)
 	var brass := Color8(140, 100, 40)
 	var hi := Color8(201, 150, 60)
-	# teeth, rim, spokes, hub
 	var teeth := 24
 	for i in teeth:
 		var a := _angle + TAU * i / teeth
@@ -78,7 +71,6 @@ func _draw() -> void:
 	draw_circle(Vector2.ZERO, 9.0, brass)
 	draw_circle(Vector2(-2, -2), 3.0, hi)
 	draw_circle(Vector2.ZERO, 2.0, Color8(30, 20, 22))
-	# arms out to each hanging platform, then the platforms (drawn level)
 	for i in platforms:
 		var p := platform_position(i) if not Engine.is_editor_hint() else \
 			Vector2(cos(_angle + TAU * i / platforms), sin(_angle + TAU * i / platforms)) * radius

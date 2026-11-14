@@ -1,12 +1,9 @@
 class_name Readable
 extends Interactable
-## Something you can read or look at with [E]: a noticeboard, a lore tablet,
-## a telescope. Shows its lines in the dialogue box under `title`.
 
 @export var title := ""
 @export_multiline var lines: Array[String] = ["..."]
 @export var size := Vector2(24, 32)
-## If set, reading this records it in the journal's Lore tab.
 @export var lore_id := ""
 
 

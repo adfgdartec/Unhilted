@@ -7,31 +7,19 @@ with fixed seeds for texture clusters, so rebuilding gives identical output.
 import random
 from PIL import Image
 
-# ---------------------------------------------------------------- palette
-# Keys are single characters so sprites can also be written as ASCII maps.
 PAL = {
-    # neutrals / scrap metal (dark -> light)
-    # warm neutrals: outlines and metal lean brown, so props sit in the dusk light
     "k": (30, 20, 22), "d": (44, 32, 34), "m": (68, 54, 54), "g": (98, 82, 80),
     "l": (138, 118, 108), "w": (192, 170, 150),
-    # rust
     "r": (74, 42, 34), "R": (122, 63, 40), "o": (168, 90, 48), "O": (212, 132, 74),
-    # ancient brass
     "b": (90, 63, 28), "B": (140, 100, 40), "y": (201, 150, 60), "Y": (240, 207, 115),
-    # neon
     "c": (56, 242, 255), "C": (184, 251, 255), "p": (255, 79, 160), "P": (255, 194, 223),
     "a": (255, 179, 71), "A": (255, 224, 168),
-    # toxic
     "t": (63, 143, 46), "T": (143, 224, 90),
-    # cloth / wood
     "q": (35, 74, 72), "Q": (58, 112, 106), "e": (90, 63, 48), "E": (138, 100, 72),
-    # rubber, glass, warning, white, fire
     "z": (26, 26, 30), "s": (31, 58, 68), "S": (79, 138, 150),
     "x": (168, 48, 42), "X": (255, 90, 58), "W": (242, 236, 228),
     "f": (255, 138, 42), "F": (255, 210, 90),
-    # violet (Reflex chip family)
     "v": (122, 84, 214), "V": (190, 166, 255),
-    # backdrop silhouettes (no outlines on backgrounds)
     "1": (27, 24, 40), "2": (35, 29, 44), "3": (26, 21, 32), "4": (59, 47, 74),
     "5": (21, 19, 26), "6": (28, 25, 34), "7": (92, 52, 70), "8": (60, 36, 52),
     "9": (40, 33, 50),
@@ -47,13 +35,12 @@ class Spr:
     def __init__(self, w, h, frames=1):
         self.w, self.h, self.frames = w, h, frames
         self.img = Image.new("RGBA", (w * frames, h), (0, 0, 0, 0))
-        self.f = 0  # current frame being drawn
+        self.f = 0
 
     def frame(self, i):
         self.f = i
         return self
 
-    # all coordinates are frame-local
     def px(self, x, y, key, alpha=255, wrap=False):
         if wrap:
             x %= self.w
@@ -61,7 +48,6 @@ class Spr:
         if 0 <= x < self.w and 0 <= y < self.h:
             pos = (self.f * self.w + x, y)
             if key and alpha < 255:
-                # blend over what is already there (keeps the base pixel's opacity)
                 br, bg, bb, ba = self.img.getpixel(pos)
                 r, g, b = PAL[key]
                 t = alpha / 255.0

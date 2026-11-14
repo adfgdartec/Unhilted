@@ -40,13 +40,13 @@ Hold attack to keep swinging. You can run, jump and dash out of swings and throw
 - **Shop:** stall with awning, riveted item cards with price tags and stamps, a display case and a brass Buy plate
 - **Walk-in buildings (top-down, like Undertale):** Rusty's shop, Dot's map room and Mags' garage in the camp. [E] at a door to go in; inside, walk in 8 directions with front/back/side sprites, [E] to look at things and talk; walk down over the doormat to leave (`scripts/interior/`, rooms from `tools/level/build_interiors.py`, sprites from `tools/art/build_overworld.py`)
 - **Heap rooms (13):** Under the Heap (tunnels you work through), Scavenger Camp, the Hollow (secret), Scrap Fields, Crane Yard, Conveyor Hall, the Intake (boss), Compactor Pit (wave arena), Giant's Brow (mini-boss), Sinkhole, Seep Tunnels, Old Tram Stop (secret), Underworks Gate (stairs down). Plan: `docs/HEAP_LAYOUT.md`
-- **The Underworks (15 rooms):** a gaslit steampunk city in the old maintenance tunnels. Pipe Market (town of the Bellows Kin, three walk-in buildings), Bellows Row, Boiler Works, Gearworks, Lamplighter's Gallery (mini-boss), Condensate Falls, the Cistern, Pressure Gauge Hall, Steam Trials (arena), Governor's Approach, The Pendulum (boss, Shard II), Swing Galleries, Clockmaker's Loft (secret), Old Tram Tunnel. Plan: `docs/UNDERWORKS_LAYOUT.md`
+- **The Underworks (15 rooms):** a gaslit steampunk city in the old maintenance tunnels. Pipe Market (town of the Bellows Kin, three walk-in buildings), Bellows Row, Boiler Works, Gearworks, Lamplighter's Gallery (mini-boss), Condensate Falls, the Cistern, Pressure Gauge Hall, Steam Trials (arena), Pendulum's Approach, the Pendulum (boss, Shard II), Swing Galleries, Clockmaker's Loft (secret), Old Tram Tunnel. Plan: `docs/UNDERWORKS_LAYOUT.md`
   - Gimmicks: steam vents (lift you, or scald on a rhythm), valves you hit to switch vents and turrets, gear-wheel platforms, piston lifts, gas lamps, boiling water, brass swing rings
   - Enemies: Piston Walker (stomp shockwaves), Valve Turret (steam jet; any hit stalls it), Bellows Bat (swoops), Clockwork Spider (leaps), Boiler Bloat (swells and bursts, even when killed)
   - Quests: Pressure Drop (three relief valves), The Last Lamplighter, Letters Home (three letters). Currency: Brass Cogs (30)
 - **Movement (Ultrakill-style flow):** momentum carries over max speed in the air, slide (and slide-jump), wall slide and up to 3 wall jumps, dash-jumps, grapple flings, and the Shard II swing. Hitting enemies up close charges healing (3 close hits = 1 cell)
 - **Heap enemies:** Scrap Drone, Spotter Drone, Rustcrawler (drops from ceilings), Compactor (armoured front, hit it from behind or while stunned)
-- **Bosses:** INTAKE UNIT 7 (Shard I), Brass Head mini-boss (port expansion), the Lamplighter mini-boss (core cell), The Pendulum (Shard II)
+- **Bosses:** INTAKE UNIT 7 (Shard I), Brass Head mini-boss (port expansion), the Lamplighter mini-boss (core cell), the Pendulum (Shard II)
 - **Hazards:** sludge and spikes (lose a cell, back to last safe ground), conveyor belts, timed crushers
 - **Map and journal:** an ink-on-parchment map drawn from each room's real geometry; rooms reveal as you visit; Dot sells the full Heap map; lore entries collect in the journal
 - **Audio:** synthesized SFX and music (`tools/audio/build_audio.py`), Music/SFX volume in Settings
@@ -96,7 +96,7 @@ docs/         REGIONS.md (the five regions: style guide and plan), HEAP_LAYOUT.m
 - `godot --headless --path . res://tools/underworks_test.tscn` (93 checks). A bot plays the Underworks:
   - every exit, door and spawn
   - the critical path: vent lifts, pistons, gear wheels, the Falls, the Gauge Hall, the boiling pit
-  - every enemy (Steam Trials waves), the Lamplighter, The Pendulum, Shard II
+  - every enemy (Steam Trials waves), the Lamplighter, the Pendulum, Shard II
   - swinging across the Swing Galleries, wire climbing, the secret Loft, the market's swing ring
   - the three quests, Gilda's shop, Quill's map
   - run one section with `-- only=galleries` (also `gate`, `row`, `gear`, `gauge`, `enemies`, `lamp`, `side`; add `dbg` for traces)

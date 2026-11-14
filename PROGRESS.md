@@ -33,7 +33,7 @@ The opening of the game, about 3 minutes (an estimate, not a timed play session)
 - Gimmicks: steam vents (lift or scald, on a rhythm or switched by a valve), valves, gear-wheel platforms, piston lifts, gas lamps you can snuff and relight, boiling water, brass swing rings.
 - Enemies: Piston Walker (stomp shockwaves you jump), Valve Turret (steam jet; any hit stalls it, a linked valve kills its pressure), Bellows Bat (swoops), Clockwork Spider (leaps, rewinds after three), Boiler Bloat (swells and bursts; killing it still bursts it, and the burst hurts other enemies).
 - Mini-boss: **the Lamplighter** (sweeps a pole at chest height: slide under or jump; snuffs lamps until only its lantern shows; relighting a lamp beside it dazzles it). Drops a core cell and its lantern.
-- Boss: **The Pendulum** (flyballs sweep the hall, harmful only on the near pass: jump the low one, slide under the high one; floor vents; the crown opens on overpressure and can only be hit from hook height). Drops Shard II.
+- Boss: **the Pendulum** (flyballs sweep the hall, harmful only on the near pass: jump the low one, slide under the high one; floor vents; the crown opens on overpressure and can only be hit from hook height). Drops Shard II.
 - Steam Trials wave arena (core cell), Clockmaker's Loft secret (port expansion), Old Tram Tunnel with the sealed Forge Gate.
 - Three quests: Pressure Drop (relief valves), The Last Lamplighter, Letters Home. Items found before taking a quest still count.
 - Currency: Brass Cogs, 30 (13 found, 17 from quests). Each region now has its own coin sprite and HUD icon.
@@ -45,12 +45,12 @@ The opening of the game, about 3 minutes (an estimate, not a timed play session)
 
 **Found and fixed by the Underworks bot:** two pieces of geometry left exactly 28 px of headroom (the robot's height), so you couldn't walk under them (Condensate Falls stair, Gauge Hall catwalk step). A ring sat beyond reach once you allow for falling while the blade flies. A walkway sat over a swing's release point, so you hit its underside. The Falls had no way back up from the Cistern side.
 
-**Found while recording the trailer:** The Pendulum's two hooks hung about 200 px up, beyond the 150 px wire, so the crown couldn't be reached in real play (the test had applied hits directly). They now hang at y 150, and the test throws at one for real.
+**Found while recording the trailer:** the Governor's two hooks hung about 200 px up, beyond the 150 px wire, so the crown couldn't be reached in real play (the test had applied hits directly). They now hang at y 150, and the test throws at one for real.
 
 **Not done yet / differs from the plan in REGIONS.md** (listed there too):
 - The Heap's "gate back" swing secrets (Crane Yard, Sinkhole) aren't built.
 - The Clockwork Spider stays on floors; it doesn't climb walls or ceilings.
-- The Pendulum isn't fought by swinging, because Swing is its reward.
+- The Governor isn't fought by swinging, because Swing is its reward.
 - Boss, mini-boss and arena numbers come from design, not play. The bot tests hit the bosses directly; they check the fights' rules and geometry (which heights you can slide under or jump), not that they're fun or fair at full speed.
 - Region 3 (the Fallen Forge) doesn't exist; the Forge Gate is sealed.
 
@@ -363,7 +363,7 @@ Checked in rendered screenshots (including slow-motion captures of slash, throw 
 1. **Hand-play the demo start to finish.** Tune the flick thresholds, movement numbers, boss and mini-boss timings, and the audio mix.
 2. Fix whatever that playtest turns up before adding regions.
 3. More buildings to walk into (Tinker's shack, Gran Oxa's home), and front/back views for the NPCs indoors.
-4. Hand-play the Underworks: swing feel (pump strength, release boost), The Pendulum's flyball speed, the Lamplighter's sweep timing.
+4. Hand-play the Underworks: swing feel (pump strength, release boost), the Governor's flyball speed, the Lamplighter's sweep timing.
 5. The Heap's Swing secrets, then region 3, the Fallen Forge (Shard III, Ricochet).
 
 ## Robot v2: Dead Cells-style redesign (2026-11-14)
@@ -390,8 +390,15 @@ Checked in rendered screenshots (including slow-motion captures of slash, throw 
 - features_test now 28 checks. All suites pass. Not hand-played yet.
 
 ## Demo boss: Governor -> crane showdown (2026-11-14)
-- `IntakeShowdown` (scripts/enemies/intake_showdown.gd), demo only (in the full game it steps aside and the plain crane fight runs). The Pendulum (intake mode: 12 HP, hits count from the ledges) fights in the Intake with four `CrumblePlatform` ledges and two bounce pads; at 75/50/25% a flyball smashes a ledge, at 25% it's off balance (wobbles, crown hittable from anywhere), at 0 it topples and crashes.
+- `IntakeShowdown` (scripts/enemies/intake_showdown.gd), demo only (in the full game it steps aside and the plain crane fight runs). THE PENDULUM (intake mode: 12 HP, hits count from the ledges) fights in the Intake with four `CrumblePlatform` ledges and two bounce pads; at 75/50/25% a flyball smashes a ledge, at 25% it's off balance (wobbles, crown hittable from anywhere), at 0 it topples and crashes.
 - Cutscene: the bar drops, the shard glows in the wreck, then INTAKE UNIT 7 drops off its rail, slams the wreck to bits, hauls it off the side, picks up the shard and absorbs it. Then the empowered crane fight (cyan trim, shard in the core, faster tracking, shorter stun).
-- Music: `AudioManager.set_music_pitch()`; the score sags at the fake win, winds up to 1.08 when The Pendulum is off balance, 1.12 for the empowered crane, 1.2 in its phase 2, back to 1.0 when it's over.
+- Music: `AudioManager.set_music_pitch()`; the score sags at the fake win, winds up to 1.08 when the Governor is off balance, 1.12 for the empowered crane, 1.2 in its phase 2, back to 1.0 when it's over.
 - Demo idle reset no longer counts time while controls are locked (cutscenes).
 - All suites pass: smoke 190, heap 42, underworks 93, demo 32, features 25+.
+
+## Music, lasers, Link proportions (2026-11-14, evening)
+- Music (Jai's tracks, audio/music): beginning_underground (cave/hollow rooms of the Heap), beginning_aboveground (camp, fields, crane yard, conveyor, Intake and the other industrial Heap rooms), boss_og (THE PENDULUM), boss_final (INTAKE UNIT 7). Cut to their loop: the opening tracks to exactly 24.0 s (8 bars at 80 bpm), bossog to 17.479 s, Boss_fight from 0.12 s; 6 ms / 20 ms edge fades, loudness levelled (Boss_fight +17 dB, limited). Boss tracks via AudioManager.BOSS_TRACKS (by boss name). Showdown: bossog sags through the fake win (keep_music_on_boss_end), silence when the crane drops in, boss_final when it absorbs the shard.
+- Crane pink phase: LASER attack. Steam rises over the bottom half (STEAM_TOP 150), three aim lines visible only inside the steam, track then lock, three beams fire 112 px apart.
+- Robot: Link's proportions (about 6.5 heads: HEAD_R 3.0, LEG 18.6, ARM 14), slimmer hood shell; full mantle over both shoulders to mid-chest and a long, brighter cape to the calves.
+- Demo: no bounce pads in the opening cave; the side nook off the cave's climb is walled up in the demo only (DemoMode.DEMO_WALLS; the full game keeps it, a cosmetic is in it).
+- All suites pass: smoke 190, heap 42, underworks 93, demo 39, features 29.

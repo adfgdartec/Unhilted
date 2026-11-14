@@ -1,7 +1,5 @@
 class_name ChargingDock
 extends Interactable
-## Your bench: heals, sets the respawn point, saves, and opens the dock menu
-## (Loadout / Wardrobe). Chips can only be swapped here.
 
 @export var spawn_name: StringName = &"dock"
 

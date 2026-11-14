@@ -1,11 +1,5 @@
 class_name UIKit
 extends RefCounted
-## The game's UI look in one place: pixel fonts, the riveted iron-and-brass
-## panel, iron-plate buttons (lit when focused), brass nameplate headings and
-## the wooden display case. Same art as the shop (tools/art/build_ui.py).
-## Fonts: Silkscreen (built on an 8 px grid) for all small UI text and for
-## headings at 16; Pixelify Sans (built on a 16 px grid) for dialogue prose.
-## Each font is only used at multiples of its grid so it stays crisp.
 
 const CYAN := Color("38f2ff")
 const AMBER := Color("ffb347")
@@ -28,8 +22,6 @@ static func _pixel_font(path: String) -> FontFile:
 const THEME_PATH := "res://art/ui/theme.tres"
 
 
-## The project theme (set in Project Settings > GUI > Theme > Custom, so every
-## CanvasLayer and the editor use it). Rebuild with tools/build_theme.tscn.
 static func theme() -> Theme:
 	if _theme:
 		return _theme
@@ -46,11 +38,8 @@ static func build_theme() -> Theme:
 	t.default_font = _heading_font
 	t.default_font_size = 8
 
-	# Every menu sits in the shop's riveted iron frame with brass corners.
 	t.set_stylebox("panel", "PanelContainer", box("res://art/ui/frame.png", 10, 10, 10, 10, 14, 14, 14, 14))
 
-	# Buttons are iron plates like the shop cards; the focused one gets the lit
-	# cyan bead line and bright brass; disabled ones go dull.
 	var normal := box("res://art/ui/card.png", 7, 7, 7, 7, 10, 4, 10, 4)
 	var focus := box("res://art/ui/card_sel.png", 7, 7, 7, 7, 10, 4, 10, 4)
 	var off := box("res://art/ui/card_off.png", 7, 7, 7, 7, 10, 4, 10, 4)
@@ -76,7 +65,6 @@ static func build_theme() -> Theme:
 	return t
 
 
-## A 9-slice texture box (texture margins l t r b, then content margins).
 static func box(path: String, l: int, tp: int, r: int, b: int, cl := 0, ct := 0, cr := 0, cb := 0) -> StyleBoxTexture:
 	var sb := StyleBoxTexture.new()
 	sb.texture = load(path)
@@ -91,7 +79,6 @@ static func box(path: String, l: int, tp: int, r: int, b: int, cl := 0, ct := 0,
 	return sb
 
 
-## A screen title on an engraved brass nameplate (dark letters cut into the brass).
 static func heading(text: String) -> PanelContainer:
 	var p := PanelContainer.new()
 	p.add_theme_stylebox_override("panel", box("res://art/ui/nameplate.png", 6, 6, 6, 6, 12, 3, 12, 3))
@@ -101,21 +88,18 @@ static func heading(text: String) -> PanelContainer:
 	return p
 
 
-## The shop's wooden display case with a velvet recess: for readouts and previews.
 static func case_panel(margin := 9) -> PanelContainer:
 	var p := PanelContainer.new()
 	p.add_theme_stylebox_override("panel", box("res://art/ui/case.png", 7, 7, 7, 7, margin, margin - 1, margin, margin - 1))
 	return p
 
 
-## An iron card (like a shop item) to group a few lines of information.
 static func card_panel() -> PanelContainer:
 	var p := PanelContainer.new()
 	p.add_theme_stylebox_override("panel", box("res://art/ui/card.png", 7, 7, 7, 7, 10, 7, 10, 7))
 	return p
 
 
-## The brass plinth an item or figure stands on in a display case.
 static func pedestal() -> TextureRect:
 	var t := TextureRect.new()
 	t.texture = load("res://art/ui/pedestal.png")
@@ -123,7 +107,6 @@ static func pedestal() -> TextureRect:
 	return t
 
 
-## Dialogue / long prose font (16 px only).
 static func prose_font() -> FontFile:
 	return _pixel_font("res://art/fonts/PixelifySans.ttf")
 
@@ -138,7 +121,6 @@ static func panel(min_size := Vector2(360, 220)) -> PanelContainer:
 	return p
 
 
-## size >= 14 gives a 16 px Silkscreen heading; anything smaller is 8 px body text.
 static func label(text: String, size := 8, color := TEXT) -> Label:
 	var l := Label.new()
 	l.text = text

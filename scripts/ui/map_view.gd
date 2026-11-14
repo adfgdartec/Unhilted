@@ -1,14 +1,5 @@
 class_name MapView
 extends Control
-## The region map in the journal, drawn like Dot's ink map on parchment.
-## Each room is rendered from its real level geometry (the room scene's
-## `solids`), so you see the actual caves, ledges and shafts, not boxes:
-##   - with Dot's map: every room is inked; rooms you've walked through get a
-##     wash, the rest are left as pencil lines. Secret rooms stay off the map
-##     until you find them.
-##   - without it: only rooms you've visited, as a faint pencil sketch.
-## Where rooms meet, their open edges join up, so passages read on their own.
-## The robot is a blinking hood pin. Hover a room to read its name.
 
 var region: StringName = &"heap"
 
@@ -28,7 +19,6 @@ const WASH_HERE := Color8(214, 138, 50, 110)
 const HATCH := Color8(48, 32, 30, 70)
 const LABEL := Color8(60, 40, 34)
 
-## Each room's solids and bounds, read from its scene once (not instanced).
 static var _geometry := {}
 
 var _tex: ImageTexture
@@ -36,7 +26,7 @@ var _tex_at := Vector2.ZERO
 var _k := 1.0
 var _bounds := Rect2()
 var _dirty := true
-var _room_px := {}         ## room id -> Rect2 on screen (for hover and icons)
+var _room_px := {}
 var _hover: StringName = &""
 var _t := 0.0
 var _paper_box: StyleBoxTexture
@@ -66,7 +56,6 @@ func _gui_input(event: InputEvent) -> void:
 		_hover = h
 
 
-# ------------------------------------------------------------------ data
 static func room_geometry(region_id: StringName, room_id: StringName) -> Dictionary:
 	if _geometry.has(room_id):
 		return _geometry[room_id]
@@ -86,7 +75,6 @@ func _rooms() -> Dictionary:
 
 
 func _visible(id: StringName) -> int:
-	## 2 = visited, 1 = known from Dot's map, 0 = not on the map
 	if GameState.visited_rooms.has(String(id)):
 		return 2
 	if GameState.has_map(region) and not ("secret" in _rooms()[id]["icons"]):
@@ -98,9 +86,6 @@ func _map_area() -> Rect2:
 	return Rect2(16, 26, size.x - 32, size.y - 26 - 24)
 
 
-# ------------------------------------------------------------------ ink
-## Rasterises every visible room into one texture at the fitted scale.
-## Cells: 0 nothing, 1 air (visited), 2 air (known), 3 rock (visited), 4 rock (known).
 func _build() -> void:
 	_dirty = false
 	_room_px.clear()
@@ -125,7 +110,7 @@ func _build() -> void:
 		var vis := _visible(id)
 		if vis == 0:
 			continue
-		var visited := vis == 2 and owned  # without the map everything is a pencil sketch
+		var visited := vis == 2 and owned
 		var rr := _px_rect(MapData.world_rect(region, id), w, h, false)
 		_room_px[id] = Rect2(_tex_at + Vector2(rr.position), Vector2(rr.size))
 		_fill(cells, w, rr, 1 if visited else 2)
@@ -146,7 +131,6 @@ func _build() -> void:
 			if c == 1:
 				col = WASH_HERE if here[i] == 1 else WASH
 			elif c != 2:
-				# rock or empty paper: ink it where it borders open air
 				var edge := 0
 				for n in [Vector2i(x + 1, y), Vector2i(x - 1, y), Vector2i(x, y + 1), Vector2i(x, y - 1)]:
 					if n.x >= 0 and n.y >= 0 and n.x < w and n.y < h:
@@ -158,7 +142,7 @@ func _build() -> void:
 				if edge == 2:
 					col = INK
 				elif edge == 1:
-					if (x + y) % 3 != 0:   # pencil line, a little broken
+					if (x + y) % 3 != 0:
 						col = PENCIL
 				elif c == 3 and (x - y) % 4 == 0:
 					col = HATCH
@@ -189,7 +173,6 @@ func _fill(arr: PackedByteArray, w: int, r: Rect2i, v: int) -> void:
 			arr[row + x] = v
 
 
-# ------------------------------------------------------------------ draw
 func _draw() -> void:
 	if not MapData.REGIONS.has(region):
 		return
@@ -200,7 +183,6 @@ func _draw() -> void:
 		draw_texture(_tex, _tex_at)
 	var rooms := _rooms()
 	var current := WorldManager.current_room.room_id if WorldManager.current_room else &""
-	# icons, centred in each room (only on rooms you can see)
 	for id in _room_px:
 		var icons: Array = []
 		for ic in rooms[id]["icons"]:
@@ -213,9 +195,7 @@ func _draw() -> void:
 		for ic in icons:
 			_icon(ic, Vector2(x, r.get_center().y - 5).round())
 			x += 12.0
-	# compass, bottom right of the sheet
 	draw_texture(COMPASS, Vector2(size.x - COMPASS.get_width() - 12, size.y - COMPASS.get_height() - 26))
-	# title ribbon
 	var title := String(MapData.REGIONS[region]["name"]).to_upper()
 	var tw := FONT.get_string_size(title, HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x
 	var bw := tw + 24.0
@@ -228,7 +208,6 @@ func _draw() -> void:
 	var bx := roundf((size.x - bw) * 0.5)
 	draw_style_box(banner, Rect2(bx, 6, bw, 15))
 	draw_string(FONT, Vector2(bx + 12, 17), title, HORIZONTAL_ALIGNMENT_LEFT, -1, 8, Color8(242, 230, 205))
-	# room name: the one under the mouse, else where you are
 	var shown := _hover if _hover != &"" else current
 	if rooms.has(shown) and (_room_px.has(shown)):
 		var prefix := "" if shown != current else "YOU ARE IN  "
@@ -237,11 +216,10 @@ func _draw() -> void:
 		draw_string(FONT, Vector2(16, size.y - 10 - 10), "SKETCHED FROM MEMORY. DOT IN THE CAMP SELLS A PROPER MAP.", HORIZONTAL_ALIGNMENT_LEFT, -1, 8, PENCIL)
 	else:
 		_legend()
-	# you are here
 	if current != &"" and rooms.has(current) and WorldManager.player and is_instance_valid(WorldManager.player):
 		var p: Vector2 = (rooms[current]["origin"] + WorldManager.player.global_position - _bounds.position) * _k + _tex_at
 		var bob := -1.0 if fmod(_t, 0.9) < 0.45 else 0.0
-		draw_rect(Rect2(p.round() + Vector2(-1, 0), Vector2(3, 1)), Color(INK, 0.45))  # its shadow on the paper
+		draw_rect(Rect2(p.round() + Vector2(-1, 0), Vector2(3, 1)), Color(INK, 0.45))
 		_icon("pin", (p + Vector2(-4, -8 + bob)).round())
 
 

@@ -1,12 +1,7 @@
 class_name BellowsBat
 extends EnemyBase
-## A bellows with brass ribs for wings, puffing itself through the vaults.
-## It bobs at roost height; when you come within reach it draws a breath
-## (wings up, wheeze: the tell) and swoops at where you are, then climbs
-## back. Light: one good hit knocks it right out of the air.
-##   HOVER -> INHALE -> SWOOP -> CLIMB -> HOVER
 
-const TEX := preload("res://art/enemies/bellows_bat.png") # 4 frames
+const TEX := preload("res://art/enemies/bellows_bat.png")
 enum S { HOVER, INHALE, SWOOP, CLIMB }
 
 @export var sense := 150.0
@@ -44,7 +39,6 @@ func _tick(delta: float) -> void:
 				_dir = (d + Vector2(0, 6)).normalized()
 				_go(S.SWOOP)
 		S.SWOOP:
-			# fast, then pulling up: a curve, not a straight dart
 			var spd := lerpf(260.0, 120.0, clampf(_st / 0.6, 0.0, 1.0))
 			_dir = _dir.rotated(-signf(_dir.x) * 1.4 * delta).normalized()
 			velocity = _dir * spd

@@ -1,9 +1,6 @@
 @tool
 class_name Hazard
 extends Area2D
-## Toxic sludge, rebar spikes, or boiling water (the Underworks). Touching it
-## costs 1 health and puts you back on the last safe ground. The node's
-## position is the TOP-LEFT of the rect.
 
 @export var size := Vector2(64, 16):
 	set(v):
@@ -22,7 +19,7 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	collision_layer = 0
-	collision_mask = 2 # player body
+	collision_mask = 2
 	var cs := CollisionShape2D.new()
 	var r := RectangleShape2D.new()
 	var liquid := kind != "spikes"
@@ -61,7 +58,6 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	if kind == "boiling":
-		# scalding condensate: dark copper-teal water, a pale rolling surface, bubbles
 		draw_rect(Rect2(Vector2.ZERO, size), Color8(34, 52, 50))
 		draw_rect(Rect2(Vector2(0, 4), Vector2(size.x, size.y - 4)), Color8(26, 38, 38))
 		var bx := 0.0
@@ -80,19 +76,19 @@ func _draw() -> void:
 		draw_rect(Rect2(Vector2.ZERO, size), Color8(40, 72, 30))
 		draw_rect(Rect2(Vector2(0, 3), Vector2(size.x, size.y - 3)), Color8(30, 54, 26))
 		var x := 0.0
-		while x < size.x:  # wavy glowing surface
+		while x < size.x:
 			var y := 1.0 + sin(_t * 2.0 + x * 0.25) * 1.0
 			draw_rect(Rect2(x, y, 2, 1), Color8(143, 224, 90))
 			draw_rect(Rect2(x, y + 1, 2, 1), Color8(63, 143, 46))
 			x += 2.0
-		for i in int(size.x / 24.0):  # bubbles
+		for i in int(size.x / 24.0):
 			var bx := fmod(i * 37.0, size.x - 4.0) + 2.0
 			var ph := fmod(_t * 0.7 + i * 0.37, 1.0)
 			if ph < 0.3:
 				draw_circle(Vector2(bx, 4.0 - ph * 6.0), 1.0 + ph * 2.0, Color(0.6, 1.0, 0.4, 0.8 - ph * 2.0))
 	else:
 		var x := 0.0
-		while x < size.x:  # rebar spikes
+		while x < size.x:
 			var h := 6.0 + fmod(x * 7.0, 5.0)
 			draw_colored_polygon(PackedVector2Array([Vector2(x, size.y), Vector2(x + 2, size.y - h), Vector2(x + 4, size.y)]), Color8(98, 82, 80))
 			draw_line(Vector2(x + 2, size.y - h), Vector2(x + 3, size.y - 1), Color8(168, 90, 48), 1.0)

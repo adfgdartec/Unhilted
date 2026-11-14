@@ -1,10 +1,5 @@
 class_name OverworldVisuals
 extends Node2D
-## The robot seen from above for walk-in buildings (Undertale style): front,
-## back and side walking sprites for both chassis and every outfit piece, from
-## tools/art/build_overworld.py. Each layer is a 4x3 sheet of 48x48 frames:
-## rows down / up / side (left is the side row mirrored), columns stand, step,
-## stand, step. Feet sit at this node's origin.
 
 const ORDER := ["cloak_back", "body", "pants", "shoes", "shirt", "cloak_front", "face", "hood", "mask"]
 const DIR := "res://art/overworld/"
@@ -16,7 +11,7 @@ var facing := Facing.DOWN
 var flip := false
 var walking := false
 var _t := 0.0
-var _layers := {}  ## layer name -> Sprite2D
+var _layers := {}
 
 
 func _ready() -> void:
@@ -34,7 +29,6 @@ func _ready() -> void:
 	refresh()
 
 
-## Re-reads the chassis and outfit from GameState.
 func refresh() -> void:
 	for s: Sprite2D in _layers.values():
 		s.texture = null

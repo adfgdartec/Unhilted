@@ -1,23 +1,10 @@
 class_name Blade
 extends Area2D
-## The sigil blade on its neon wire.
-##   FLYING    -> thrown along the aim direction
-##   STUCK     -> hit a wall, sticks for a moment (longer with Shard II, when
-##                dash zips the robot to it: the "wall zip")
-##   PINNED    -> stuck in an enemy and moves with it. Click recalls it and rips
-##                it out (one more hit); dash zips the robot to it (see zip.gd)
-##   HOOKED    -> caught a GrapplePoint (press throw again to reel in, or with
-##                Shard II to hang and swing). Swing anchors (brass rings) only
-##                hold with Shard II; without it the blade skates off them.
-##   RETURNING -> flies back to the hand; it damages everything on the way back
-## Throw power (from the flick) sets speed and, for weak tosses, range.
-## A charged throw (hard flick) does double damage and pierces like Shard I.
-## Armoured targets (hurtbox invulnerable) make it glance off and come back.
 
 enum Mode { FLYING, STUCK, PINNED, HOOKED, RETURNING }
 
 const WALL_STICK_TIME := 0.3
-const WALL_STICK_TIME_SWING := 1.0  ## with Shard II there is time to zip to it
+const WALL_STICK_TIME_SWING := 1.0
 const PIN_TIME := 0.9
 
 var mode := Mode.FLYING
@@ -25,7 +12,7 @@ var player: Player
 var velocity := Vector2.ZERO
 var power := 1.0
 var charged := false
-var landed_hit := false  ## hit anything this throw (caught in the air -> catch hop)
+var landed_hit := false
 
 var _range := 150.0
 var _stuck_time := 0.0
@@ -44,14 +31,12 @@ func launch(owner_player: Player, direction: Vector2, throw_power := 1.0, is_cha
 	power = clampf(throw_power, 0.0, 1.0)
 	charged = is_charged
 	velocity = direction.normalized() * player.stats.get_stat("throw_speed") * lerpf(0.75, 1.2, power)
-	# weak tosses don't use the whole wire; a throw aimed at a hook always does
 	_range = player.stats.get_stat("wire_length") * (1.0 if full_range else lerpf(0.6, 1.0, clampf(power * 2.0, 0.0, 1.0)))
 	rotation = direction.angle()
 	body_entered.connect(_on_body_entered)
 	area_entered.connect(_on_area_entered)
 	var tint := Color(1.0, 0.9, 0.55) if charged else Color(0.3, 0.95, 1.0)
 	add_child(Fx.make_light(tint, 60.0 if charged else 46.0, 1.1 if charged else 0.9))
-	# light trail, drawn in world space so it streams behind the blade
 	_trail = Line2D.new()
 	_trail.top_level = true
 	_trail.width = 4.0 if charged else 3.0
@@ -76,14 +61,12 @@ func launch(owner_player: Player, direction: Vector2, throw_power := 1.0, is_cha
 func is_hooked() -> bool:
 	return mode == Mode.HOOKED
 
-## A blade stuck in a wall can be zipped to with Shard II.
 func is_wall_stuck() -> bool:
 	return mode == Mode.STUCK and GameState.has_shard(2)
 
 func can_swing() -> bool:
 	return mode == Mode.HOOKED and GameState.has_shard(2)
 
-## Keeps a wall-stuck blade in place while the robot zips to it.
 func hold() -> void:
 	_stuck_time = maxf(_stuck_time, 1.0)
 
@@ -102,18 +85,16 @@ func recall() -> void:
 	mode = Mode.RETURNING
 	_pin_target = null
 	AudioManager.sfx(&"recall", -6.0)
-	_hit.clear() # everything can be hit again on the way back
+	_hit.clear()
 	_return_speed = player.stats.get_stat("recall_speed") * 0.4
 	if was_pinned:
-		# Rip it out: the thing it was stuck in takes one more hit.
-		_hit.append(target) # ...but not a second one from the return flight
+		_hit.append(target)
 		var dmg := player.stats.get_stat("blade_damage") * player.stats.get_stat("recall_damage_mult")
 		if target.take_hit(int(round(dmg)), player.global_position, self):
 			Fx.spark(global_position, Color("38f2ff"), 6)
 			Fx.hit_stop(0.04)
 
 
-## The robot grabbed the blade directly (end of a zip).
 func catch() -> void:
 	player.on_blade_returned(landed_hit)
 	queue_free()
@@ -144,7 +125,7 @@ func _physics_process(delta: float) -> void:
 				if _stuck_time <= 0.0:
 					recall()
 				elif global_position.distance_to(anchor) > player.stats.get_stat("wire_length") * 1.3:
-					recall() # the wire won't stretch forever
+					recall()
 		Mode.HOOKED:
 			pass
 		Mode.RETURNING:
@@ -179,7 +160,6 @@ func _on_body_entered(_body: Node) -> void:
 func _on_area_entered(area: Area2D) -> void:
 	if area is GrapplePoint and mode == Mode.FLYING:
 		if area.swing_only and not GameState.has_shard(2):
-			# polished brass: without Swing the blade can't bite and skates off
 			Fx.spark(global_position, Color(1.0, 0.85, 0.5), 5)
 			AudioManager.sfx(&"glance")
 			recall()
@@ -204,7 +184,6 @@ func _on_area_entered(area: Area2D) -> void:
 			if mode == Mode.FLYING and not (charged or GameState.has_shard(1)) and area.is_inside_tree():
 				_pin(area)
 		elif mode == Mode.FLYING:
-			# Armour (or anything currently invulnerable): the blade glances off.
 			Fx.spark(global_position, Color(1.0, 0.85, 0.5), 4)
 			AudioManager.sfx(&"glance")
 			recall()
@@ -225,8 +204,6 @@ func _draw() -> void:
 	var spin := 0.0 if still else _spin
 	draw_set_transform(Vector2.ZERO, spin, Vector2.ONE)
 	draw_circle(Vector2.ZERO, 7.0 if charged else 5.5, Color(glow, 0.22))
-	# the sprite's hand point sits at x=6: centre the spin on the blade, not the pommel
-	# the sprite is drawn at 2x detail (like the robot), shown at half size
 	var sz := Vector2(SPRITE.get_width(), SPRITE.get_height()) * 0.5
 	draw_texture_rect(SPRITE, Rect2(Vector2(-6, -sz.y / 2.0), sz), false, Color(1.0, 0.95, 0.8) if charged else Color.WHITE)
 	if mode == Mode.PINNED:

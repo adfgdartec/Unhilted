@@ -35,12 +35,9 @@ def hexc(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-# ------------------------------------------------------------------ palette
-# sky: deep indigo at the top, through plum and rust, to gold at the horizon
 SKY = [hexc(c) for c in ("#141226", "#1d1933", "#2a2142", "#3b2a4d", "#523453", "#6e3d55",
                          "#8c4652", "#ad554b", "#c96a48", "#de8650", "#eda65c", "#f5c272", "#fbdc98")]
 SUN = [hexc(c) for c in ("#f7c470", "#fbdc98", "#fff0c4")]
-# distant city haze (close to the horizon sky), far scrap, near scrap
 CITY = [hexc(c) for c in ("#5c3550", "#743f55", "#8f4a55", "#a65752", "#c26c50")]
 FAR = [hexc(c) for c in ("#2c1f37", "#3b2740", "#4d3046", "#653a4a", "#83474b", "#a8584b", "#d27a52")]
 NEAR = [hexc(c) for c in ("#120d18", "#1a1220", "#241827", "#30202e", "#432a34", "#6a3a3a", "#a5543f", "#e08a52")]
@@ -93,7 +90,6 @@ def wrapdist(cx):
     return np.minimum(d, W - d)
 
 
-# ------------------------------------------------------------------ sky
 SUN_C = (470.0, 196.0)
 SUN_R = 26.0
 
@@ -101,17 +97,13 @@ SUN_R = 26.0
 def sky():
     img = np.zeros((H, W, 4), dtype=np.uint8)
     n = len(SKY)
-    # vertical gradient, eased so most of the warm colours hug the horizon
     v = np.clip(YY / 330.0, 0, 1) ** 1.6 * (n - 2.2)
-    # halo: the sky brightens toward the sun
     d = np.hypot(XX - SUN_C[0], (YY - SUN_C[1]) * 1.25)
     v += np.clip(1 - d / 230.0, 0, 1) ** 2 * 4.2
-    # long smog streaks: soft horizontal bands that darken the sky a step
     streak = pnoise([3, 7, 13], 4, y=YY) * 0.5 + np.sin(YY / 9.0) * 0.4
     bands = (np.abs(YY - 128) < 22) | (np.abs(YY - 172) < 10) | (np.abs(YY - 236) < 7)
     v -= np.where(bands, np.clip(streak, 0, 1) * 1.3, 0)
     paint(img, np.ones((H, W), bool), SKY, np.clip(v, 0, n - 1))
-    # streak undersides catch the sun: a thin lit line under each smog band near the sun
     rng0 = np.random.default_rng(5)
     for yc, half in ((128, 22), (172, 10), (236, 7)):
         y0 = int(yc + half)
@@ -126,7 +118,6 @@ def sky():
             if False:
                 k = min(n - 1, int(v[y0, x] + 1 + near_sun[x] * 2))
                 img[y0, x, :3] = SKY[k]
-    # stars in the dark top
     rng = np.random.default_rng(11)
     for _ in range(70):
         x, y = rng.integers(0, W), rng.integers(2, 110)
@@ -135,7 +126,6 @@ def sky():
         x, y = rng.integers(4, W - 4), rng.integers(6, 90)
         for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
             img[y + dy, x + dx, :3] = (240, 232, 255)
-    # the sun: a soft-edged disc, banded by the smog
     ds = np.hypot(XX - SUN_C[0], YY - SUN_C[1])
     disc = ds <= SUN_R
     t = np.clip((SUN_R - ds) / SUN_R * 3.0, 0, 2.0)
@@ -146,7 +136,6 @@ def sky():
     return img
 
 
-# ------------------------------------------------------------------ city (distant skyline + spire)
 def city():
     img = np.zeros((H, W, 4), dtype=np.uint8)
     rng = np.random.default_rng(21)
@@ -159,13 +148,11 @@ def city():
             h = int(rng.integers(90, 130))
         for xx in range(x, min(x + w, W)):
             top[xx] = min(top[xx], 300 - h)
-        # stepped tops
         if rng.random() < 0.5:
             s = int(rng.integers(3, max(4, w // 2)))
             for xx in range(x + s, min(x + w - s, W)):
                 top[xx] = min(top[xx], 300 - h - int(rng.integers(6, 14)))
         x += w - int(rng.integers(0, 5))
-    # the spire: needle tower, a little left of centre
     sx = 330
     for xx in range(sx - 14, sx + 15):
         top[xx] = min(top[xx], 300 - 150)
@@ -177,17 +164,14 @@ def city():
         top[xx] = 300 - 268
     mask = YY >= top[None, :].astype(np.float32)
     mask &= YY < 330
-    # haze: lower = denser haze = lighter; near the sun = warmer
     sunw = np.clip(1 - np.abs(XX - SUN_C[0]) / 300.0, 0, 1)
     t = 0.6 + np.clip((YY - 200) / 120.0, 0, 1) * 1.6 + sunw * 1.4
     paint(img, mask, CITY, t)
-    # rim light on the edges facing the sun
     lit_edge = mask & ~np.roll(mask, -1, axis=1) & (XX < SUN_C[0])
     lit_edge |= mask & ~np.roll(mask, 1, axis=1) & (XX > SUN_C[0])
     lit_top = mask & ~np.roll(mask, 1, axis=0)
     rim = (lit_edge | lit_top) & (sunw > 0.15)
     img[rim, :3] = CITY[-1]
-    # a scatter of lit windows and the beacon
     for _ in range(90):
         xx, yy = int(rng.integers(0, W)), int(rng.integers(200, 296))
         if mask[yy, xx] and mask[yy - 3, xx] and rng.random() < 0.55:
@@ -199,7 +183,6 @@ def city():
     return img
 
 
-# ------------------------------------------------------------------ far scrap (mounds, a crane, the giant gear)
 def scrap_texture(seed, scale):
     """Clustered junk texture: blobby low-frequency field plus fine grit."""
     a = pnoise([5, 11, 23, 41], seed, y=YY) * 0.6
@@ -211,7 +194,6 @@ def far():
     img = np.zeros((H, W, 4), dtype=np.uint8)
     top = ridge([2, 5, 9, 17], 31, 268, 18)
     mask = YY >= top[None, :]
-    # the giant gear, half buried, on the sun side
     gx, gy, gr = 520.0, 262.0, 46.0
     dg = np.hypot(XX - gx, YY - gy)
     ang = np.arctan2(YY - gy, XX - gx)
@@ -219,7 +201,6 @@ def far():
     gear = ((dg < gr) | teeth) & ~((dg < 12)) & (YY < top[None, :] + 30)
     spokes = (dg > 12) & (dg < gr - 7) & ~((np.abs(np.sin(ang * 3)) < 0.18))
     gear &= ~spokes | (dg >= gr - 7)
-    # a leaning crane on the left
     crane = np.zeros((H, W), bool)
     for i in range(0, 120):
         cx = 92 + i * 0.55
@@ -237,20 +218,18 @@ def far():
     t = 3.4 - depth * 2.2 + tex * 0.7 + sunw * 0.8
     t = np.where(gear | crane, 1.4 + sunw * 1.2, t)
     paint(img, solid, FAR, np.clip(t, 0, len(FAR) - 1))
-    # warm rim along everything that faces up toward the sun
     up_edge = solid & ~np.roll(solid, 1, axis=0)
     rim2 = (solid & ~np.roll(solid, 2, axis=0)) & ~up_edge
     img[up_edge, :3] = np.where((sunw[up_edge] > 0.35)[:, None], FAR[6], FAR[5])
     img[rim2 & (sunw > 0.45), :3] = FAR[5]
     side = solid & ~np.roll(solid, -1, axis=1) & (XX < SUN_C[0]) & (sunw > 0.2) & (gear | crane)
     img[side, :3] = FAR[5]
-    # little junk silhouettes poking out of the ridge
     rng = np.random.default_rng(33)
     for _ in range(26):
         x0 = int(rng.integers(0, W))
         y0 = int(top[x0])
         kind = rng.integers(0, 3)
-        if kind == 0:   # pipe sticking up
+        if kind == 0:
             for k in range(int(rng.integers(5, 12))):
                 yy = y0 - k
                 if 0 <= yy < H:
@@ -258,14 +237,14 @@ def far():
                     img[yy, x0 % W, 3] = 255
                     img[yy, (x0 + 1) % W, :3] = FAR[2]
                     img[yy, (x0 + 1) % W, 3] = 255
-        elif kind == 1:  # tyre / drum
+        elif kind == 1:
             r = int(rng.integers(3, 6))
             for yy in range(y0 - 2 * r, y0 + 1):
                 for xx in range(x0 - r, x0 + r + 1):
                     if (xx - x0) ** 2 + (yy - (y0 - r)) ** 2 <= r * r and 0 <= yy < H:
                         img[yy, xx % W, :3] = FAR[1] if (xx + yy) % 2 else FAR[2]
                         img[yy, xx % W, 3] = 255
-        else:           # slab
+        else:
             w = int(rng.integers(6, 14))
             for yy in range(y0 - 4, y0 + 1):
                 for xx in range(x0, x0 + w):
@@ -278,12 +257,10 @@ def far():
     return img
 
 
-# ------------------------------------------------------------------ near scrap (dark, contrasty, big junk)
 def near():
     img = np.zeros((H, W, 4), dtype=np.uint8)
     top = ridge([2, 3, 7, 13, 29], 41, 318, 16)
     mask = YY >= top[None, :]
-    # chunky junk: a car wreck, a tilted sign, stacked tyres, a pipe arch
     junk = np.zeros((H, W), bool)
     def rect(x0, y0, x1, y1):
         return (XX >= x0) & (XX < x1) & (YY >= y0) & (YY < y1)
@@ -318,18 +295,15 @@ def near():
     img[rim2 & (sunw > 0.4), :3] = NEAR[6]
     side = solid & ~np.roll(solid, -1, axis=1) & (XX < SUN_C[0]) & junk
     img[side & (sunw > 0.2), :3] = NEAR[6]
-    # the sign's lettering: a few amber pixels, one dead
     for k, x in enumerate(range(sx - 9, sx + 10, 3)):
         y = int(sy - 42 + (x - sx) * 0.27)
         img[y, x, :3] = AMBER if k != 3 else NEAR[4]
         img[y + 1, x, :3] = AMBER if k != 3 else NEAR[4]
-    # car window catching the light
     img[cy - 21:cy - 16, cx - 10:cx - 2, :3] = NEAR[5]
     img[cy - 21, cx - 10:cx - 2, :3] = NEAR[6]
     return img
 
 
-# ------------------------------------------------------------------ smog wisps (animated in game)
 def smog():
     """Thin drifting smog bands. Mostly empty: sparse dithered pixels so the
     sky shows through; the game scrolls two copies at different speeds."""

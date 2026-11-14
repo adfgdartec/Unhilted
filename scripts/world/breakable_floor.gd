@@ -1,12 +1,9 @@
 class_name BreakableFloor
 extends StaticBody2D
-## A rusted hatch / weak plate in the floor. Hit it a few times (a downward
-## pogo slash works best) and it gives way, opening a hole. Stays broken.
-## The node's position is the top-centre of the plate.
 
 @export var size := Vector2(40, 12)
 @export var hits := 3
-@export var break_id := "" ## Leave empty to auto-generate from room + node name.
+@export var break_id := ""
 
 const TEX := preload("res://art/props/hatch.png")
 
@@ -31,7 +28,7 @@ func _ready() -> void:
 	shape.position = Vector2(0, size.y / 2.0)
 	add_child(shape)
 	_hurtbox = Hurtbox.new()
-	_hurtbox.collision_layer = 16 # player attacks find it
+	_hurtbox.collision_layer = 16
 	_hurtbox.collision_mask = 0
 	var hshape := CollisionShape2D.new()
 	var hrect := RectangleShape2D.new()

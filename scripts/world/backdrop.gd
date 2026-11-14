@@ -1,16 +1,5 @@
 class_name Backdrop
 extends Node2D
-## Parallax background drawn behind a room. Each layer is a 640-wide texture
-## that wraps horizontally and scrolls at its own fraction of the camera
-## (0 = fixed to the screen, like the sky; higher = closer).
-##
-## Entries starting with "fx:" are live effects drawn between the layers:
-##   fx:sun      a slow-breathing glow round the Heap's smog sun
-##   fx:smog     two copies of heap_smog.png drifting at different speeds
-##   fx:windows  some of the city's lit windows flicker on and off
-##   fx:birds    now and then a few birds cross the far sky
-##   fx:embers / fx:dust / fx:motes  drifting particles (warm embers outside,
-##               falling grit in the cave, dust hanging in the Intake's light)
 
 const SETS := {
 	"heap_outdoor": [
@@ -45,19 +34,19 @@ const SETS := {
 	],
 }
 
-var _layers: Array = [] ## [Texture2D, factor]
-var _anchor_y := 0.0     ## camera centre y at which layers sit exactly as painted
+var _layers: Array = []
+var _anchor_y := 0.0
 var _t := 0.0
 var _smog: Texture2D
-var _windows: Array[Vector2i] = []   ## lit window pixels in the city layer
+var _windows: Array[Vector2i] = []
 var _city_w := 640.0
-var _parts: Array = []               ## [pos (screen), vel, phase] for particle effects
+var _parts: Array = []
 var _part_kind := ""
 var _last_center := Vector2.INF
-var _bird_next := 6.0                ## seconds until the next flock
-var _birds: Array = []               ## [x, y, speed, flap phase]
+var _bird_next := 6.0
+var _birds: Array = []
 
-const SUN_POS := Vector2(470, 196)   ## where heap_sky.png paints the sun
+const SUN_POS := Vector2(470, 196)
 const WINDOW := Color8(255, 196, 106)
 
 
@@ -77,7 +66,7 @@ func setup(set_name: String, room_bounds: Rect2) -> void:
 	_anchor_y = room_bounds.end.y - 180.0
 	z_index = -100
 	z_as_relative = false
-	light_mask = 0 # world lights must not light the distant sky and city
+	light_mask = 0
 
 
 func _setup_fx(name: String) -> void:
@@ -86,7 +75,6 @@ func _setup_fx(name: String) -> void:
 			if ResourceLoader.exists("res://art/backdrops/heap_smog.png"):
 				_smog = load("res://art/backdrops/heap_smog.png")
 		"windows":
-			# find the city's lit windows once, so a few can flicker
 			var city: Texture2D = load("res://art/backdrops/heap_city.png")
 			var img := city.get_image()
 			_city_w = img.get_width()
@@ -174,12 +162,10 @@ func _draw() -> void:
 			x += w
 
 
-
 func _draw_fx(name: String, f: float, center: Vector2, top_left: Vector2, view: Vector2) -> void:
 	var base := Vector2(top_left.x, top_left.y - 20.0)
 	match name:
 		"sun":
-			# the sky layer is screen-fixed, so the sun is too; its glow breathes
 			var pulse := 0.5 + 0.5 * sin(_t * 0.6)
 			var c := base + SUN_POS
 			for i in 4:
@@ -197,7 +183,6 @@ func _draw_fx(name: String, f: float, center: Vector2, top_left: Vector2, view: 
 					draw_texture(_smog, Vector2(round(x), round(base.y + oy)), Color(1, 1, 1, 0.55 if k == 0 else 0.35))
 					x += w
 		"windows":
-			# a scatter of the lit windows blink off and on, each on its own clock
 			var ox := fposmod(-center.x * f, _city_w)
 			var oy := -(center.y - _anchor_y) * f * 0.35
 			for i in _windows.size():

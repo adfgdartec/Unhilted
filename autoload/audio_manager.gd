@@ -1,9 +1,4 @@
 extends Node
-## Sound effects and music. Every sound is synthesized by tools/audio/build_audio.py.
-##   AudioManager.sfx(&"jump")            one-shot with a little pitch variety
-##   AudioManager.music("camp")           crossfades to a looping track ("" = silence)
-## Volumes live in Fx (saved with the other settings) and map onto the
-## Music / SFX buses in default_bus_layout.tres.
 
 const SFX_DIR := "res://audio/sfx/"
 const MUSIC_DIR := "res://audio/music/"
@@ -15,8 +10,8 @@ var _next := 0
 var _music_a: AudioStreamPlayer
 var _music_b: AudioStreamPlayer
 var _current_track := ""
-var _last_played := {}   ## name -> msec, stops the same sound stacking in one frame
-var _override := ""      ## a boss fight can take over the room's track
+var _last_played := {}
+var _override := ""
 
 
 func _ready() -> void:
@@ -34,8 +29,8 @@ func _ready() -> void:
 		add_child(m)
 	apply_volumes()
 	EventBus.enemy_killed.connect(func(_id, _p): sfx(&"enemy_die"))
-	EventBus.boss_started.connect(func(_n, _h): set_override("boss"))
-	EventBus.boss_ended.connect(func(): set_override(""); set_music_pitch(1.0, 1.5))
+	EventBus.boss_started.connect(func(n, _h): set_override(BOSS_TRACKS.get(n, "boss")))
+	EventBus.boss_ended.connect(_on_boss_ended)
 
 
 func _stream(name: StringName) -> AudioStream:
@@ -63,7 +58,23 @@ func sfx(name: StringName, volume_db := 0.0, pitch_var := 0.06) -> void:
 	p.play()
 
 
-## Crossfade to a looping track. Same track = no-op.
+var keep_music_on_boss_end := false
+
+
+func _on_boss_ended() -> void:
+	if keep_music_on_boss_end:
+		keep_music_on_boss_end = false
+		return
+	set_override("")
+	set_music_pitch(1.0, 1.5)
+
+
+const BOSS_TRACKS := {
+	"THE PENDULUM": "boss_og",
+	"INTAKE UNIT 7": "boss_final",
+}
+
+
 func music(track: String, fade := 1.2) -> void:
 	_room_track = track
 	_play_track(_override if _override != "" else track, fade)
@@ -104,8 +115,6 @@ func _play_track(track: String, fade: float) -> void:
 	tw2.tween_property(incoming, "volume_db", 0.0, fade)
 
 
-## Bend the music's pitch (and tempo) over `time` seconds. Bosses use it to
-## wind the score up as a fight escalates; 1.0 is normal.
 var _pitch_tw: Tween
 func set_music_pitch(pitch: float, time := 1.0) -> void:
 	if _pitch_tw:

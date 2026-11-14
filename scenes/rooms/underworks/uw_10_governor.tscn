@@ -61,7 +61,7 @@ chain_length = 110
 [node name="BossArena" type="Node2D" parent="."]
 script = ExtResource("e3")
 boss_flag = "boss_governor_defeated"
-boss_name = "The Pendulum"
+boss_name = "THE PENDULUM"
 trigger_x = 100
 door_rect = Rect2(0, 256, 16, 64)
 boss_path = NodePath("GreatGovernor")

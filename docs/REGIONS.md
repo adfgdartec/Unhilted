@@ -73,7 +73,7 @@ running for 2,000 years without knowing what they were for.
 | Shapes | Round and riveted: pipes, gauges, gears, arched brick vaults, spiral stairs, pressure tanks. Curves everywhere (the opposite of the city's straight lines). |
 | Terrain | New `brick` (arched vault brick), `pipe` (walkable pipe runs), `grate` (see-through walkway: steam rises through it), `gear` (rotating platforms). |
 | Backdrop | Layers of vaults receding into haze, giant flywheels turning slowly, a waterfall of condensation, distant lit windows of Bellows Row. |
-| Landmarks | Pipe Market (the town), Bellows Row (houses on pipes), The Pendulum (a building-sized regulator that keeps the whole city's pressure), tram line 4. |
+| Landmarks | Pipe Market (the town), Bellows Row (houses on pipes), the Pendulum (a building-sized regulator that keeps the whole city's pressure), tram line 4. |
 | Music | New: `underworks` (music box and low brass), `pressure` (tense, ticking), boss |
 | Town | **Pipe Market.** **Bellows Kin:** tall and thin, stovepipe hats, leather aprons, brass prosthetics (a hand, a jaw, an ear trumpet), soot-smudged faces, verdigris goggles. Walk-in shops: the gauge-maker, a tea house, the tram depot. |
 | Currency | Brass cogs |

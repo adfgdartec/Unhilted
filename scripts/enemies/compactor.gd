@@ -1,10 +1,5 @@
 class_name Compactor
 extends EnemyBase
-## A heavy trash compactor on treads with an armoured ram plate in front.
-## Hits on the plate glance off; hit it from behind, from above, or while it
-## is stunned. When it sees you ahead it vents steam (the tell) and charges
-## until it hits a wall or loses you, then sits stunned (open to anything).
-##   PATROL -> WINDUP -> CHARGE -> STUNNED -> PATROL
 
 const TEX := preload("res://art/enemies/compactor.png")
 enum S { PATROL, WINDUP, CHARGE, STUNNED }
@@ -24,8 +19,6 @@ func _ready() -> void:
 	hurtbox.blocks = _plate_blocks
 
 
-## The ram plate covers the front. Attacks from in front and roughly level
-## glance off; from behind or well above they land. Stunned = no armour.
 func _plate_blocks(from: Vector2) -> bool:
 	if state == S.STUNNED:
 		return false
@@ -82,7 +75,7 @@ func _ledge_ahead() -> bool:
 
 func _on_hit(damage: int, from_position: Vector2, source: Node) -> void:
 	super(damage, from_position, source)
-	_knock *= 0.3 # heavy: barely budges
+	_knock *= 0.3
 
 
 func _draw() -> void:

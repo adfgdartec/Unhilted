@@ -1,8 +1,5 @@
 class_name ScrapDrone
 extends CharacterBody2D
-## The Heap's first enemy: a corporate garbage-collection drone that patrols
-## back and forth and turns at walls and ledges. Built from the same
-## Health / Hitbox / Hurtbox components as the player.
 
 const COLLECTIBLE_SCENE := preload("res://scenes/world/collectible.tscn")
 const GRAVITY := 900.0
@@ -71,8 +68,8 @@ func _on_died() -> void:
 func _draw() -> void:
 	var col := Color.WHITE if _flash > 0.0 else Color(0.85, 0.3, 0.35)
 	var hover := sin(_t * 6.0)
-	draw_rect(Rect2(-9, -14 + hover, 18, 10), col)                      # body
-	draw_rect(Rect2(-9, -14 + hover, 18, 2), Color(0.95, 0.85, 0.2))   # hazard stripe
-	draw_circle(Vector2(5 * dir, -9 + hover), 2.0, Color(1, 0.9, 0.3)) # sensor eye
-	draw_rect(Rect2(-7, -4, 4, 4), Color(0.2, 0.2, 0.25))              # treads
+	draw_rect(Rect2(-9, -14 + hover, 18, 10), col)
+	draw_rect(Rect2(-9, -14 + hover, 18, 2), Color(0.95, 0.85, 0.2))
+	draw_circle(Vector2(5 * dir, -9 + hover), 2.0, Color(1, 0.9, 0.3))
+	draw_rect(Rect2(-7, -4, 4, 4), Color(0.2, 0.2, 0.25))
 	draw_rect(Rect2(3, -4, 4, 4), Color(0.2, 0.2, 0.25))

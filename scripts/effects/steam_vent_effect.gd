@@ -1,6 +1,4 @@
 extends Node
-## Effect for the "Steam Vent" chip: every dash leaves a scalding cloud.
-## Pattern for behaviour chips: listen to EventBus, spawn things into the world.
 
 const CLOUD := preload("res://scripts/effects/steam_cloud.gd")
 

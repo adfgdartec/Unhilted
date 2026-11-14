@@ -1,11 +1,9 @@
 class_name AbilityGate
 extends StaticBody2D
-## A barrier that only breaks once you have the right shard.
-## Example: a scrap wall that Shard I (Edge) cuts through. Stays broken forever.
 
 @export_range(1, 5) var required_shard := 1
 @export var size := Vector2(16, 48)
-@export var gate_id := "" ## Leave empty to auto-generate from room + node name.
+@export var gate_id := ""
 
 const WALL := preload("res://art/items/scrap_wall.png")
 
@@ -29,7 +27,7 @@ func _ready() -> void:
 	shape.position = Vector2(0, -size.y / 2.0)
 	add_child(shape)
 	_hurtbox = Hurtbox.new()
-	_hurtbox.collision_layer = 16 # enemy_hurtbox, so player attacks find it
+	_hurtbox.collision_layer = 16
 	_hurtbox.collision_mask = 0
 	var hshape := CollisionShape2D.new()
 	var hrect := RectangleShape2D.new()

@@ -1,7 +1,4 @@
 extends CanvasLayer
-## All in-game menus: Dock menu, Port Loadout, Wardrobe, Shop and Pause.
-## The game is paused while any menu is open. Built in code for now; swap in
-## designed scenes later without changing the public functions below.
 
 signal quit_to_title
 
@@ -36,7 +33,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		close()
 
 
-# ------------------------------------------------------------------ open / close
 func _show(content: Control) -> void:
 	for child in _root.get_children():
 		if child is CenterContainer:
@@ -45,7 +41,6 @@ func _show(content: Control) -> void:
 	_root.add_child(holder)
 	_root.show()
 	if not _open:
-		# first menu of a stack: ease in (later swaps between menus stay instant)
 		content.modulate.a = 0.0
 		content.pivot_offset = content.custom_minimum_size * 0.5
 		content.scale = Vector2(0.97, 0.97)
@@ -89,7 +84,6 @@ func _remember_focus(content: Control) -> void:
 			return
 
 
-# ------------------------------------------------------------------ dock menu
 func open_dock_menu() -> void:
 	_last_focus = 0
 	var p := UIKit.panel(Vector2(250, 150))
@@ -112,7 +106,6 @@ func open_dock_menu() -> void:
 	_show(p)
 
 
-# ------------------------------------------------------------------ loadout (ports)
 func open_loadout() -> void:
 	var screen := LoadoutScreen.new()
 	screen.back_requested.connect(func(): _last_focus = 0; open_dock_menu())
@@ -124,7 +117,6 @@ func _find_player_stats() -> PlayerStats:
 	return player.stats if player else null
 
 
-# ------------------------------------------------------------------ wardrobe
 func open_wardrobe() -> void:
 	var p := UIKit.panel(Vector2(500, 280))
 	var col := VBoxContainer.new()
@@ -136,7 +128,6 @@ func open_wardrobe() -> void:
 	row.add_theme_constant_override("separation", 10)
 	col.add_child(row)
 
-	# the robot on a plinth in a display case
 	var case := UIKit.case_panel()
 	row.add_child(case)
 	var stage := Control.new()
@@ -198,7 +189,6 @@ func _toggle_chassis(panel: Control) -> void:
 	open_wardrobe()
 
 
-# ------------------------------------------------------------------ shop
 func open_shop(npc: NPC) -> void:
 	var screen := ShopScreen.new()
 	screen.npc = npc
@@ -206,7 +196,6 @@ func open_shop(npc: NPC) -> void:
 	_show(screen)
 
 
-# ------------------------------------------------------------------ settings
 func open_settings() -> void:
 	var p := UIKit.panel(Vector2(340, 330))
 	var box := VBoxContainer.new()
@@ -259,7 +248,6 @@ func _toggle_setting(key: String, panel: Control) -> void:
 	open_settings()
 
 
-# ------------------------------------------------------------------ pause
 func toggle_pause() -> void:
 	if _open:
 		close()

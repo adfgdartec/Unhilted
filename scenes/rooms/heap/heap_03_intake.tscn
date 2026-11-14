@@ -23,7 +23,7 @@ tileset = "heap_industrial"
 solid_styles = PackedStringArray("tiles", "tiles", "tiles", "tiles", "girder", "girder")
 backdrop = "intake_interior"
 ambient = Color(0.82, 0.7, 0.66, 1)
-music = "industrial"
+music = "beginning_aboveground"
 grade = &"intake"
 motes_color = Color(1, 0.75, 0.45, 0.32)
 motes_amount = 45
@@ -124,10 +124,10 @@ chain_length = 136.0
 
 [node name="BossArena" type="Node2D" parent="."]
 script = ExtResource("3_arena")
-boss_name = "The Pendulum"
+boss_name = "THE PENDULUM"
 boss_path = NodePath("IntakeShowdown")
 victory_text = "INTAKE UNIT 7 grinds to a halt. The shard falls free."
-intro_lines = Array[String](["> PRESSURE WARNING: A GOVERNOR HAS BROKEN LOOSE FROM THE WORKS BELOW.", "> It spins up as it notices you. Its crown gauge swings into the red.", "> (Climb the ledges by its crown. Hit the crown when it opens.)"])
+intro_lines = Array[String](["> PRESSURE WARNING: THE PENDULUM HAS BROKEN LOOSE FROM THE WORKS BELOW.", "> It spins up as it notices you. Its crown gauge swings into the red.", "> (Climb the ledges by its crown. Hit the crown when it opens.)"])
 
 [node name="IntakeCrane" parent="BossArena" instance=ExtResource("4_crane")]
 

@@ -1,16 +1,10 @@
 class_name ValveTurret
 extends EnemyBase
-## A steam turret bolted to a wall. It builds pressure (the valve on its side
-## glows: the tell) then blasts a cone of scalding steam straight out. Any
-## hit spins its valve shut: it stalls for a few seconds, steamless and open
-## to more hits. Linked to a room Valve (valve_path), opening that valve
-## bleeds its pressure for good.
-## Place it with its position on the wall face, at the turret's middle.
 
-const TEX := preload("res://art/enemies/valve_turret.png") # idle, charging, firing, shut
+const TEX := preload("res://art/enemies/valve_turret.png")
 enum S { IDLE, CHARGE, FIRE, SHUT, DEAD_PRESSURE }
 
-@export var face := 1               ## 1 = fires right (mounted on a left wall)
+@export var face := 1
 @export var reach := 84.0
 @export var idle_time := 1.4
 @export var offset := 0.0
@@ -26,7 +20,7 @@ func _ready() -> void:
 	enemy_id = &"valve_turret"
 	scrap_drop = 8
 	setup(4, Vector2(18, 20), Vector2(24, 24), Vector2(16, 18))
-	position.y += 12 # setup() builds shapes upward from the feet; centre them on the mount point
+	position.y += 12
 	facing = face
 	_st = -offset
 	_jet = Hitbox.new()
@@ -84,7 +78,7 @@ func _go(s: S) -> void:
 
 func _on_hit(damage: int, from_position: Vector2, source: Node) -> void:
 	super(damage, from_position, source)
-	_knock = 0.0 # bolted down
+	_knock = 0.0
 	if state != S.DEAD_PRESSURE:
 		_set_jet(false)
 		if state != S.SHUT:

@@ -1,6 +1,4 @@
 extends CanvasLayer
-## Always-on HUD: health pips, scrap, this region's local coins, consumables,
-## quest tracker, interaction prompt and pop-up toasts.
 
 var _pips: Control
 var _scrap: Label
@@ -22,7 +20,7 @@ var _boss_name: Label
 var _boss_bar: Control
 var _boss_hp := 1
 var _boss_max := 1
-var _boss_lag := 1.0      ## the white "recent damage" chunk that catches up
+var _boss_lag := 1.0
 var _cell_flash := 0.0
 var _flash_from := 0
 var _health := 5
@@ -81,7 +79,6 @@ func _build() -> void:
 	_quest.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	root.add_child(_quest)
 
-	# the interaction prompt sits on an iron plate, centred low on the screen
 	var prompt_holder := CenterContainer.new()
 	prompt_holder.anchor_left = 0.0
 	prompt_holder.anchor_right = 1.0
@@ -153,7 +150,6 @@ var _heal_charge := 0
 var _heal_needed := 3
 
 func _draw_pips() -> void:
-	# close-hit heal charge: three small green notches after the cells
 	var hx := _max_health * 10 + 3
 	for k in _heal_needed:
 		var r := Rect2(hx, 2 + k * 3, 4, 2)
@@ -165,7 +161,6 @@ func _draw_pips() -> void:
 			_pips.draw_rect(Rect2(i * 10, 1, 8, 10), Color(1.0, 0.45, 0.4, _cell_flash))
 
 
-## One HUD line: a small icon followed by a label. Returns the label.
 func _icon_row(parent: Control, icon: Texture2D, tint: Color, text_color: Color) -> Label:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 4)
@@ -226,8 +221,6 @@ func _refresh_quest() -> void:
 	_quest.text = QuestManager.tracker_text()
 
 
-## A big title card the first time you enter a region: the name drawn in
-## with a rule underneath, the room's name small below, then it fades.
 func _show_region_title(title: String, subtitle: String) -> void:
 	var box := VBoxContainer.new()
 	box.anchor_left = 0.0

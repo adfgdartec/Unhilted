@@ -1,12 +1,7 @@
 class_name PistonWalker
 extends EnemyBase
-## A boiler on two piston legs. It stomps along a patrol; when you're close
-## and level with it, it hisses (steam from the stack, legs bunch up: the
-## tell) and stomps, sending a shockwave along the floor both ways. Jump the
-## wave, then hit it while it resets.
-##   PATROL -> WINDUP -> STOMP -> RECOVER -> PATROL
 
-const TEX := preload("res://art/enemies/piston_walker.png") # 6 frames
+const TEX := preload("res://art/enemies/piston_walker.png")
 enum S { PATROL, WINDUP, STOMP, RECOVER }
 
 @export var speed := 26.0

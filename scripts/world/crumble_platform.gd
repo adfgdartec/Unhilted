@@ -1,8 +1,5 @@
 class_name CrumblePlatform
 extends StaticBody2D
-## A rusty girder ledge you can jump up through and stand on. crumble()
-## knocks it out: it shakes, splits and drops away. The Intake showdown's
-## Governor smashes these one by one as it loses its balance.
 
 @export var width := 52.0
 
@@ -64,7 +61,6 @@ func _draw() -> void:
 	while x < w / 2.0 - 3.0:
 		draw_line(Vector2(x, 1), Vector2(x + 4, 5), dark, 1.0)
 		x += 8.0
-	# hanging chains to the ceiling rail
 	for side in [-1.0, 1.0]:
 		var cx: float = side * (w / 2.0 - 4.0)
 		var y := -2.0

@@ -1,11 +1,4 @@
 extends Node
-## Level playthrough test for the Underworks. Run:
-##   godot --headless --path . res://tools/underworks_test.tscn
-## Checks every exit/spawn link, then has a bot walk the critical path (vent
-## lifts, pistons, gear wheels, the stairs of the Falls, the boiling pit),
-## exercises each gimmick and enemy, beats the Lamplighter and the Great
-## Governor, picks up Shard II, swings across the Swing Galleries, and runs
-## the three quests, the shops and the map.
 
 var main: Node
 var player: Player
@@ -35,7 +28,7 @@ func room() -> Room:
 
 func goto(room_id: String, spawn: StringName) -> void:
 	var folder := "underworks" if room_id.begins_with("uw_") else "heap"
-	for i in 180: # a transition already under way would make change_room ignore this one
+	for i in 180:
 		if not WorldManager.is_busy():
 			break
 		await frames(1)
@@ -43,7 +36,7 @@ func goto(room_id: String, spawn: StringName) -> void:
 	player.hurtbox.invulnerable = true
 	player.health.refill()
 	await frames(20)
-	await _skip_dialogue() # a boss intro started by spawning past its trigger line
+	await _skip_dialogue()
 
 
 func place(pos: Vector2) -> void:
@@ -58,7 +51,6 @@ func release_all() -> void:
 		Input.action_release(a)
 
 
-## Running jump onto a point ~10 px inside a platform's near edge.
 func hop_to(target: Vector2) -> bool:
 	var jumped := false
 	var airborne := 0
@@ -70,7 +62,6 @@ func hop_to(target: Vector2) -> bool:
 		if absf(dx) > 3.0 and dir != 0.0:
 			Input.action_press("move_right" if dir > 0 else "move_left")
 		var edge_ahead := dir != 0.0 and not player.test_move(player.global_transform.translated(Vector2(dir * 8.0, 0)), Vector2(0, 6))
-		# a short step down: just walk off; a gap (even downward) still needs a jump
 		var below := target.y > player.global_position.y + 4.0 and absf(dx) < 70.0
 		if not jumped and player.is_on_floor() and not below and (absf(dx) <= 50.0 or (edge_ahead and absf(dx) < 150.0)):
 			Input.action_press("jump")
@@ -102,7 +93,6 @@ func walk_to(x: float, max_frames := 500) -> void:
 	await frames(4)
 
 
-## Walk toward an exit until the room changes.
 func walk_out(x: float, max_frames := 600) -> String:
 	var start := room().room_id
 	var dir := signf(x - player.global_position.x)
@@ -113,7 +103,6 @@ func walk_out(x: float, max_frames := 600) -> String:
 			print("    walk_out dbg room=%s pos=%s vel=%s st=%s busy=%s" % [room().room_id, str(player.global_position.round()), str(player.velocity.round()), player.state_machine.current_name(), WorldManager.is_busy()])
 		if WorldManager.is_busy() or room().room_id != start:
 			break
-		# hop small lips on the way
 		if player.is_on_floor() and player.is_on_wall():
 			Input.action_press("jump")
 			await frames(2)
@@ -127,7 +116,6 @@ func walk_out(x: float, max_frames := 600) -> String:
 	return String(room().room_id)
 
 
-## Wait until the robot stands still on the ground (or time runs out).
 func settle(max_frames := 240) -> void:
 	for i in max_frames:
 		await frames(1)
@@ -144,14 +132,10 @@ func _hit(node: Node, from: Vector2) -> bool:
 	return hb != null and hb.take_hit(1, from, player)
 
 
-## Swing across a gap: jump off the edge, throw at the ring at the top of the
-## jump, hang (throw again), pump toward the target, and jump off when moving
-## up and past the ring. True if it lands on the target platform.
 func swing_across(ring_name: String, land: Vector2, dir := 1, release_past := 40.0, jump_x := NAN) -> bool:
 	var ring = room().get_node(ring_name)
 	var key := "move_right" if dir > 0 else "move_left"
 	Input.action_press(key)
-	# run to the edge and jump
 	for i in 180:
 		await frames(1)
 		var edge := player.is_on_floor() and not player.test_move(player.global_transform.translated(Vector2(10 * dir, 0)), Vector2(0, 6))
@@ -201,7 +185,6 @@ func swing_across(ring_name: String, land: Vector2, dir := 1, release_past := 40
 				Input.action_release("jump")
 				released = true
 		elif released:
-			# in the air after letting go: steer for the landing like a player would
 			Input.action_release("move_left")
 			Input.action_release("move_right")
 			var to := land.x - player.global_position.x
@@ -231,9 +214,8 @@ func _run() -> void:
 		await _advance_dialogue()
 	EventBus.region_title.connect(func(t, s): _titles.append([t, s]))
 	player.hurtbox.invulnerable = true
-	GameState.give_shard(1) # the Underworks comes after the Heap
+	GameState.give_shard(1)
 
-	# run one section alone:  -- only=galleries  (add  dbg  for bot traces)
 	var only := ""
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with("only="):
@@ -288,7 +270,6 @@ func _skip_dialogue() -> void:
 		await _advance_dialogue()
 
 
-# ------------------------------------------------------------------ 1. links
 func _links() -> void:
 	var dir := DirAccess.open("res://scenes/rooms/underworks")
 	var rooms := []
@@ -334,7 +315,6 @@ func _links() -> void:
 	check(floating.is_empty(), "every Underworks spawn stands on solid ground %s" % str(floating))
 
 
-# ------------------------------------------------------------------ 2. Descent and Market
 func _descent_and_market() -> void:
 	GameState.flags.erase("entered_region_underworks")
 	_titles.clear()
@@ -344,7 +324,6 @@ func _descent_and_market() -> void:
 	await frames(10)
 	check(_titles.size() == 1 and _titles[0][0] == "THE UNDERWORKS", "a title card announces the Underworks the first time %s" % str(_titles))
 	check(GameState.current_region == &"underworks", "the HUD switches to the Underworks' currency (Brass Cogs)")
-	# down the iron stair to the market
 	var ok := true
 	for i in range(6):
 		if not await hop_to(Vector2(152 + 64 * i, 200 + 40 * i)):
@@ -353,7 +332,6 @@ func _descent_and_market() -> void:
 			break
 	check(ok, "Descent: down the iron stair a step at a time")
 	await hop_to(Vector2(560, 440))
-	# the vent lift up to the alcove cog
 	var cogs := GameState.get_balance(&"underworks")
 	Input.action_press("move_right")
 	var top := 999.0
@@ -361,7 +339,6 @@ func _descent_and_market() -> void:
 		await frames(1)
 		top = minf(top, player.global_position.y)
 		if player.global_position.y < 260.0:
-			# steer over the ledge, then stop pushing
 			Input.action_release("move_right")
 			if player.global_position.x > 512.0:
 				Input.action_press("move_left")
@@ -375,14 +352,13 @@ func _descent_and_market() -> void:
 	check(GameState.get_balance(&"underworks") > cogs and absf(player.global_position.y - 170.0) < 2.0, "...onto the alcove ledge, and the cog there is a Brass Cog")
 	await place(Vector2(560, 440))
 	check(await walk_out(650) == "uw_02_market", "Descent -> Pipe Market")
-	# swing-only ring: without Shard II the blade skates off
 	await place(Vector2(1290, 352))
 	var ring = room().get_node("SwingRing")
 	Input.action_press("jump")
 	await frames(10)
 	Input.action_release("jump")
 	var reach_ok := player.blade_anchor.global_position.distance_to(ring.global_position) < player.stats.get_stat("wire_length")
-	player.aim_vector = player.aim_toward(ring.global_position) # aim is re-read every frame: set it right before the throw
+	player.aim_vector = player.aim_toward(ring.global_position)
 	player.throw_blade()
 	var hooked := false
 	for i in 30:
@@ -401,9 +377,7 @@ func _descent_and_market() -> void:
 	check(await walk_out(1620) == "uw_03_row", "Pipe Market -> Bellows Row")
 
 
-# ------------------------------------------------------------------ 3. Bellows Row and Boiler Works
 func _row_and_works() -> void:
-	# the roofs: crate, three roofs, the relief valve
 	var path := [Vector2(360, 312), Vector2(440, 270), Vector2(580, 230)]
 	var ok := true
 	for t in path:
@@ -426,12 +400,10 @@ func _row_and_works() -> void:
 	check(seen_on and seen_off, "the street's scalding vents run on a rhythm")
 	await place(Vector2(1150, 352))
 	check(await walk_out(1300) == "uw_04_works", "Bellows Row -> Boiler Works")
-	# the turret valve shuts the turret off for good
 	var turret: ValveTurret = room().get_node("Turret")
 	_hit(room().get_node("TurretValve"), player.global_position)
 	await frames(5)
 	check(turret.state == ValveTurret.S.DEAD_PRESSURE, "opening the floor valve bleeds the turret's pressure")
-	# piston lifts
 	var lift: Piston = room().get_node("LiftA")
 	while lift._phase() > 0.1:
 		await frames(1)
@@ -458,10 +430,8 @@ func _row_and_works() -> void:
 	check(await walk_out(980) == "uw_05_gearworks", "Boiler Works -> Gearworks (high exit)")
 
 
-# ------------------------------------------------------------------ 4. Gearworks and Condensate Falls
 func _gearworks_and_falls() -> void:
 	var gear: GearWheel = room().get_node("GearA")
-	# stand on a platform and ride it
 	var p0: Vector2 = gear.global_position + gear.platform_position(0)
 	await place(p0 + Vector2(0, -4))
 	await frames(10)
@@ -485,7 +455,6 @@ func _gearworks_and_falls() -> void:
 	check(absf(player.global_position.y - 120.0) < 2.0, "Gearworks: the vent lifts the robot up to the Gallery ledge")
 	await place(Vector2(880, 300))
 	check(await walk_out(980) == "uw_07_falls", "Gearworks -> Condensate Falls")
-	# down the stair of grates, past the falls, to the valve and on to the hall
 	await place(Vector2(50, 120))
 	var ok := true
 	for i in range(5):
@@ -499,7 +468,6 @@ func _gearworks_and_falls() -> void:
 	_hit(room().get_node("ReliefValve"), player.global_position)
 	await frames(5)
 	check(GameState.key_item_count(&"relief_valve") == valves + 1, "relief valve 3 of 3 (the Falls)")
-	# the Cistern side isn't a dead end: a ladder of grates back up to the entry
 	await place(Vector2(100, 400))
 	ok = true
 	for t in [Vector2(40, 360), Vector2(110, 320), Vector2(40, 280), Vector2(110, 240), Vector2(40, 200), Vector2(110, 168), Vector2(170, 160), Vector2(60, 120)]:
@@ -512,7 +480,6 @@ func _gearworks_and_falls() -> void:
 	check(await walk_out(660) == "uw_08_gauge", "Condensate Falls -> Pressure Gauge Hall")
 
 
-# ------------------------------------------------------------------ 5. Gauge Hall and the Approach
 func _gauge_and_approach() -> void:
 	var turret: ValveTurret = room().get_node("TurretA")
 	var fired := false
@@ -528,7 +495,6 @@ func _gauge_and_approach() -> void:
 	await place(Vector2(1060, 352))
 	var ok := await hop_to(Vector2(1130, 300))
 	check(ok and GameState.key_item_count(&"letter") >= 1, "a lost letter on the ledge")
-	# the lift vent to the Steam Trials
 	await place(Vector2(940, 352))
 	for i in 150:
 		await frames(1)
@@ -538,18 +504,17 @@ func _gauge_and_approach() -> void:
 	check(room().room_id == &"uw_15_trials", "the hall's lift vent rises into the Steam Trials")
 	await goto("uw_08_gauge", &"from_trials")
 	await place(Vector2(1180, 352))
-	check(await walk_out(1300) == "uw_09_approach", "Pressure Gauge Hall -> Governor's Approach")
+	check(await walk_out(1300) == "uw_09_approach", "Pressure Gauge Hall -> Pendulum's Approach")
 	ok = await hop_to(Vector2(510, 312)) and await hop_to(Vector2(650, 352))
 	check(ok, "Approach: across the boiling pit by the island")
 	await place(Vector2(880, 352))
-	check(await walk_out(980) == "uw_10_governor", "Approach -> The Pendulum")
+	check(await walk_out(980) == "uw_10_governor", "Approach -> the Great Governor")
 
 
 func ok_print(cond: bool, what: String) -> void:
 	check(cond, what)
 
 
-# ------------------------------------------------------------------ 6. the enemies
 func _enemies() -> void:
 	await goto("uw_15_trials", &"from_gauge")
 	await place(Vector2(320, 300))
@@ -578,7 +543,6 @@ func _enemies() -> void:
 	await frames(20)
 	var reward := room().get_node_or_null("ArenaReward")
 	check(reward != null and reward.kind == Collectible.Kind.CORE_CELL, "the Steam Trials reward is a core cell")
-	# piston walker: the stomp sends shockwaves along the floor
 	var w := PistonWalker.new()
 	room().add_child(w)
 	w.global_position = Vector2(200, 320)
@@ -596,7 +560,6 @@ func _enemies() -> void:
 		w.queue_free()
 
 
-# ------------------------------------------------------------------ 7. the Lamplighter
 func _lamplighter() -> void:
 	await goto("uw_06_gallery", &"from_gearworks")
 	var lamp: GasLamp = room().get_node("Lamp1")
@@ -620,7 +583,6 @@ func _lamplighter() -> void:
 		if swept:
 			break
 	check(swept, "it closes in and sweeps its pole")
-	# check the sweep height in real numbers: a standing robot is in it, a sliding one is under it
 	var pole_shape: RectangleShape2D = (boss._pole.get_child(0) as CollisionShape2D).shape
 	var pole_y: float = boss.global_position.y + (boss._pole.get_child(0) as CollisionShape2D).position.y
 	var pole_bottom := pole_y + pole_shape.size.y * 0.5
@@ -651,12 +613,10 @@ func _lamplighter() -> void:
 	check(all_lit, "every lamp in the Gallery lights again")
 
 
-# ------------------------------------------------------------------ 8. The Pendulum
 func _governor() -> void:
 	await goto("uw_10_governor", &"from_approach")
 	check(GameState.has_shard(2) == false, "no Shard II yet")
 	var gov: GreatGovernor = room().get_node("BossArena/GreatGovernor")
-	# the high ball is at chest height: standing robots are hit, sliding ones pass under
 	var b: Dictionary = gov.ball(1)
 	var r := GreatGovernor.BALL_R - 1.0
 	var standing_top := 320.0 - 27.0
@@ -665,10 +625,9 @@ func _governor() -> void:
 	check(ball_bottom > standing_top and ball_bottom < sliding_top, "the high flyball clears a sliding robot but not a standing one (bottom %d px up)" % int(320.0 - ball_bottom))
 	var low_top: float = gov.ball(0).pos.y - r
 	check(320.0 - low_top < 58.0, "the low flyball is under jump height (%d px tall)" % int(320.0 - low_top))
-	# the hooks by the crown must be reachable for real: jump under one and throw
 	await place(Vector2(200, 320))
 	await frames(5)
-	await _skip_dialogue() # standing past the trigger line starts the fight and its intro
+	await _skip_dialogue()
 	await place(Vector2(200, 320))
 	var hook_l = room().get_node("HookL")
 	Input.action_press("jump")
@@ -697,7 +656,7 @@ func _governor() -> void:
 	await _skip_dialogue()
 	for i in 90:
 		await frames(1)
-	check(gov.state != GreatGovernor.S.IDLE, "walking in starts The Pendulum")
+	check(gov.state != GreatGovernor.S.IDLE, "walking in starts the Governor")
 	var saw_near := false
 	var saw_vents := false
 	var blocked_floor := false
@@ -707,15 +666,15 @@ func _governor() -> void:
 		saw_vents = saw_vents or not gov._vents.is_empty()
 		if gov.is_vulnerable():
 			if not blocked_floor:
-				blocked_floor = not gov._hurtbox.take_hit(1, Vector2(320, 300), player) # from the floor: glances off
+				blocked_floor = not gov._hurtbox.take_hit(1, Vector2(320, 300), player)
 			if k % 5 == 0:
-				gov._hurtbox.take_hit(2, Vector2(256, 100), player) # from the hook height
+				gov._hurtbox.take_hit(2, Vector2(256, 100), player)
 		if gov.state == GreatGovernor.S.WRECKED:
 			break
 	check(saw_near, "its flyballs are dangerous on the near pass")
 	check(saw_vents, "floor vents burst during the fight")
 	check(blocked_floor, "hits from the floor glance off the crown's rim")
-	check(gov.state == GreatGovernor.S.WRECKED and GameState.flags.get("boss_governor_defeated", false), "hitting the open crown from the hooks brings The Pendulum down")
+	check(gov.state == GreatGovernor.S.WRECKED and GameState.flags.get("boss_governor_defeated", false), "hitting the open crown from the hooks brings the Governor down")
 	await frames(20)
 	var shard: Collectible = null
 	for n in room().get_node("BossArena").get_children():
@@ -735,7 +694,6 @@ func _governor() -> void:
 	check(await walk_out(660) == "uw_11_galleries", "with Shard II the way on opens: the Swing Galleries")
 
 
-# ------------------------------------------------------------------ 9. the Swing Galleries
 func _galleries() -> void:
 	await place(Vector2(150, 352))
 	var ok := await swing_across("RingA", Vector2(464, 320))
@@ -748,7 +706,6 @@ func _galleries() -> void:
 		await place(Vector2(744, 320))
 	ok = await swing_across("RingC", Vector2(1000, 352))
 	check(ok, "...ring C to the far side")
-	# climbing the wire: up shortens it, down lets it out
 	await place(Vector2(1100, 352))
 	var ring = room().get_node("RingLoft")
 	if dbg:
@@ -784,7 +741,6 @@ func _galleries() -> void:
 	await frames(2)
 	Input.action_release("throw")
 	await settle()
-	# the Loft: swing from its ring up onto the high ledge, then through the door
 	await place(Vector2(1020, 352))
 	var ok_loft := await swing_across("RingLoft", Vector2(1190, 200), 1, 30.0, 1040.0)
 	check(ok_loft, "swinging from the loft ring lands on the high ledge")
@@ -799,13 +755,11 @@ func _galleries() -> void:
 	await place(Vector2(1200, 352))
 	check(await walk_out(1300) == "uw_02_market", "the Galleries come out on the Pipe Market's high walkway")
 	check(absf(player.global_position.y - 232.0) < 4.0, "...up on the walkway (y %d)" % int(player.global_position.y))
-	# with Shard II the market's ring works: swing up from the stairwell to the walkway
 	await place(Vector2(1240, 352))
 	ok = await swing_across("SwingRing", Vector2(1480, 232), 1, 15.0)
 	check(ok, "Pipe Market: with Swing, the ring by the stairwell takes you up to the walkway")
 
 
-# ------------------------------------------------------------------ 10. side rooms
 func _side_rooms() -> void:
 	await goto("uw_12_tunnel", &"from_market")
 	var letters := GameState.key_item_count(&"letter")
@@ -832,7 +786,6 @@ func _side_rooms() -> void:
 	check(GameState.key_item_count(&"letter") == letters + 1, "a letter at the far end of the Cistern")
 
 
-# ------------------------------------------------------------------ 11. town: quests, shops, map
 func _town() -> void:
 	await goto("uw_02_market", &"from_descent")
 	GameState.add_local(&"underworks", 30, false)
@@ -844,7 +797,6 @@ func _town() -> void:
 		check(QuestManager.get_state(qid) == GameState.QuestState.TURNED_IN, "quest %s turned in" % qid)
 	check(&"piston_legs" in GameState.owned_chips and &"ball_bearings" in GameState.owned_chips, "rewards: Piston Legs and Ball Bearings chips")
 	check(&"cloak_bellows" in GameState.owned_cosmetics, "reward: the Bellows Frock Coat")
-	# Gauge & Gear
 	await place(Vector2(320, 352))
 	WorldManager.enter_interior("res://scenes/interiors/gauge_gear.tscn", &"from_gauge")
 	await frames(60)
@@ -868,7 +820,6 @@ func _town() -> void:
 	check(quill != null and ShopScreen.buy(quill, quill.shop_items[0]) and GameState.has_map(&"underworks"), "Quill sells the Map of the Underworks")
 	WorldManager.leave_interior()
 	await frames(60)
-	# the Bellows Kin look like their own family
 	var kin: Lineage = load("res://data/lineages/bellows_kin.tres")
 	var t := NPCLook.roll(kin, 99, "adult", {"headwear": "stovepipe", "goggles": "monocle", "accessory": "brass_arm"})
 	var img := NPCLook.build(kin, t)[0].get_image()

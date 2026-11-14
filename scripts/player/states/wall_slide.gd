@@ -1,8 +1,4 @@
 extends PlayerState
-## Holding into a wall while falling: slide down it slowly, back to the wall.
-## Jump kicks off it, up and away (up to Player.MAX_WALL_JUMPS before you
-## have to touch the ground again). Let go of the wall, or reach the floor,
-## and you drop off.
 
 const SLIDE_SPEED := 110.0
 var _normal := 0.0
@@ -20,7 +16,7 @@ func enter(_msg := {}) -> void:
 
 func physics_update(delta: float) -> void:
 	player.velocity.y = minf(player.velocity.y + player.rise_gravity * 0.35 * delta, SLIDE_SPEED)
-	player.velocity.x = -_normal * 30.0 # keep pressed to the wall
+	player.velocity.x = -_normal * 30.0
 	player.facing = 1 if _normal > 0.0 else -1
 	if randf() < 0.25:
 		Fx.dust(player.global_position + Vector2(-_normal * 5.0, -10.0), 0.2)

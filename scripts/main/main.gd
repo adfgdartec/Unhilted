@@ -1,13 +1,11 @@
 extends Node
-## Root of the game. Never freed. Owns the World (rooms + player), HUD,
-## menus and title screen, and runs New Game / Continue / Quit to Title.
 
 @onready var room_container: Node2D = $World/RoomContainer
 @onready var player: Player = $World/Player
 @onready var hud: CanvasLayer = $HUD
 @onready var game_ui: CanvasLayer = $GameUI
 @onready var title: CanvasLayer = $TitleScreen
-var demo: DemoMode = null ## showcase build only (see scripts/demo/demo_mode.gd)
+var demo: DemoMode = null
 
 const DEMO_INTRO_LINES := [
 	"> ...",
@@ -16,6 +14,13 @@ const DEMO_INTRO_LINES := [
 	"> Something is still gripped in your hand. A hilt. A wire hums inside it, glowing.",
 	"> DIRECTIVE RECOVERED: GET BACK UP.",
 	"> (Every hit you take charges a REBOUND STRIKE. Scrap springs bounce you higher.)",
+]
+const ELDER_LINES := [
+	"Easy. Easy now. Don't try to stand all at once.",
+	"You're under the Heap. Whatever the world up there throws away ends up down here. So did you.",
+	"Two thousand years. That's how long since anything stirred in that casing. I kept count, scratch by scratch, on these old glasses.",
+	"...We've been waiting for one like you for a long time.",
+	"Go on. Up and to the right, there's a camp. And if you hear the crane's horn, keep moving.",
 ]
 const INTRO_LINES := [
 	"> ...",
@@ -75,6 +80,7 @@ func _on_new_game(gender: int) -> void:
 	GameState.give_starting_items()
 	await _begin(GameState.START_ROOM, GameState.START_SPAWN)
 	await DialogueManager.say(INTRO_LINES, "SYSTEM")
+	await DialogueManager.say(ELDER_LINES, "TRASH COLLECTOR")
 	EventBus.toast.emit("Move: WASD   Jump: Space   Attack: Right click   Throw: hold Left click + flick   Dash: Shift")
 
 
@@ -83,6 +89,7 @@ func _on_demo_run() -> void:
 	await _begin(DemoMode.START_ROOM, DemoMode.START_SPAWN)
 	demo.start_run()
 	await DialogueManager.say(DEMO_INTRO_LINES, "SYSTEM")
+	await DialogueManager.say(ELDER_LINES, "TRASH COLLECTOR")
 	EventBus.toast.emit(Keybinds.summary(Fx.control_preset, Fx.custom_binds).replace("\n", "   "))
 
 

@@ -1,10 +1,5 @@
 class_name ShopScreen
 extends PanelContainer
-## A shopkeeper's stall: a striped awning, the keeper's portrait in a frame,
-## your wallet in a coin tray, the wares as riveted cards, and a lit display
-## case with the selected item on a brass plinth, its price tag and a brass
-## Buy plate. Buying flashes the card, counts the wallet down and stamps the
-## card when it sells out. Art: tools/art/build_ui.py.
 
 signal closed
 
@@ -20,8 +15,8 @@ var _price_icon: TextureRect
 var _price_box: PanelContainer
 var _buy: Button
 var _selected: ShopItem
-var _cards := {} ## item_id -> ShopCard
-var _shown_balance := {} ## currency -> displayed number (for the count-down)
+var _cards := {}
+var _shown_balance := {}
 
 const ICON_SCRAP := preload("res://art/ui/icon_scrap.png")
 const ICON_CAP := preload("res://art/ui/icon_cap.png")
@@ -39,7 +34,6 @@ const BTN_OFF := preload("res://art/ui/btn_off.png")
 const STAMP := preload("res://art/ui/stamp.png")
 
 
-## The selected item floating over a brass plinth, with its shadow; bobs gently.
 class Showcase extends Control:
 	const PEDESTAL := preload("res://art/ui/pedestal.png")
 	var tex: Texture2D
@@ -63,7 +57,6 @@ class Showcase extends Control:
 		var d := (s * k).round()
 		var bob := 0.0 if dimmed else roundf(sin(_t * 2.2) * 1.0)
 		var at := Vector2(cx - d.x * 0.5, ped.y - d.y - 3 + bob).round()
-		# its shadow on the plinth top shrinks a little as it rises
 		var sw := roundf(d.x * (0.55 if bob < 0 else 0.62))
 		draw_rect(Rect2(cx - sw * 0.5, ped.y + 1, sw, 2), Color(0.1, 0.06, 0.04, 0.55))
 		draw_rect(Rect2(cx - sw * 0.5 + 2, ped.y, sw - 4, 1), Color(0.1, 0.06, 0.04, 0.35))
@@ -89,7 +82,6 @@ func _init() -> void:
 
 
 func _draw() -> void:
-	# the awning hangs across the top of the stall, inside the frame
 	var x := 3.0
 	while x < size.x - 3.0:
 		var w := minf(AWNING.get_width(), size.x - 3.0 - x)
@@ -105,7 +97,6 @@ func _ready() -> void:
 	under_awning.custom_minimum_size = Vector2(0, 8)
 	col.add_child(under_awning)
 
-	# --- header: framed portrait, name + greeting, wallet tray
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 10)
 	col.add_child(head)
@@ -133,7 +124,6 @@ func _ready() -> void:
 	_wallet.add_theme_constant_override("separation", 10)
 	tray.add_child(_wallet)
 
-	# --- body: wares | display case
 	var body := HBoxContainer.new()
 	body.add_theme_constant_override("separation", 10)
 	col.add_child(body)
@@ -224,7 +214,7 @@ func _portrait() -> Control:
 	t.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	t.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	t.custom_minimum_size = npc._frames[0].get_size() * 2.0
-	t.flip_h = true # face the wares
+	t.flip_h = true
 	return t
 
 
@@ -405,7 +395,6 @@ func _on_buy() -> void:
 	_refresh_wallet(true)
 
 
-## The purchase itself (also used by tests). Returns true if it went through.
 static func buy(shop_npc: NPC, item: ShopItem) -> bool:
 	var key := "%s:%s" % [shop_npc.npc_id, item.item_id]
 	var bought := int(GameState.shop_bought.get(key, 0))

@@ -1,5 +1,4 @@
 extends Node2D
-## Expanding shockwave ring (slams, docks, shard pickups, kills).
 
 var color := Color.WHITE
 var radius := 24.0

@@ -1,13 +1,9 @@
 extends Node
-## Loads/unloads handmade room scenes, places the player at a spawn marker
-## and plays the fade between rooms. Also handles respawning after death.
 
 var room_container: Node2D
 var player: Player
 var current_room: Room
-var ambient: CanvasModulate ## registered by Main
-## The walk-in building the robot is inside (null when outdoors). The outdoor
-## room stays loaded but hidden and paused while you're in here.
+var ambient: CanvasModulate
 var interior: InteriorRoom
 var _interior_return: StringName = &""
 
@@ -37,9 +33,7 @@ func is_busy() -> bool:
 	return _busy
 
 
-## room_path is a scene file like "res://scenes/rooms/heap/heap_02_camp.tscn".
-## spawn is the name of a Marker2D inside that room's "Spawns" node.
-var last_spawn: StringName = &"" ## the spawn marker the player arrived at in the current room
+var last_spawn: StringName = &""
 
 func change_room(room_path: String, spawn: StringName, fade := true) -> void:
 	if _busy:
@@ -77,9 +71,9 @@ func change_room(room_path: String, spawn: StringName, fade := true) -> void:
 	if not GameState.flags.get(region_flag, false):
 		GameState.flags[region_flag] = true
 		var region := ItemDB.region(current_room.region_id)
-		if region and current_room.region_id != &"heap": # the Heap opens with its own wake-up scene
+		if region and current_room.region_id != &"heap":
 			EventBus.region_title.emit(region.display_name.to_upper(), current_room.display_name)
-	EventBus.currency_changed.emit() # HUD swaps to this region's local currency
+	EventBus.currency_changed.emit()
 	SaveManager.save_game()
 
 	if fade:
@@ -88,8 +82,6 @@ func change_room(room_path: String, spawn: StringName, fade := true) -> void:
 	_busy = false
 
 
-## Go into a walk-in building. The current room and the 2D robot are hidden and
-## paused (not freed), so coming back out is instant and nothing outside resets.
 func enter_interior(path: String, return_spawn: StringName) -> void:
 	if _busy or interior:
 		return
@@ -112,7 +104,6 @@ func enter_interior(path: String, return_spawn: StringName) -> void:
 	_busy = false
 
 
-## Walk back out to the door you came in by.
 func leave_interior() -> void:
 	if _busy or interior == null:
 		return
@@ -135,7 +126,6 @@ func leave_interior() -> void:
 	_busy = false
 
 
-## Remove the interior (if any) and bring the outdoor world back.
 func clear_interior() -> void:
 	if interior:
 		interior.queue_free()

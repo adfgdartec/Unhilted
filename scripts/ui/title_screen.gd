@@ -1,5 +1,4 @@
 extends CanvasLayer
-## Title + the "SELECT CHASSIS" boot sequence (girl or boy) for a new game.
 
 signal new_game_requested(gender: int)
 signal continue_requested
@@ -18,8 +17,6 @@ func _ready() -> void:
 func show_title(has_save: bool) -> void:
 	_clear()
 	show()
-	# The Heap at night, with the corp Spire on the skyline: the whole game in one view.
-	# Tall windows show more below the skyline: fill it with the near ground's colour.
 	var near: Texture2D = load("res://art/backdrops/heap_near.png")
 	var img := near.get_image()
 	var ground := ColorRect.new()
@@ -36,7 +33,6 @@ func show_title(has_save: bool) -> void:
 			"res://art/backdrops/heap_far.png", "res://art/backdrops/heap_near.png"]:
 		var tr := TextureRect.new()
 		tr.texture = load(path)
-		# tile sideways so any screen width is covered
 		tr.anchor_right = 1.0
 		tr.offset_top = -30
 		tr.offset_bottom = tr.texture.get_height() - 30
@@ -65,7 +61,6 @@ func show_title(has_save: bool) -> void:
 	_focus_first.call_deferred(box)
 
 
-## The showcase build's title: one button into the demo slice.
 func show_demo_title() -> void:
 	show_title(false)
 	var box: VBoxContainer = null
@@ -111,7 +106,6 @@ func show_chassis_select() -> void:
 	for g in [GameState.Gender.GIRL, GameState.Gender.BOY]:
 		var col := VBoxContainer.new()
 		col.add_theme_constant_override("separation", 6)
-		# each chassis stands on a brass plinth in a display case
 		var case := UIKit.case_panel()
 		col.add_child(case)
 		var holder := Control.new()

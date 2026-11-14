@@ -1,17 +1,13 @@
 class_name Valve
 extends Node2D
-## A valve wheel. Hit it (sword, thrown blade, zip) to turn it: open <-> shut.
-## Steam vents, turrets and doors can watch it (SteamVent.valve_path,
-## ValveTurret.valve_path). Quest valves (quest_item set) count toward a quest
-## the first time they're opened, and stay open for good (saved in flags).
 
 signal toggled(open: bool)
 
-const SPRITE := preload("res://art/props/uw_valve.png") # 2 frames: shut, open
+const SPRITE := preload("res://art/props/uw_valve.png")
 
 @export var is_open := false
-@export var quest_item: StringName = &""   ## e.g. &"relief_valve" (Pressure Drop)
-@export var one_way := false               ## can only be opened (quest valves are)
+@export var quest_item: StringName = &""
+@export var one_way := false
 
 var _cool := 0.0
 var _spin := 0.0
@@ -24,7 +20,7 @@ func _ready() -> void:
 		if GameState.flags.get(_flag(), false):
 			is_open = true
 	_hurtbox = Hurtbox.new()
-	_hurtbox.collision_layer = 16 # hit by the sword and the blade like an enemy
+	_hurtbox.collision_layer = 16
 	_hurtbox.collision_mask = 0
 	var cs := CollisionShape2D.new()
 	var c := CircleShape2D.new()
@@ -34,7 +30,6 @@ func _ready() -> void:
 	_hurtbox.add_child(cs)
 	add_child(_hurtbox)
 	_hurtbox.hit.connect(_on_hit)
-	# a valve is a switch, not an enemy: no damage numbers, no aim-assist pull
 	_hurtbox.remove_from_group("enemy_hurtbox")
 
 
@@ -57,7 +52,7 @@ func _on_hit(_damage: int, _from: Vector2, _source: Node) -> void:
 	Fx.shake(1.0)
 	if is_open and quest_item != &"" and not GameState.flags.get(_flag(), false):
 		GameState.flags[_flag()] = true
-		GameState.add_key_item(quest_item) # counts even if the quest isn't taken yet
+		GameState.add_key_item(quest_item)
 		EventBus.item_collected.emit(quest_item)
 		EventBus.toast.emit("Relief valve opened. The pipes groan, then settle.")
 	toggled.emit(is_open)

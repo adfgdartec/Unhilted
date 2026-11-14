@@ -1,19 +1,14 @@
 class_name ShopCard
 extends Button
-## One item in the shop: a riveted iron plate with brass corner brackets, the
-## item sitting in a round brass well (like a port socket), its name, and a
-## paper price tag with the currency icon. Can't afford it: the price goes red.
-## Sold out or owned: the plate goes dull and gets an ink stamp instead of a tag.
-## All frames are 9-slice pixel textures from tools/art/build_ui.py.
 
 var icon_tex: Texture2D
-var swatch := Color.TRANSPARENT  ## used when there is no icon yet
+var swatch := Color.TRANSPARENT
 var title := ""
 var price := 0
 var currency_icon: Texture2D
 var affordable := true
-var stamp := ""                  ## "SOLD OUT" / "OWNED" / ""
-var subtitle := ""               ## shown instead of a price (wardrobe slots, etc.)
+var stamp := ""
+var subtitle := ""
 var flash := 0.0
 
 const FONT := preload("res://art/fonts/Silkscreen.ttf")
@@ -45,7 +40,6 @@ static func box(tex: Texture2D, l: int, t: int, r: int, b: int) -> StyleBoxTextu
 	return _boxes[key]
 
 
-## A price tag with its currency icon, as drawn on cards (also used by the detail panel).
 static func draw_tag(ci: CanvasItem, at: Vector2, cur_icon: Texture2D, text: String, col: Color) -> float:
 	var tw := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 8).x
 	var iw := (cur_icon.get_width() + 2.0) if cur_icon else 0.0
@@ -96,7 +90,6 @@ func _draw() -> void:
 	var sel := has_focus()
 	var done := stamp != ""
 	draw_style_box(box(PLATE_SEL if sel else (PLATE_OFF if done else PLATE), 7, 7, 7, 7), r)
-	# the item in its well
 	var well_at := Vector2(5, roundf((size.y - 34) * 0.5))
 	draw_texture(WELL, well_at)
 	var c := well_at + Vector2(17, 17)
@@ -108,7 +101,6 @@ func _draw() -> void:
 		draw_texture_rect(icon_tex, Rect2((c - d * 0.5).round(), d), false, tint)
 	elif swatch.a > 0.0:
 		draw_rect(Rect2(c - Vector2(7, 7), Vector2(14, 14)), swatch * tint)
-	# name
 	var text_col := Color(0.93, 0.9, 0.84) if not done else Color(0.52, 0.5, 0.52)
 	if sel:
 		text_col = Color.WHITE
@@ -117,7 +109,6 @@ func _draw() -> void:
 		lines = lines.slice(0, 1)
 	for i in mini(lines.size(), 2):
 		draw_string(FONT, Vector2(44, 15 + i * 9), lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, 8, text_col)
-	# price tag, or a stamp
 	if subtitle != "":
 		draw_string(FONT, Vector2(44, size.y - 9), subtitle.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, size.x - 50.0, 8, Color(1.0, 0.72, 0.3) if not sel else UIKit.AMBER)
 	elif done:
@@ -130,7 +121,6 @@ func _draw() -> void:
 		queue_redraw()
 
 
-## "Magnet Coil (chip)" -> "Magnet Coil": the card already says what kind it is.
 static func clean_name(t: String) -> String:
 	var i := t.find(" (")
 	return t.substr(0, i) if i > 0 else t

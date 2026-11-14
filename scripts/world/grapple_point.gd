@@ -1,16 +1,11 @@
 class_name GrapplePoint
 extends Area2D
-## Something the blade can hook onto: a steam pipe, crane hook, neon sign...
-## Throw the blade at it, then press throw again to reel yourself in.
 
 const HOOK := preload("res://art/items/crane_hook.png")
 const CHAIN := preload("res://art/items/chain.png")
 const ANCHOR := preload("res://art/props/uw_anchor.png")
 
-## How far the chain reaches up to whatever holds the hook (cable, girder, roof).
 @export var chain_length := 36.0
-## A polished brass swing anchor (Underworks): the blade only bites with
-## Shard II (Swing). Without it the throw skates off.
 @export var swing_only := false
 
 var _t := 0.0
@@ -18,7 +13,7 @@ var _t := 0.0
 
 func _ready() -> void:
 	add_to_group("grapple_points")
-	collision_layer = 32 # "grapple"
+	collision_layer = 32
 	collision_mask = 0
 	monitoring = false
 	if get_child_count() == 0:
@@ -36,9 +31,7 @@ func _process(delta: float) -> void:
 
 
 func _draw() -> void:
-	# chain up to the rail, then the hook; the soft amber pulse marks it as hookable
 	if swing_only:
-		# brass ring on a bracket bolted to whatever is above it
 		var top := -13.0
 		while top > -13.0 - chain_length:
 			draw_rect(Rect2(-1, top - 6, 2, 6), Color(0.27, 0.21, 0.21))

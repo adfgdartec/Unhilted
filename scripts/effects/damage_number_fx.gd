@@ -1,11 +1,9 @@
 extends Node2D
-## Terraria-style damage number: pops up with a little overshoot, drifts up
-## and sideways, then fades. Big hits (2+) are gold and larger.
 
 const FONT := preload("res://art/fonts/Silkscreen.ttf")
 
 var amount := 1
-var word := ""              ## when set, shows this text instead of the number
+var word := ""
 var word_color := Color(0.45, 0.95, 1.0)
 var _age := 0.0
 var _drift := 0.0
@@ -37,7 +35,6 @@ func _draw() -> void:
 	draw_set_transform(Vector2(_drift * t, rise - 10.0), 0.0, Vector2(pop, pop))
 	var w := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
 	var pos := Vector2(-w * 0.5, 0)
-	# 1 px dark outline keeps it readable over bright effects
 	for o in [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:
 		draw_string(FONT, pos + o, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(0.05, 0.04, 0.08, a))
 	draw_string(FONT, pos, text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(col, a))

@@ -63,7 +63,6 @@ class Interior:
         self._prop(name, tex, x, y, "stand", footprint, look, reach)
 
     def wall(self, name, tex, x, y, look=None):
-        # wall pieces are looked at from the floor just below them
         self._prop(name, tex, x, y, "wall", None, look, 44 if look else None)
 
     def floor(self, name, tex, x, y):
@@ -98,7 +97,7 @@ class Interior:
 
 
 LINEAGE = "res://data/lineages/heapfolk.tres"
-F = WALL  # the floor starts here
+F = WALL
 
 
 def rusty():
@@ -115,7 +114,6 @@ def rusty():
         "* Tin cans, gears, a radio with no insides.", "* Every price tag just says ASK. You suspect the answer changes."])
     r.stand("Shelf2", "shelf_b", 80, F + 10, (44, 8), look=[
         "* A box of lightbulbs. Most of them are just glass and hope."])
-    # Rusty stands behind the counter; you talk to her across it
     r.keeper("Rusty", 116, F + 34, {
         "npc_id": SN("rusty"), "display_name": S("Rusty"),
         "shop_items": "Array[%s]([%s])" % (shop_script, items),

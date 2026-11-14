@@ -1,7 +1,4 @@
 extends Node
-## Undertale-style text box with typewriter text.
-##   await DialogueManager.say(["Hello.", "{They} woke up!"], "Tinker")
-## Pronoun tokens are swapped for she/her or he/him based on the chosen chassis.
 
 signal finished
 
@@ -49,7 +46,6 @@ func say(lines: Array, speaker := "") -> void:
 	await finished
 
 
-## Replaces {they}/{them}/{their}/{theirs} (and capitalised versions).
 func format_text(text: String) -> String:
 	var p := GameState.pronouns()
 	for key in p:
@@ -105,7 +101,6 @@ func _unhandled_input(event: InputEvent) -> void:
 func _close() -> void:
 	active = false
 	_panel.hide()
-	# Wait one frame so the button press that closed the box doesn't also make the robot jump.
 	await get_tree().process_frame
 	GameState.unlock_ui()
 	finished.emit()

@@ -1,13 +1,10 @@
 extends Node
-## Loads every data Resource (.tres) once at startup so any script can look
-## things up by id: ItemDB.chips[&"long_tether"], ItemDB.cosmetics[...], etc.
-## To add a new chip/outfit/quest, just drop a new .tres file in the right folder.
 
-var chips: Dictionary = {}      ## id -> UpgradeChip
-var cosmetics: Dictionary = {}  ## id -> CosmeticItem
-var quests: Dictionary = {}     ## id -> QuestData
-var regions: Dictionary = {}    ## id -> RegionData
-var shards: Dictionary = {}     ## id -> ShardData
+var chips: Dictionary = {}
+var cosmetics: Dictionary = {}
+var quests: Dictionary = {}
+var regions: Dictionary = {}
+var shards: Dictionary = {}
 
 
 func _ready() -> void:
@@ -25,7 +22,7 @@ func _load_folder(path: String) -> Dictionary:
 		push_warning("ItemDB: missing folder " + path)
 		return out
 	for file in dir.get_files():
-		file = file.trim_suffix(".remap") # exported games rename resources to *.remap
+		file = file.trim_suffix(".remap")
 		if not file.ends_with(".tres"):
 			continue
 		var res: Resource = load(path.path_join(file))

@@ -1,24 +1,5 @@
 class_name DemoMode
 extends CanvasLayer
-## Showcase demo: the opening of the game, about three minutes, ending at a
-## natural point:
-##   Under the Heap (wake up, learn the moves) -> Scavenger Camp -> Scrap
-##   Fields -> Crane Yard -> Conveyor Hall -> the Intake (INTAKE UNIT 7)
-## It ends once Shard I is attached to the blade, on an "end of demo" card,
-## then back to the title. Exits that leave the route are shut (the camp's
-## walk-in buildings stay open). Dying puts you back at the entrance of the
-## room you were in. If nobody touches the controls for a while it quietly
-## resets.
-## Only active in the demo build (export preset feature "demo") or when the
-## game is launched with  -- demo . Nothing is saved in demo mode.
-##
-## Theme: BOUNCING BACK. A robot thrown away on the Heap gets back up.
-##   - Scrap spring pads in every room (placed here, under ledges that are
-##     just too high to jump to) bounce you up and on.
-##   - Rebound Strike: getting hit, or respawning, charges your next attack
-##     for double damage (Player.take_rebound).
-##   - Hit INTAKE UNIT 7's thrown block to bounce it back into the crane.
-##   - The end card counts how often you were knocked down and got back up.
 
 const START_ROOM := GameState.START_ROOM
 const START_SPAWN := GameState.START_SPAWN
@@ -46,11 +27,9 @@ func _ready() -> void:
 	EventBus.player_died.connect(func(): if running: falls += 1)
 
 
-## Fresh state, exactly like a new game: Shard I is what the Intake drops.
 func prepare_state() -> void:
 	GameState.reset()
 	GameState.give_starting_items()
-	# dying or falling sends you back to the start of the slice, not the Heap
 	GameState.respawn_room = START_ROOM
 	GameState.respawn_spawn = START_SPAWN
 
@@ -60,7 +39,7 @@ func start_run() -> void:
 	_idle = 0.0
 	_since_shard = 0.0
 	running = true
-	if WorldManager.current_room: # the first room loaded before the run began
+	if WorldManager.current_room:
 		_on_room_entered(WorldManager.current_room.room_id)
 
 
@@ -77,7 +56,7 @@ func _input(event: InputEvent) -> void:
 func _process(delta: float) -> void:
 	if not running:
 		return
-	if not GameState.is_ui_locked():   # cutscenes don't count as idle
+	if not GameState.is_ui_locked():
 		_idle += delta
 	if _idle > IDLE_RESET and not DialogueManager.active:
 		stop()
@@ -85,33 +64,56 @@ func _process(delta: float) -> void:
 	elif GameState.has_shard(1):
 		_since_shard += delta
 		if _since_shard > 0.5 and not DialogueManager.active:
-			_finish() # Shard I is attached and its scene has played out: the natural end
+			_finish()
 
 
 func _on_room_entered(room_id: StringName) -> void:
 	if not running:
 		return
-	# respawn at the entrance of the room you're in, not back at the start
 	GameState.respawn_room = GameState.current_room
 	GameState.respawn_spawn = WorldManager.last_spawn
 	_shut_side_exits()
+	_close_walls()
 	_place_pads.call_deferred()
 
 
-## Exits that lead off the demo route stop working and become solid.
-# ------------------------------------------------------------------ bounce pads
-## Find ledges a jump can't reach (62-105 px above a floor, 20-90 px to the
-## side) and put a spring pad on the floor below them. Raycasts against the
-## room's tiles, so it works for any room on the route.
+const DEMO_WALLS := {
+	&"heap_01_pit": [Rect2(656, 448, 48, 48)],
+}
+
+func _close_walls() -> void:
+	var room := WorldManager.current_room
+	if room == null or not DEMO_WALLS.has(room.room_id):
+		return
+	var body := room.get_node_or_null("Solids") as StaticBody2D
+	for r: Rect2 in DEMO_WALLS[room.room_id]:
+		if r in room.solids:
+			continue
+		room.solids.append(r)
+		var st: PackedStringArray = room.solid_styles
+		while st.size() < room.solids.size() - 1:
+			st.append("rock")
+		st.append("rock")
+		room.solid_styles = st
+		if body:
+			var cs := CollisionShape2D.new()
+			var rs := RectangleShape2D.new()
+			rs.size = r.size
+			cs.shape = rs
+			cs.position = r.get_center()
+			body.add_child(cs)
+	room.queue_redraw()
+
+
 func _place_pads() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	var room := WorldManager.current_room
-	if room == null or room.room_id == &"heap_03_intake":
+	if room == null or room.room_id in [&"heap_01_pit", &"heap_03_intake"]:
 		return
 	var b: Rect2 = room.bounds
 	var space := room.get_world_2d().direct_space_state
-	var surfaces := []   # [x, y]
+	var surfaces := []
 	var x := b.position.x + 40.0
 	while x < b.end.x - 40.0:
 		var y := b.position.y + 2.0
@@ -158,9 +160,6 @@ func _place_pads() -> void:
 
 const CELL := 8
 
-## Flood-fill the open air a player can get to from the room's spawn points
-## (8 px cells), so pads only go on floors inside the playable space, never
-## on top of solid rock or above a ceiling.
 func _reachable_air(space: PhysicsDirectSpaceState2D, room: Node2D, b: Rect2) -> Dictionary:
 	var q := PhysicsPointQueryParameters2D.new()
 	q.collision_mask = 1
@@ -194,7 +193,6 @@ func _reachable_air(space: PhysicsDirectSpaceState2D, room: Node2D, b: Rect2) ->
 	return seen
 
 
-## Nothing solid in the column of air above a floor point.
 func _clear(space: PhysicsDirectSpaceState2D, room: Node2D, at: Vector2, height: float) -> bool:
 	for k in range(1, 5):
 		var q := PhysicsPointQueryParameters2D.new()
@@ -230,7 +228,7 @@ func _shut_side_exits() -> void:
 
 func _finish() -> void:
 	stop()
-	await get_tree().create_timer(1.5).timeout # a beat with the shard in hand first
+	await get_tree().create_timer(1.5).timeout
 	get_tree().paused = true
 	await _end_card()
 	get_tree().paused = false

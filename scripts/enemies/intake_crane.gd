@@ -1,49 +1,22 @@
 class_name IntakeCrane
 extends Node2D
-## BOSS: INTAKE UNIT 7, the corporate landfill crane that "processes" anything
-## dumped into the Heap (including, once, a buried robot).
-##
-## How the fight reads:
-##   - Raised, the head is ARMOURED: the blade glances off it with a spark.
-##   - TRACK & SLAM: it follows you along the rail, freezes, shows a red drop
-##     line for 0.55 s, then slams. After a slam it is STUCK for ~1.3 s with its
-##     orange core open: that is the window to hit it (melee or blade).
-##   - BALES: it dumps three scrap bales near you; each landing spot is marked
-##     on the floor about a second before the bale arrives.
-##   - THROW: it grabs a heavy block, swings a red aim line onto you, locks it
-##     for a beat, then hurls the block straight at where you stood. The block
-##     shatters on the floor into fragments that skid outward, so dodge it,
-##     then dodge again (jump over the skid or dash through it). Phase 2
-##     throws twice, the second leading your movement.
-##     OR BOUNCE IT BACK: hit the block (melee or the thrown blade) and it
-##     flies back into the crane: 3 damage and the crane is knocked open
-##     (STUCK) even while armoured. The fight's "bouncing back" moment.
-##   - Phase 2 (half health, trim turns magenta): faster tracking, shorter stuck
-##     window, and MAGNET: it drags you toward the centre before slamming there.
-##     Run against it, or hook a side anchor with the blade to hold on.
-## The node sits at the room origin, so local and room coordinates match.
-##
-## In the demo's showdown (IntakeShowdown) it starts PARKED up by the rail
-## while The Pendulum fights, is driven through a CUTSCENE (smash the wreck,
-## haul it away, take the shard), then fights EMPOWERED: shard-cyan trim,
-## faster tracking, a shorter stun window, the music wound up.
 
 signal defeated
 
-enum S { IDLE, PARKED, CUTSCENE, INTRO, TRACK, WARN, DROP, STUCK, RISE, BALE_MOVE, BALES, MAGNET_MOVE, MAGNET_WARN, MAGNET_PULL, THROW_GRAB, THROW_AIM, THROW_RECOVER, DYING, WRECKED }
+enum S { IDLE, PARKED, CUTSCENE, INTRO, TRACK, WARN, DROP, STUCK, RISE, BALE_MOVE, BALES, MAGNET_MOVE, MAGNET_WARN, MAGNET_PULL, THROW_GRAB, THROW_AIM, THROW_RECOVER, LASER_STEAM, LASER_AIM, LASER_FIRE, DYING, WRECKED }
 
 const MAX_HP := 16
 const RAIL_Y := 40.0
 const UP_Y := 112.0
 const FLOOR_Y := 320.0
-const SLAM_Y := FLOOR_Y - 34.0   ## head centre when the claw tips touch the floor
+const SLAM_Y := FLOOR_Y - 34.0
 const MIN_X := 72.0
 const MAX_X := 568.0
 const CENTER_X := 320.0
 const CEILING_Y := 28.0
 const BALE_INTERVAL := 0.5
 const THROW_SPEED := 340.0
-const THROW_LOCK := 0.3          ## the aim line stops following you this long before the throw
+const THROW_LOCK := 0.3
 const COLLECTIBLE_SCENE := preload("res://scenes/world/collectible.tscn")
 
 var state := S.IDLE
@@ -60,11 +33,16 @@ var _target_x := CENTER_X
 var _bale_targets: Array[float] = []
 var _bales_dropped := 0
 var _throws_left := 0
-var _aim := Vector2.ZERO          ## local point the block will be thrown at
+var _aim := Vector2.ZERO
 var _last_px := 0.0
 var _hinted := false
 var empowered := false
-var claw_closed := false      ## cutscene: claw shut (gripping wreck / shard)
+var _steam := 0.0
+var _beams: Array[Vector2] = []
+var _beam_hit: Array[Hitbox] = []
+const STEAM_TOP := 150.0
+const BEAM_GAP := 112.0
+var claw_closed := false
 const PARK := Vector2(596, 66)
 const RETURN_DAMAGE := 3
 var _hurtbox: Hurtbox
@@ -89,6 +67,20 @@ func _ready() -> void:
 	_hitbox.damage = 1
 	_hitbox.add_child(_rect_shape(Vector2(50, 20), Vector2(0, 26)))
 	add_child(_hitbox)
+	for i in 3:
+		var h := Hitbox.new()
+		h.collision_layer = 0
+		h.collision_mask = 8
+		h.continuous = true
+		h.start_active = false
+		h.damage = 1
+		var bcs := CollisionShape2D.new()
+		var br := RectangleShape2D.new()
+		br.size = Vector2(10, 10)
+		bcs.shape = br
+		h.add_child(bcs)
+		add_child(h)
+		_beam_hit.append(h)
 	_core_light = Fx.make_light(Color(1.0, 0.6, 0.2), 70.0, 0.0)
 	add_child(_core_light)
 	_sync_boxes()
@@ -103,7 +95,6 @@ func _rect_shape(size: Vector2, offset: Vector2) -> CollisionShape2D:
 	return cs
 
 
-## Tucked up by the rail, out of the fight.
 func park() -> void:
 	state = S.PARKED
 	head = PARK
@@ -119,7 +110,6 @@ func start(p: Player) -> void:
 	AudioManager.sfx(&"horn")
 
 
-## Already beaten: show the wreck, no collisions.
 func set_wrecked() -> void:
 	state = S.WRECKED
 	head = Vector2(410, SLAM_Y + 10)
@@ -135,8 +125,18 @@ func _enter(s: S) -> void:
 		return
 	_hurtbox.invulnerable = s != S.STUCK
 	_hitbox.set_deferred("monitoring", s == S.DROP)
-	if s == S.WARN or s == S.MAGNET_WARN or s == S.THROW_AIM:
+	if s == S.WARN or s == S.MAGNET_WARN or s == S.THROW_AIM or s == S.LASER_AIM:
 		AudioManager.sfx(&"telegraph", -6.0)
+	if s == S.LASER_STEAM:
+		AudioManager.sfx(&"steam", 0.0)
+	if s == S.LASER_FIRE:
+		AudioManager.sfx(&"burst", 2.0)
+		Fx.shake(5.0)
+		_set_beams(true)
+		for b in _beams:
+			Fx.spark(to_global(b), Color(1.0, 0.4, 0.8), 10)
+	elif is_instance_valid(_hurtbox) and not _beam_hit.is_empty():
+		_set_beams(false)
 	if s == S.STUCK:
 		AudioManager.sfx(&"slam")
 		Fx.shake(5.0)
@@ -209,9 +209,24 @@ func _physics_process(delta: float) -> void:
 			if not resisting:
 				player.global_position.x = move_toward(player.global_position.x, to_global(Vector2(CENTER_X, 0)).x, 72.0 * delta)
 			if _t > 1.6:
-				_enter(S.WARN) # slam right where it pulled you
+				_enter(S.WARN)
+		S.LASER_STEAM:
+			head.x = move_toward(head.x, CENTER_X, 200.0 * delta)
+			head.y = move_toward(head.y, UP_Y - 20.0, 120.0 * delta)
+			_steam = move_toward(_steam, 1.0, delta * 1.1)
+			if _t > 1.1:
+				_plan_beams(px)
+				_enter(S.LASER_AIM)
+		S.LASER_AIM:
+			_steam = 1.0
+			if _t < 0.75:
+				_plan_beams(px, 0.06)
+			if _t > 1.3:
+				_enter(S.LASER_FIRE)
+		S.LASER_FIRE:
+			if _t > 0.45:
+				_enter(S.TRACK)
 		S.THROW_GRAB:
-			# hoist a block up from the chute: head lifts, claw closes on it
 			head.y = move_toward(head.y, UP_Y - 14.0, 120.0 * delta)
 			if _t > 0.5:
 				_enter(S.THROW_AIM)
@@ -220,7 +235,6 @@ func _physics_process(delta: float) -> void:
 			if _t < aim_time - THROW_LOCK:
 				var target := to_local(player.global_position + Vector2(0, -12))
 				if _phase2 and _throws_left == 1:
-					# the second throw leads: aim where you're heading
 					var vx := (px - _last_px) / maxf(delta, 0.001)
 					target.x += clampf(vx, -160.0, 160.0) * 0.45
 				_aim = _aim.lerp(target, 0.35) if _aim != Vector2.ZERO else target
@@ -242,6 +256,8 @@ func _physics_process(delta: float) -> void:
 			if _t > 1.4:
 				state = S.WRECKED
 				defeated.emit()
+	if not state in [S.LASER_STEAM, S.LASER_AIM, S.LASER_FIRE]:
+		_steam = move_toward(_steam, 0.0, delta * 0.6)
 	_last_px = px
 	_sync_boxes()
 	queue_redraw()
@@ -251,6 +267,8 @@ func _next_attack() -> void:
 	_cycle += 1
 	if _phase2 and _cycle % 3 == 0:
 		_enter(S.MAGNET_MOVE)
+	elif _phase2 and _cycle % 3 == 1:
+		_enter(S.LASER_STEAM)
 	elif _cycle % 4 == 2:
 		_throws_left = 2 if _phase2 else 1
 		_aim = Vector2.ZERO
@@ -281,7 +299,33 @@ func _drop_bale(x: float) -> void:
 	bale.global_position = to_global(Vector2(x, CEILING_Y))
 
 
-## Hurl the held block straight at the locked aim point.
+func _plan_beams(px: float, ease := 1.0) -> void:
+	var want: Array[Vector2] = []
+	for off in [-BEAM_GAP, 0.0, BEAM_GAP]:
+		want.append(Vector2(clampf(px + off, 30.0, 610.0), FLOOR_Y))
+	if _beams.size() != 3:
+		_beams = want
+		return
+	for i in 3:
+		_beams[i] = _beams[i].lerp(want[i], ease)
+
+
+func _beam_origin() -> Vector2:
+	return head + Vector2(0, 24)
+
+
+func _set_beams(on: bool) -> void:
+	for i in _beam_hit.size():
+		var h := _beam_hit[i]
+		if on and i < _beams.size():
+			var a := _beam_origin()
+			var b := _beams[i]
+			h.position = (a + b) * 0.5
+			h.rotation = (b - a).angle()
+			((h.get_child(0) as CollisionShape2D).shape as RectangleShape2D).size = Vector2(a.distance_to(b), 8)
+		h.set_deferred("monitoring", on)
+
+
 func _throw_block() -> void:
 	var from := head + Vector2(0, 30)
 	var dir := (_aim - from).normalized()
@@ -334,7 +378,7 @@ func _on_hit(damage: int, from_position: Vector2, _source: Node) -> void:
 	elif not _phase2 and hp <= MAX_HP / 2:
 		_phase2 = true
 		if empowered:
-			AudioManager.set_music_pitch(1.2, 1.5)
+			AudioManager.set_music_pitch(1.08, 1.5)
 		Fx.shake(6.0)
 		Fx.ring(to_global(head), Color(0.95, 0.35, 0.75), 70.0, 0.5, 3.0)
 
@@ -357,13 +401,10 @@ func _die() -> void:
 		get_parent().add_child.call_deferred(scrap)
 
 
-## Where a bounced-back block aims (the head, in world space).
 func returned_block_point() -> Vector2:
 	return to_global(head)
 
 
-## Your own block, bounced back: it hurts through the armour and knocks the
-## core open for a punish window.
 func hit_by_returned_block(_block: Node) -> void:
 	if state in [S.DYING, S.WRECKED, S.IDLE]:
 		return
@@ -389,13 +430,11 @@ func is_vulnerable() -> bool:
 	return state == S.STUCK
 
 
-# ---------------------------------------------------------------- drawing
 func _draw() -> void:
 	var steel := Color(0.34, 0.33, 0.37)
 	var dark := Color(0.18, 0.17, 0.2)
 	var trim := Color(0.95, 0.35, 0.75) if _phase2 else (Color(0.4, 0.95, 1.0) if empowered else Color(1.0, 0.6, 0.15))
 
-	# Rail and trolley
 	draw_rect(Rect2(16, RAIL_Y - 4, 608, 8), dark)
 	for x in range(24, 624, 32):
 		draw_line(Vector2(x, RAIL_Y - 4), Vector2(x + 8, RAIL_Y + 4), Color(0.3, 0.28, 0.25), 1.0)
@@ -406,11 +445,9 @@ func _draw() -> void:
 		_draw_wreck(steel, dark)
 		return
 
-	# Cables
 	draw_line(Vector2(trolley_x - 10, RAIL_Y + 5), head + Vector2(-16, -20), Color(0.55, 0.52, 0.5), 1.5)
 	draw_line(Vector2(trolley_x + 10, RAIL_Y + 5), head + Vector2(16, -20), Color(0.55, 0.52, 0.5), 1.5)
 
-	# Telegraphs
 	if state == S.WARN:
 		var blink := 1.0 if fmod(_t, 0.12) < 0.07 else 0.35
 		draw_dashed_line(Vector2(head.x, head.y + 34), Vector2(head.x, FLOOR_Y), Color(1.0, 0.25, 0.2, blink), 2.0, 6.0)
@@ -420,14 +457,24 @@ func _draw() -> void:
 			if i >= _bales_dropped:
 				var tx: float = _bale_targets[i]
 				var a := 0.55 + 0.35 * sin(_anim * 14.0)
-				# faint drop column + a bright bracket where it will land
 				draw_rect(Rect2(tx - 8, CEILING_Y, 16, FLOOR_Y - CEILING_Y), Color(1.0, 0.3, 0.2, 0.07))
 				draw_rect(Rect2(tx - 11, FLOOR_Y - 3, 22, 3), Color(1.0, 0.3, 0.2, a))
 				draw_line(Vector2(tx - 11, FLOOR_Y - 3), Vector2(tx - 11, FLOOR_Y - 9), Color(1.0, 0.3, 0.2, a), 2.0)
 				draw_line(Vector2(tx + 11, FLOOR_Y - 3), Vector2(tx + 11, FLOOR_Y - 9), Color(1.0, 0.3, 0.2, a), 2.0)
-				draw_rect(Rect2(tx - 8, CEILING_Y - 2, 16, 8), Color(0.45, 0.4, 0.33)) # bale dangling at the chute
+				draw_rect(Rect2(tx - 8, CEILING_Y - 2, 16, 8), Color(0.45, 0.4, 0.33))
+	if _steam > 0.01:
+		_draw_steam()
+	if state == S.LASER_AIM:
+		_draw_prefire()
+	if state == S.LASER_FIRE:
+		for b in _beams:
+			var a := _beam_origin()
+			var fade := 1.0 - _t / 0.45
+			draw_line(a, b, Color(1.0, 0.3, 0.75, 0.35 * fade), 10.0)
+			draw_line(a, b, Color(1.0, 0.45, 0.85, 0.9 * fade), 4.0)
+			draw_line(a, b, Color(1.0, 0.95, 1.0, fade), 1.5)
+			draw_circle(b, 7.0, Color(1.0, 0.6, 0.9, 0.6 * fade))
 	if state in [S.THROW_GRAB, S.THROW_AIM]:
-		# the block hangs in the closed claw
 		var hold := head + Vector2(0, 32)
 		draw_set_transform(hold, sin(_anim * 6.0) * 0.08, Vector2(1.5, 1.5))
 		draw_texture(Projectile.BALE, Vector2(-8, -8))
@@ -441,12 +488,10 @@ func _draw() -> void:
 		draw_dashed_line(from, to, Color(1.0, 0.25, 0.2, a), 2.0 if locked else 1.0, 7.0)
 		draw_arc(_aim, 9.0, 0.0, TAU, 20, Color(1.0, 0.3, 0.2, a), 1.5)
 	if state == S.MAGNET_WARN or state == S.MAGNET_PULL:
-		# rings shrink toward the head: reads as a pull, not a push
 		for i in 3:
 			var r := 34.0 + fmod(120.0 - _anim * 70.0 + i * 40.0, 120.0)
 			draw_arc(head, r, 0.0, TAU, 32, Color(0.95, 0.35, 0.75, 0.55 - r / 300.0), 1.5)
 
-	# Claw: open while hunting, closed on the slam
 	var closed := state in [S.DROP, S.STUCK, S.DYING, S.THROW_GRAB, S.THROW_AIM] or claw_closed
 	var spread := 4.0 if closed else 12.0
 	for side in [-1.0, 1.0]:
@@ -454,7 +499,6 @@ func _draw() -> void:
 		draw_colored_polygon(PackedVector2Array([base, base + Vector2(side * 4.0, 0), base + Vector2(side * spread, 16), base + Vector2(side * (spread - 4.0), 18)]), dark)
 	draw_rect(Rect2(head.x - 2, head.y + 18, 4, 16), dark)
 
-	# Head
 	var body := Rect2(head.x - 28, head.y - 20, 56, 40)
 	draw_rect(body, Color.WHITE if _flash > 0.0 else steel)
 	draw_rect(Rect2(body.position, Vector2(56, 5)), trim)
@@ -462,7 +506,6 @@ func _draw() -> void:
 		draw_line(Vector2(body.position.x + 6 + i * 14, body.position.y), Vector2(body.position.x + 12 + i * 14, body.position.y + 5), dark, 2.0)
 	draw_rect(body, dark, false, 1.0)
 
-	# Core: shuttered and grey while armoured, open and glowing in the punish window
 	var core := head + Vector2(0, 2)
 	if state == S.STUCK:
 		var pulse := 0.7 + 0.3 * sin(_anim * 12.0)
@@ -473,10 +516,49 @@ func _draw() -> void:
 		draw_circle(core, 7.0, dark)
 		draw_line(core + Vector2(-7, 0), core + Vector2(7, 0), steel.lightened(0.2), 1.0)
 		draw_circle(core, 2.0, trim.darkened(0.4))
-		if empowered:   # the stolen shard, glowing through the shutter
+		if empowered:
 			var g := 0.6 + 0.4 * sin(_anim * 5.0)
 			draw_circle(core, 10.0, Color(0.4, 0.95, 1.0, 0.18 * g))
 			draw_colored_polygon(PackedVector2Array([core + Vector2(0, -4), core + Vector2(2.5, 0), core + Vector2(0, 4), core + Vector2(-2.5, 0)]), Color(0.75, 1.0, 1.0, g))
+
+
+func _draw_steam() -> void:
+	var top := lerpf(FLOOR_Y, STEAM_TOP, _steam)
+	var rows := 9
+	for r in rows:
+		var y := lerpf(FLOOR_Y - 4.0, top + 10.0, float(r) / (rows - 1))
+		var x := 8.0 + fmod(_anim * (14.0 + r * 3.0) * (1 if r % 2 == 0 else -1), 48.0)
+		while x < 640.0:
+			var wob := sin(_anim * 1.7 + x * 0.05 + r) * 4.0
+			var a := 0.10 + 0.06 * sin(_anim * 2.3 + x * 0.11 + r * 1.3)
+			draw_circle(Vector2(x, y + wob), 18.0 + (r % 3) * 4.0, Color(0.92, 0.86, 0.9, a * _steam))
+			x += 34.0
+	var x2 := 0.0
+	while x2 < 640.0:
+		draw_circle(Vector2(x2, top + sin(_anim * 2.0 + x2 * 0.04) * 5.0), 12.0, Color(0.95, 0.9, 0.95, 0.16 * _steam))
+		x2 += 20.0
+
+
+func _draw_prefire() -> void:
+	var top := lerpf(FLOOR_Y, STEAM_TOP, _steam)
+	var locked := _t >= 0.75
+	var flick := (1.0 if fmod(_t, 0.08) < 0.05 else 0.5) if locked else (0.55 + 0.25 * sin(_anim * 30.0))
+	var a := _beam_origin()
+	draw_circle(a, 4.0 + (2.0 if locked else 0.0), Color(1.0, 0.4, 0.85, 0.8))
+	for b in _beams:
+		var d := (b - a)
+		if absf(d.y) < 1.0:
+			continue
+		var t0 := clampf((top - a.y) / d.y, 0.0, 1.0)
+		var p0 := a + d * t0
+		var seg := p0
+		var steps := int(p0.distance_to(b) / 6.0)
+		for k in steps:
+			var p1 := p0.lerp(b, float(k + 1) / steps)
+			if k % 2 == 0:
+				draw_line(seg, p1, Color(1.0, 0.35, 0.8, 0.85 * flick), 2.0 if locked else 1.0)
+			seg = p1
+		draw_arc(b, 6.0, 0.0, TAU, 12, Color(1.0, 0.35, 0.8, 0.7 * flick), 1.0)
 
 
 func _draw_wreck(steel: Color, dark: Color) -> void:

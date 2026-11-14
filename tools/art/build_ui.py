@@ -21,7 +21,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from pix import Spr, PAL  # noqa: E402
+from pix import Spr, PAL
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "art", "ui")
@@ -53,7 +53,6 @@ def rivet(s, x, y, hi="Y", lo="b"):
     s.px(x + 1, y + 1, lo)
 
 
-# ================================================================== shop card
 def card(kind):
     """26x26, 9-slice margins 7. An iron plate with brass corner brackets."""
     s = Spr(26, 26)
@@ -63,19 +62,17 @@ def card(kind):
     s.rect(1, 1, W - 2, H - 2, "m" if kind != "off" else "d")
     s.hline(1, 1, W - 2, "g" if kind != "off" else "m")
     s.vline(1, 1, H - 2, "g" if kind != "off" else "m")
-    s.rect(3, 3, W - 6, H - 6, "k")            # inner groove
+    s.rect(3, 3, W - 6, H - 6, "k")
     s.rect(4, 4, W - 8, H - 8, face)
     if kind == "sel":
-        # a lit cyan bead line just inside the groove
         s.hline(4, 4, W - 8, "c")
         s.vline(4, 4, H - 8, "c")
         s.hline(4, H - 5, W - 8, "s")
         s.vline(W - 5, 4, H - 8, "s")
     else:
-        s.hline(4, 4, W - 8, "m" if kind == "normal" else "d")   # top sheen of the face
+        s.hline(4, 4, W - 8, "m" if kind == "normal" else "d")
     hi, mid, lo = ("Y", "y", "b") if kind == "sel" else (("y", "B", "b") if kind == "normal" else ("l", "g", "m"))
     for cx, cy, fx, fy in ((0, 0, 1, 1), (W - 1, 0, -1, 1), (0, H - 1, 1, -1), (W - 1, H - 1, -1, -1)):
-        # L bracket, 6 px arms, 2 px thick, lit on the top-left edges
         for i in range(6):
             for t in range(2):
                 x, y = cx + fx * i, cy + fy * t
@@ -104,7 +101,7 @@ def well():
         return "B" if l < 0.3 else "b"
     ring(s, c, c, 14.0, 17, collar)
     ring(s, c, c, 0, 14.0, lambda a, r: "k" if (r > 12.2 and lit(a) < 0.15) else ("z" if r > 7 or lit(a) > -0.2 else "d"))
-    ring(s, c, c, 13.4, 14.0, lambda a, r: "m" if lit(a) > 0.5 else None)   # far rim catches light
+    ring(s, c, c, 13.4, 14.0, lambda a, r: "m" if lit(a) > 0.5 else None)
     for i in range(4):
         a = math.pi / 4 + i * math.pi / 2
         s.px(int(c + math.cos(a) * 15.2), int(c + math.sin(a) * 15.2), "Y" if lit(a) < 0 else "y")
@@ -197,7 +194,7 @@ def button(kind):
     s.hline(1, 1, 16, hi)
     s.vline(1, 1, 11, top)
     s.vline(16, 1, 11, side)
-    s.rect(1, 12, 16, 3, side)           # front edge of the plate
+    s.rect(1, 12, 16, 3, side)
     s.hline(1, 14, 16, dark)
     for (x, y) in ((3, 3), (13, 3)):
         s.px(x, y, dark)
@@ -214,18 +211,18 @@ def awning():
     """Stall awning, 20x17, tiles sideways: faded rust and canvas stripes, scalloped hem."""
     s = Spr(20, 17)
     s.hline(0, 0, 20, "k")
-    s.hline(0, 1, 20, "l")     # the rail it hangs from
+    s.hline(0, 1, 20, "l")
     s.hline(0, 2, 20, "g")
     s.hline(0, 3, 20, "k")
     for stripe in range(2):
         x0 = stripe * 10
         lo, mid, hi = ("r", "R", "o") if stripe == 0 else ("l", "w", "W")
         for x in range(10):
-            depth = 11 + int(round(math.sqrt(max(0.0, 25 - (x - 4.5) ** 2)) * 0.9))   # scallop
+            depth = 11 + int(round(math.sqrt(max(0.0, 25 - (x - 4.5) ** 2)) * 0.9))
             for y in range(4, depth):
                 key = hi if y == 4 else (lo if y >= depth - 2 else mid)
                 if x == 0 and y < depth - 2:
-                    key = lo           # fold between stripes
+                    key = lo
                 s.px(x0 + x, y, key)
             s.px(x0 + x, depth, "k")
     return s
@@ -245,17 +242,16 @@ def tray():
     return s
 
 
-# item icons (24 px, the size outfit icons are drawn at their busiest)
 def item_kit():
     s = Spr(24, 24)
     s.rect(3, 7, 18, 13, "x")
     s.rect(3, 7, 18, 2, "X")
     s.rect(3, 18, 18, 2, "r")
     s.vline(20, 7, 13, "r")
-    s.rect(9, 3, 6, 4, "g")       # handle
+    s.rect(9, 3, 6, 4, "g")
     s.rect(10, 4, 4, 3, None)
     s.rect(10, 5, 4, 2, "k")
-    s.rect(10, 11, 4, 6, "W")     # cross
+    s.rect(10, 11, 4, 6, "W")
     s.rect(8, 13, 8, 2, "W")
     s.px(10, 11, "w")
     for (x, y) in ((4, 9), (19, 9), (4, 17), (19, 17)):
@@ -269,7 +265,7 @@ def item_kit():
 
 def item_cell():
     s = Spr(24, 24)
-    s.rect(9, 2, 6, 2, "l")       # terminal
+    s.rect(9, 2, 6, 2, "l")
     s.rect(6, 4, 12, 17, "m")
     s.vline(6, 4, 17, "g")
     s.vline(7, 4, 17, "l")
@@ -277,7 +273,7 @@ def item_cell():
     s.rect(6, 4, 12, 2, "B")
     s.hline(6, 4, 12, "y")
     s.rect(6, 19, 12, 2, "B")
-    s.rect(9, 7, 6, 10, "s")      # glowing window
+    s.rect(9, 7, 6, 10, "s")
     s.rect(10, 8, 4, 8, "c")
     s.vline(10, 8, 8, "C")
     for y in (10, 13):
@@ -288,27 +284,26 @@ def item_cell():
 
 def item_map():
     s = Spr(24, 24)
-    s.rect(4, 6, 16, 12, "w")      # open sheet
+    s.rect(4, 6, 16, 12, "w")
     s.hline(4, 6, 16, "W")
     s.vline(19, 6, 12, "l")
     s.hline(4, 17, 16, "l")
-    s.line(6, 14, 9, 10, "e")      # inked route and rooms
+    s.line(6, 14, 9, 10, "e")
     s.line(9, 10, 13, 12, "e")
     s.line(13, 12, 17, 8, "e")
     s.rect(15, 8, 3, 2, "x")
     s.px(7, 9, "e"); s.px(8, 8, "e")
-    s.rect(2, 4, 3, 16, "E")       # rolled ends
+    s.rect(2, 4, 3, 16, "E")
     s.vline(2, 4, 16, "e")
     s.rect(19, 4, 3, 16, "E")
     s.vline(21, 4, 16, "e")
     s.hline(2, 4, 3, "w")
     s.hline(19, 4, 3, "w")
-    s.rect(0, 11, 3, 2, "R")       # string
+    s.rect(0, 11, 3, 2, "R")
     s.outline("k")
     return s
 
 
-# ======================================================================= map
 PAPER = (198, 178, 146)
 
 
@@ -326,7 +321,6 @@ def paper():
             elif n > 0.95:
                 r, g, b = r + 8, g + 8, b + 6
             raw(s, x, y, (r, g, b, 255))
-    # darkened, torn edge band (the edge rows tile along each side)
     for y in range(48):
         for x in range(48):
             d = min(x, y, 47 - x, 47 - y)
@@ -373,7 +367,6 @@ def compass():
         a = i * math.pi / 8
         if i % 2 == 0:
             s.px(int(cx + 0.5 + math.cos(a) * 9.4), int(cy + 0.5 + math.sin(a) * 9.4), "e")
-    # four long points (half inked, half paper: the classic shading)
     for (dx, dy) in ((0, -1), (1, 0), (0, 1), (-1, 0)):
         for t in range(1, 10):
             w = max(0, 2 - t // 4)
@@ -381,12 +374,10 @@ def compass():
                 px, py = cx + dx * t + (dy != 0) * o, cy + dy * t + (dx != 0) * o
                 dark = o > 0 if dx == 0 else o < 0
                 s.px(px, py, "k" if dark else "w")
-    # short diagonal points
     for (dx, dy) in ((1, 1), (1, -1), (-1, 1), (-1, -1)):
         for t in range(1, 5):
             s.px(cx + dx * t, cy + dy * t, "e")
     s.px(cx, cy, "y")
-    # N
     s.ascii(cx - 2, 0, ["k...k", "kk..k", "k.k.k", "k..kk", "k...k"])
     return s
 
@@ -398,7 +389,7 @@ def map_icons():
     """10x10 ink icons on the parchment, one frame each (order = ICONS)."""
     s = Spr(10, 12, len(ICONS))
     art = {
-        "dock": [  # battery: save + heal
+        "dock": [
             "...kkkk...",
             "..kkllkk..",
             "..kssssk..",
@@ -409,7 +400,7 @@ def map_icons():
             "..kssssk..",
             "..kkkkkk..",
         ],
-        "shop": [  # coin pouch
+        "shop": [
             "...kkkk...",
             "....kk....",
             "...kRRk...",
@@ -420,7 +411,7 @@ def map_icons():
             "..kBBBBk..",
             "...kkkk...",
         ],
-        "boss": [  # skull
+        "boss": [
             "..kkkkkk..",
             ".kWWWWWWk.",
             "kWWWWWWwwk",
@@ -431,7 +422,7 @@ def map_icons():
             "..kWkWkk..",
             "..kkkkkk..",
         ],
-        "miniboss": [  # the brass head, in profile
+        "miniboss": [
             "..kkkkk...",
             ".kyYYyyk..",
             "kyYyyyyBk.",
@@ -442,7 +433,7 @@ def map_icons():
             "..kBBBk...",
             "...kkk....",
         ],
-        "exit": [  # an arch with stairs going down
+        "exit": [
             "..kkkkk...",
             ".kEEEEEk..",
             "kEkkkkkEk.",
@@ -453,7 +444,7 @@ def map_icons():
             "kkkkkkkkk.",
             "..........",
         ],
-        "town": [  # tent
+        "town": [
             "....k.....",
             "...kRk....",
             "..kRwRk...",
@@ -464,7 +455,7 @@ def map_icons():
             "..........",
             "..........",
         ],
-        "pin": [  # the robot's hood, pointing down to where you stand
+        "pin": [
             "...kkk....",
             "..kqqqk...",
             ".kqqqqqk..",
@@ -482,7 +473,6 @@ def map_icons():
     return s
 
 
-# ===================================================================== tabs
 def tab(on):
     """Folder tab, 16x14. 9-slice: left/right 5, top 5, bottom 3. Open at the bottom when on."""
     s = Spr(16, 14)
@@ -506,7 +496,6 @@ def tab(on):
     return s
 
 
-# =================================================================== frames
 def frame():
     """The panel every menu sits in, 32x32, 9-slice 10: the shop card's iron plate
     and brass corner brackets at a bigger size, around the menus' deep blue-black."""
@@ -523,7 +512,7 @@ def frame():
         for x in range(5, W - 5):
             raw(s, x, y, (11, 13, 19, 246))
     s.hline(5, 5, W - 10, "d")
-    for (x, y) in ((15, 2), (2, 15), (15, H - 3), (W - 3, 15)):   # edge rivets (tile along)
+    for (x, y) in ((15, 2), (2, 15), (15, H - 3), (W - 3, 15)):
         rivet(s, x, y, "l", "k")
     arm = 8
     for cx, cy, fx, fy in ((0, 0, 1, 1), (W - 1, 0, -1, 1), (0, H - 1, 1, -1), (W - 1, H - 1, -1, -1)):
@@ -554,7 +543,7 @@ def nameplate():
     s.hline(1, 14, 18, "B")
     s.vline(18, 1, 14, "B")
     s.hline(2, 13, 16, "B")
-    for (x, y) in ((3, 7), (15, 7)):   # slotted screws
+    for (x, y) in ((3, 7), (15, 7)):
         s.rect(x, y - 1, 2, 3, "b")
         s.px(x, y - 1, "Y")
         s.px(x + 1, y, "k")

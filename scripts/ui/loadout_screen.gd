@@ -1,11 +1,5 @@
 class_name LoadoutScreen
 extends PanelContainer
-## Port Loadout: a grid of round port sockets on top, your chip collection in
-## a tray below, and a readout on the right. Select a chip to press it into
-## the next free socket (it flies over, clicks in, the contacts light up);
-## select a seated chip, or the same chip in the tray, to pop it back out.
-## A 2-port chip fills two sockets joined by a lit conduit. The socket after
-## your limit is the red overclock socket. Locked sockets are bolted shut.
 
 signal back_requested
 
@@ -23,7 +17,7 @@ var _stats: Label
 var _busy := false
 var _focus_id: StringName = &""
 var _socket_slots: Array[ChipSlot] = []
-var _tray_slots := {} ## chip id -> ChipSlot
+var _tray_slots := {}
 
 
 func _init() -> void:
@@ -107,7 +101,6 @@ func _ready() -> void:
 	refresh()
 
 
-## Rebuilds both grids from GameState and puts focus back where it was.
 func refresh() -> void:
 	for c in _sockets.get_children():
 		c.queue_free()
@@ -116,8 +109,7 @@ func refresh() -> void:
 	_socket_slots.clear()
 	_tray_slots.clear()
 
-	# --- sockets
-	var owner_of := [] # socket index -> chip id (or &"")
+	var owner_of := []
 	for id in GameState.equipped_chips:
 		var chip: UpgradeChip = ItemDB.chips.get(id)
 		if chip:
@@ -150,7 +142,6 @@ func refresh() -> void:
 		_sockets.add_child(slot)
 		_socket_slots.append(slot)
 
-	# --- tray
 	if GameState.owned_chips.is_empty():
 		var none := UIKit.label("No chips yet.", 8, UIKit.QUIET)
 		_tray.add_child(none)
@@ -232,7 +223,6 @@ func _show_info_for_socket(index: int) -> void:
 	_cost.text = ""
 
 
-# ------------------------------------------------------------------ actions
 func _on_tray(id: StringName) -> void:
 	if _busy:
 		return
@@ -254,7 +244,6 @@ func _on_socket(index: int) -> void:
 		_eject(id)
 
 
-## The chip flies from the tray to the next free socket, then clicks in.
 func _insert(id: StringName) -> void:
 	var from: ChipSlot = _tray_slots[id]
 	var target_index := GameState.ports_used()
@@ -282,7 +271,6 @@ func _insert(id: StringName) -> void:
 	tw.tween_callback(func(): _busy = false)
 
 
-## The chip pops out of its socket and drops back into the tray.
 func _eject(id: StringName) -> void:
 	var socket_index := -1
 	for i in _socket_slots.size():

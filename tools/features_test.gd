@@ -1,8 +1,4 @@
 extends Node
-## Tests the 2026-11-14 features. Run:
-##   godot --headless --path . res://tools/features_test.tscn -- demo
-## Control schemes + rebinding, the Intake boss's block throw (and the
-## shatter), the heavier death beat, the bouncy respawn and unlimited respawns.
 
 var fails := 0
 var main: Node
@@ -54,7 +50,6 @@ func _ready() -> void:
 
 
 func _run() -> void:
-	# ---------------------------------------------------------------- controls
 	var saved_preset := Fx.control_preset
 	var saved_custom := Fx.custom_binds.duplicate()
 	Fx.control_preset = "standard"
@@ -79,7 +74,6 @@ func _run() -> void:
 	Fx.custom_binds = saved_custom
 	Fx.apply_controls()
 
-	# ---------------------------------------------------------------- the game
 	SaveManager.delete_save()
 	main = load("res://scenes/main/main.tscn").instantiate()
 	get_tree().root.add_child(main)
@@ -89,7 +83,6 @@ func _run() -> void:
 	await frames(60)
 	await skip_dialogue()
 
-	# ---------------------------------------------------------------- bouncing back: pads
 	var pads_total := 0
 	var pad_rooms := 0
 	for rid in ["heap_01_pit", "heap_02_camp", "heap_05_fields", "heap_07_crane", "heap_08_conveyor"]:
@@ -120,7 +113,6 @@ func _run() -> void:
 	check(player.velocity.y <= -400.0, "a pad bounces you higher than a jump")
 	await frames(30)
 
-	# ---------------------------------------------------------------- bouncing back: rebound strike
 	player.hurtbox.invulnerable = false
 	player.rebound_until = 0.0
 	check(not player.rebound_ready(), "no Rebound charge to start with")
@@ -136,7 +128,6 @@ func _run() -> void:
 	await frames(30)
 	player.hurtbox.invulnerable = false
 
-	# ---------------------------------------------------------------- death + respawn
 	var room_before := WorldManager.current_room.room_id
 	var ok_all := true
 	var bounced := true
@@ -160,7 +151,6 @@ func _run() -> void:
 	check(bounced, "respawning bounces back up (squash, hop, settle)")
 	check(is_equal_approx(Engine.time_scale, 1.0), "time runs normally again after respawning")
 
-	# ---------------------------------------------------------------- boss throw
 	await WorldManager.change_room("res://scenes/rooms/heap/heap_03_intake.tscn", &"from_camp")
 	await frames(20)
 	await skip_dialogue()
@@ -197,7 +187,6 @@ func _run() -> void:
 		if frags >= 3:
 			break
 	check(frags >= 3, "the block shatters into skidding fragments: a second dodge")
-	# bounce it back: hit the next block and it flies into the crane
 	await frames(90)
 	boss._cycle = 1
 	boss._throws_left = 0
@@ -223,6 +212,28 @@ func _run() -> void:
 				break
 	check(boss.hp <= hp_before - IntakeCrane.RETURN_DAMAGE, "bounced back, it hits the crane through its armour (%d -> %d)" % [hp_before, boss.hp])
 	check(boss.state == IntakeCrane.S.STUCK or boss.state == IntakeCrane.S.DYING, "...and knocks its core open")
+
+	if boss.state != IntakeCrane.S.DYING and boss.hp > 0:
+		boss._phase2 = true
+		boss._cycle = 0
+		boss.state = IntakeCrane.S.RISE
+		boss.head.y = IntakeCrane.UP_Y
+		boss._next_attack()
+		check(boss.state == IntakeCrane.S.LASER_STEAM, "in its pink phase the crane can vent steam for a laser attack")
+		var fired := false
+		var steam_full := false
+		for i in 300:
+			await frames(1)
+			if boss.state == IntakeCrane.S.LASER_AIM and boss._steam >= 0.99:
+				steam_full = true
+			if boss.state == IntakeCrane.S.LASER_FIRE:
+				await frames(2)
+				fired = boss._beam_hit[1].monitoring
+				break
+		check(steam_full, "...the steam fills the bottom half before the lasers aim")
+		check(fired and boss._beams.size() == 3, "...then three lasers fire along the aim lines")
+		if boss._beams.size() == 3:
+			check(absf(boss._beams[2].x - boss._beams[1].x) >= 100.0, "...with gaps between them to stand in")
 
 	print("\nFEATURES TEST DONE: %d failure(s)" % fails)
 	get_tree().quit(1 if fails else 0)

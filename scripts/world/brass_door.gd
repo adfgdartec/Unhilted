@@ -1,9 +1,5 @@
 class_name BrassDoor
 extends Node2D
-## The sealed brass door in the Hollow. Closed (and readable) until the robot
-## carries Shard I; then, the first time you come near, it rolls aside in a
-## burst of steam and stays open, leading down to the Underworks Gate.
-## The node's position is the bottom-centre of the door.
 
 @export_file("*.tscn") var target_room := ""
 @export var target_spawn: StringName = &"from_hollow"

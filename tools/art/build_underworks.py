@@ -14,7 +14,7 @@ import sys
 from PIL import Image, ImageDraw
 
 sys.path.insert(0, os.path.dirname(__file__))
-from pix import Spr  # noqa: E402
+from pix import Spr
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 BACK = os.path.join(ROOT, "art", "backdrops")
@@ -28,7 +28,6 @@ for d in (BACK, PROPS, ITEMS, ENEMIES, UI, INTERIORS):
 
 W, H = 640, 400
 
-# region colours (docs/REGIONS.md palette)
 DARK = (20, 28, 26)
 BRICK = (90, 52, 40)
 COPPER = (168, 96, 58)
@@ -53,7 +52,6 @@ def raw(s, x, y, rgba):
         s.img.putpixel((s.f * s.w + x, y), rgba)
 
 
-# =================================================================== backdrops
 def _arcade(img, y_base, height, pier_w, bay_w, x0, col, rim):
     """A brick arcade (a wall pierced by round-topped openings) across the
     whole width, wrapping seamlessly. Drawn on its own layer: the wall is
@@ -97,10 +95,8 @@ def uw_far():
         for x in range(W):
             px[x, y] = c + (255,)
     d = ImageDraw.Draw(img, "RGBA")
-    # farthest arcade: barely darker than the haze
     _arcade(img, 300, 150, 20, 60, 6, (40, 44, 40, 255), (66, 64, 52, 255))
     d = ImageDraw.Draw(img, "RGBA")
-    # the great flywheel turning behind the middle arcade
     cx, cy, r = 470, 170, 92
     d.ellipse([cx - r, cy - r, cx + r, cy + r], outline=(34, 40, 36, 255), width=10)
     d.ellipse([cx - 14, cy - 14, cx + 14, cy + 14], fill=(34, 40, 36, 255))
@@ -108,10 +104,8 @@ def uw_far():
         ang = a * math.pi / 3
         d.line([(cx, cy), (cx + math.cos(ang) * r, cy + math.sin(ang) * r)], fill=(34, 40, 36, 255), width=5)
     d.arc([cx - r, cy - r, cx + r, cy + r], 200, 260, fill=(90, 80, 58, 255), width=2)
-    # middle arcade
     _arcade(img, 330, 130, 28, 92, 30, (32, 36, 32, 255), (82, 70, 50, 255))
     d = ImageDraw.Draw(img, "RGBA")
-    # houses on the pipes with lit windows (hand-placed)
     houses = [(40, 210, 30, 40), (112, 196, 24, 54), (200, 222, 36, 34), (300, 188, 22, 60), (372, 214, 28, 40), (560, 200, 30, 50), (612, 224, 22, 30)]
     for hx, hy, hw, hh in houses:
         for dx in (-W, 0, W):
@@ -122,10 +116,8 @@ def uw_far():
                 for wx in range(hx + 4, hx + hw - 4, 9):
                     if (wx * 7 + wy * 3) % 5 != 0:
                         d.rectangle([wx + dx, wy, wx + 3 + dx, wy + 4], fill=(255, 176, 80, 200))
-    # the pipe that carries them, spanning the vault
     d.rectangle([0, 262, W, 270], fill=(30, 34, 30, 255))
     d.line([(0, 262), (W, 262)], fill=(88, 72, 50, 255))
-    # furnace glow from below, and steam rising through it
     for gx in (90, 330, 560):
         _radial(img, gx, 400, 150, 90, (255, 150, 70), 90)
     for sx in (150, 260, 420, 600):
@@ -147,20 +139,16 @@ def uw_mid():
         for by in (60, 200, 330):
             d.rectangle([x0 - 3, by, x0 + w + 3, by + 6], fill=(64, 50, 30, 255))
             d.line([(x0 - 3, by), (x0 + w + 3, by)], fill=(150, 116, 60, 255))
-    # pipes crossing
     for y0, thick in ((92, 12), (238, 9)):
         d.rectangle([0, y0, W, y0 + thick], fill=(52, 34, 26, 255))
         d.line([(0, y0), (W, y0)], fill=(140, 90, 60, 255))
         for fx in range(20, W, 80):
             d.rectangle([fx, y0 - 2, fx + 4, y0 + thick + 2], fill=(70, 54, 30, 255))
-    # vertical pipe dropping into the dark
     d.rectangle([420, 0, 428, 240], fill=(46, 30, 24, 255))
     d.line([(420, 0), (420, 240)], fill=(130, 84, 56, 255))
-    # chains
     for cx, length in ((180, 120), (196, 80), (610, 150)):
         for y in range(0, length, 4):
             d.ellipse([cx - 1, y, cx + 2, y + 4], outline=(40, 38, 34, 255))
-    # wall lamps on the piers (their glow)
     for lx, ly in ((95, 150), (342, 120), (552, 170)):
         _radial(img, lx, ly, 44, 44, (255, 180, 90), 70)
     img.save(os.path.join(BACK, "uw_mid.png"))
@@ -168,7 +156,7 @@ def uw_mid():
 
 def uw_works():
     """Machinery hall layer: boilers, gauge faces, pistons and a governor's
-    spinning silhouette, for the Boiler Works, Gearworks and The Pendulum."""
+    spinning silhouette, for the Boiler Works, Gearworks and the Governor."""
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(img, "RGBA")
     body = (26, 26, 26, 255)
@@ -188,7 +176,6 @@ def uw_works():
     img.save(os.path.join(BACK, "uw_works.png"))
 
 
-# =================================================================== props
 def gaslamp():
     """Iron lamp post with a glass cage and a gas flame (2 frames: flicker)."""
     s = Spr(12, 44, 2)
@@ -296,12 +283,11 @@ def stall():
     s.rect(6, 36, 64, 20, "E")
     s.hline(6, 36, 64, "o")
     s.hline(6, 44, 64, "r")
-    # wares
     s.ellipse(16, 32, 4, 4, "B"); s.px(16, 32, "k")
     s.ellipse(26, 33, 3, 3, "B"); s.px(26, 33, "k")
-    s.rect(34, 26, 8, 10, "l"); s.rect(42, 29, 3, 2, "l"); s.hline(34, 26, 8, "w")   # kettle
-    s.rect(50, 30, 6, 6, "W"); s.ellipse(53, 33, 2, 2, "B")                           # small gauge
-    s.rect(60, 28, 4, 8, "t"); s.rect(61, 26, 2, 2, "s")                               # bottle
+    s.rect(34, 26, 8, 10, "l"); s.rect(42, 29, 3, 2, "l"); s.hline(34, 26, 8, "w")
+    s.rect(50, 30, 6, 6, "W"); s.ellipse(53, 33, 2, 2, "B")
+    s.rect(60, 28, 4, 8, "t"); s.rect(61, 26, 2, 2, "s")
     s.outline("k")
     return s
 
@@ -383,7 +369,7 @@ def anchor():
     s.ellipse(9, 13, 5, 5, None)
     s.px(5, 8, "Y"); s.px(6, 7, "Y"); s.px(4, 10, "y")
     s.px(13, 18, "b"); s.px(12, 19, "b")
-    s.px(9, 6, "t"); s.px(10, 6, "T")       # a fleck of verdigris
+    s.px(9, 6, "t"); s.px(10, 6, "T")
     s.outline("k")
     return s
 
@@ -427,11 +413,11 @@ def forge_gate():
         s.px(12, y + 2, "B"); s.px(59, y + 2, "B")
     s.ellipse(36, 50, 12, 12, "B")
     s.ellipse(36, 50, 8, 8, "k")
-    for i in range(7):           # the seven-hammer mark of the smiths
+    for i in range(7):
         ang = i * math.tau / 7 - math.pi / 2
         s.px(int(36 + math.cos(ang) * 5), int(50 + math.sin(ang) * 5), "y")
     s.rect(32, 2, 8, 6, "k")
-    s.rect(33, 3, 6, 4, "2")    # the dead lamp
+    s.rect(33, 3, 6, 4, "2")
     s.outline("k")
     return s
 
@@ -477,14 +463,14 @@ def front(kind):
                 s.rect(max(4, x0 + 1), y0 + 1, min(7, 99 - x0), 5, "R" if (row + bx) % 3 else "r")
         s.rect(0, 14, 104, 8, "B")
         s.hline(0, 14, 104, "Y")
-        s.ellipse(52, 8, 10, 10, "B")     # giant gauge sign on the roof
+        s.ellipse(52, 8, 10, 10, "B")
         s.ellipse(52, 8, 7, 7, "W")
         s.line(52, 8, 57, 4, "x")
-        s.rect(14, 40, 30, 26, "k")       # shop window full of gauges
+        s.rect(14, 40, 30, 26, "k")
         s.rect(15, 41, 28, 24, "a")
         for gx, gy in ((21, 48), (33, 52), (24, 59)):
             s.ellipse(gx, gy, 4, 4, "B"); s.ellipse(gx, gy, 2, 2, "W")
-        s.rect(60, 52, 24, 40, "k")       # door
+        s.rect(60, 52, 24, 40, "k")
         s.rect(61, 53, 22, 39, "a")
         s.rect(62, 55, 20, 37, "A")
         s.rect(61, 86, 22, 6, "o")
@@ -497,11 +483,11 @@ def front(kind):
             s.vline(x, 22, 66, "Q")
         s.rect(0, 16, 96, 7, "e")
         s.hline(0, 16, 96, "E")
-        s.rect(34, 0, 26, 16, "l")         # a big copper kettle on the roof
+        s.rect(34, 0, 26, 16, "l")
         s.ellipse(47, 6, 13, 6, "B")
         s.rect(58, 4, 10, 3, "B")
         s.rect(44, 0, 6, 3, "y")
-        s.ellipse(20, 46, 9, 9, "B")       # round window
+        s.ellipse(20, 46, 9, 9, "B")
         s.ellipse(20, 46, 7, 7, "a")
         s.ellipse(20, 46, 5, 5, "A")
         s.rect(52, 48, 24, 40, "k")
@@ -510,7 +496,6 @@ def front(kind):
         s.rect(53, 82, 22, 6, "o")
         s.outline("k")
         return s
-    # depot
     s = Spr(124, 96)
     s.rect(4, 24, 116, 72, "m")
     for x in range(4, 120, 12):
@@ -519,7 +504,7 @@ def front(kind):
     s.hline(0, 16, 124, "Q")
     s.ellipse(62, 16, 36, 12, "q")
     s.ellipse(62, 16, 30, 9, "Q")
-    s.rect(52, 4, 20, 10, "B")         # station clock
+    s.rect(52, 4, 20, 10, "B")
     s.ellipse(62, 9, 4, 4, "W")
     s.line(62, 9, 62, 6, "k")
     s.rect(12, 40, 36, 24, "k")
@@ -533,7 +518,6 @@ def front(kind):
     return s
 
 
-# =================================================================== items
 def cog_coin():
     """The Underworks' local currency: a brass cog."""
     s = Spr(11, 11)
@@ -564,7 +548,6 @@ def letter():
     return s
 
 
-# =================================================================== enemies
 def piston_walker():
     """A boiler on two piston legs. Frames: walk 0-3, windup 4, stomp 5."""
     s = Spr(36, 40, 6)
@@ -572,7 +555,6 @@ def piston_walker():
         s.frame(f)
         lift = 6 if f == 4 else (0 if f == 5 else (1 if f in (1, 3) else 0))
         body_y = 6 - lift + (2 if f == 5 else 0)
-        # legs: pistons
         for lx, phase in ((11, 0), (23, 2)):
             step = 2 if (f < 4 and (f + phase) % 4 < 2) else 0
             top = body_y + 20
@@ -585,11 +567,11 @@ def piston_walker():
         s.vline(5, body_y + 8, 14, "E")
         for x in range(8, 30, 5):
             s.px(x, body_y + 15, "o")
-        s.rect(24, body_y + 6, 8, 6, "k")       # the furnace eye
+        s.rect(24, body_y + 6, 8, 6, "k")
         s.rect(25, body_y + 7, 6, 4, "f" if f != 4 else "A")
-        s.rect(10, body_y - 2, 5, 6, "m")       # stack
+        s.rect(10, body_y - 2, 5, 6, "m")
         if f == 4:
-            s.rect(9, body_y - 6, 7, 4, "w")    # hiss of steam: the tell
+            s.rect(9, body_y - 6, 7, 4, "w")
     s.outline("k")
     return s
 
@@ -628,7 +610,7 @@ def bellows_bat():
             s.line(15 + side * 4, 9, tip_x, 10 + wing, "B")
         s.ellipse(15, 11, 5, 6 if f != 3 else 4, "q")
         s.ellipse(15, 11, 3, 4 if f != 3 else 2, "Q")
-        s.rect(14, 16, 3, 4, "B")    # the nozzle
+        s.rect(14, 16, 3, 4, "B")
         s.px(13, 9, "A"); s.px(17, 9, "A")
     s.outline("k")
     return s
@@ -649,7 +631,7 @@ def clock_spider():
         s.ellipse(13, by + 3, 5, 2, "y")
         s.rect(17, by + 2, 3, 2, "x")
         s.px(19, by + 2, "X")
-        s.rect(12, by - 4, 2, 4, "m")      # the key
+        s.rect(12, by - 4, 2, 4, "m")
         s.rect(10, by - 6, 6, 2, "l")
     s.outline("k")
     return s
@@ -667,7 +649,7 @@ def boiler_bloat():
         for a in range(6):
             ang = a * math.pi / 3
             s.px(int(14 + math.cos(ang) * (r - 1)), int(14 + math.sin(ang) * (r - 1)), "B")
-        s.rect(12, 14 - r - 3, 4, 3, "m")      # its valve
+        s.rect(12, 14 - r - 3, 4, 3, "m")
         s.ellipse(14, 16, 3, 2, "W" if f == 2 else "B")
     s.outline("k")
     return s
@@ -681,25 +663,21 @@ def lamplighter():
         s.frame(f)
         stride = (3, -3, 0, 2, 0)[f]
         hy = 8 if f != 4 else 4
-        # long legs
         s.line(24, 40, 22 - stride, 66, "d")
         s.line(30, 40, 32 + stride, 66, "d")
         s.line(23, 40, 21 - stride, 66, "m")
         s.rect(19 - stride, 65, 6, 3, "k")
         s.rect(30 + stride, 65, 6, 3, "k")
-        # coat
         s.rect(20, hy + 14, 16, 28, "z")
         s.vline(20, hy + 14, 28, "d")
         for y in range(hy + 18, hy + 40, 6):
             s.px(28, y, "B")
         s.rect(18, hy + 12, 20, 4, "d")
-        # lantern head
         s.rect(22, hy, 12, 12, "k")
         s.rect(23, hy + 1, 10, 10, "A" if f != 2 else "W")
         s.rect(26, hy + 3, 4, 6, "W")
         s.hline(21, hy - 1, 14, "B")
         s.rect(26, hy - 4, 4, 3, "B")
-        # pole
         if f in (0, 1, 4):
             s.line(38, hy + 22, 46, hy - 2, "e")
             s.line(46, hy - 2, 50, hy + 2, "B")
@@ -714,7 +692,7 @@ def lamplighter():
 
 
 def governor_head():
-    """The Pendulum's head: the brass valve-crown on top of its spindle,
+    """The Great Governor's head: the brass valve-crown on top of its spindle,
     with one great gauge eye. Frames: calm, angry (overpressure), cracked."""
     s = Spr(56, 44, 3)
     for f in range(3):
@@ -742,7 +720,6 @@ def governor_head():
     return s
 
 
-# =================================================================== interiors
 def wall_brass():
     """Gauge & Gear shop: brass panels over green tile, gauges set in the wall."""
     s = Spr(32, 64)
@@ -815,12 +792,12 @@ def tea_bar():
     s.hline(0, 18, 96, "E")
     for x in range(8, 92, 16):
         s.rect(x, 27, 10, 13, "e")
-    s.rect(60, 0, 22, 18, "e")              # the urn
+    s.rect(60, 0, 22, 18, "e")
     s.ellipse(71, 2, 11, 3, "B")
     s.vline(61, 1, 17, "o")
     s.rect(82, 10, 6, 2, "B")
     s.rect(87, 10, 2, 5, "B")
-    for cx in (14, 26, 38):                  # cups
+    for cx in (14, 26, 38):
         s.rect(cx, 13, 5, 5, "W")
         s.px(cx + 5, 15, "W")
         s.hline(cx, 13, 5, "s")
@@ -850,9 +827,9 @@ def ticket_desk():
     s.hline(2, 14, 76, "y")
     s.rect(0, 10, 80, 5, "B")
     s.hline(0, 10, 80, "Y")
-    s.rect(10, 0, 14, 10, "W")               # a ledger
+    s.rect(10, 0, 14, 10, "W")
     s.hline(12, 3, 10, "l"); s.hline(12, 6, 10, "l")
-    s.rect(50, 2, 10, 8, "B")                # a bell
+    s.rect(50, 2, 10, 8, "B")
     s.ellipse(55, 5, 4, 3, "y")
     s.outline("k")
     return s

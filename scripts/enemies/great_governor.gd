@@ -1,33 +1,5 @@
 class_name GreatGovernor
 extends Node2D
-## BOSS: The Pendulum. The engine that sets the pressure for the whole
-## Underworks: a brass spindle as tall as the hall, with two heavy flyballs on
-## arms spinning around it, and a valve-crown on top with one great gauge eye.
-## It has been running fast for years.
-##
-## How the fight reads (the hall is 640 wide, floor at y 320):
-##   - SPIN: the flyballs whirl around the spindle. Seen from the side they
-##     sweep left and right across the hall. A ball only hurts on its NEAR
-##     pass (bright, big); on the far pass it's dim and small and harmless.
-##     The LOW ball skims the floor: jump it. The HIGH ball is at chest
-##     height: slide under it.
-##   - VENTS: steam columns burst from the floor grates. Each grate spits and
-##     hisses first (the tell).
-##   - OVERPRESSURE: the balls drop, the needle hits red and the crown opens.
-##     That's the window: the crown is too high to hit from the floor (hits
-##     from down there glance off its rim), so hook one of the two hooks
-##     beside it and whip past it, or hit it from the hook height. When the
-##     window ends it whistles and blows a ring of steam off the crown: get
-##     clear.
-##   - Half health: the balls spin faster and the vents fire during the spin.
-## The node sits at the room origin, so local and room coordinates match.
-##
-## Intake mode (the demo's showdown, IntakeShowdown sets intake = true): a
-## shorter fight in the crane hall. The crown can be hit from the girder
-## ledges beside it. Each quarter of its health it lurches and a flyball
-## smashes one of the ledges; at the last quarter it's out of balance
-## (wobbling, the crown hittable from anywhere) and at zero it topples over
-## and crashes down.
 
 signal defeated
 
@@ -37,23 +9,23 @@ const MAX_HP := 30
 const FLOOR_Y := 320.0
 const CENTER_X := 320.0
 const HEAD := Vector2(320, 104)
-const REACH := 268.0             ## how far the balls swing out from the spindle
+const REACH := 268.0
 const BALL_R := 10.0
-const LOW_Y := FLOOR_Y - 10.0    ## low ball centre: jump it
-const HIGH_Y := FLOOR_Y - 30.0   ## high ball centre: slide under it (standing robot is 28 tall)
+const LOW_Y := FLOOR_Y - 10.0
+const HIGH_Y := FLOOR_Y - 30.0
 const VENT_XS := [72.0, 168.0, 248.0, 392.0, 472.0, 568.0]
-const HEAD_TEX := preload("res://art/enemies/governor_head.png") # calm, angry, cracked
+const HEAD_TEX := preload("res://art/enemies/governor_head.png")
 
 var state := S.IDLE
 var max_hp := MAX_HP
 var hp := MAX_HP
 var intake := false
-var platforms: Array = []      ## CrumblePlatforms, knocked out in this order
+var platforms: Array = []
 var off_balance := false
 var _knocked := 0
 var _tilt := 0.0
 var _smashed := false
-var _debris: Array = []        ## [offset, size, color, rotation] once smashed
+var _debris: Array = []
 var player: Player
 
 var _t := 0.0
@@ -61,9 +33,9 @@ var _anim := 0.0
 var _flash := 0.0
 var _angle := 0.0
 var _spin_speed := 0.0
-var _ball_drop := 0.0        ## 0 = arms out, 1 = dropped against the spindle (overpressure)
+var _ball_drop := 0.0
 var _cycle := 0
-var _vents: Array = []       ## [x, t] active columns (t counts from the start of the tell)
+var _vents: Array = []
 var _hurtbox: Hurtbox
 var _balls: Array[Hitbox] = []
 var _vent_hit: Array[Hitbox] = []
@@ -140,12 +112,10 @@ func _phase2() -> bool:
 	return hp <= max_hp / 2
 
 
-## The crown's brass rim turns hits from below (the floor); reach it from the
-## hooks or by whipping past it.
 func _crown_blocks(from: Vector2) -> bool:
 	if off_balance:
 		return false
-	return to_local(from).y > HEAD.y + (110.0 if intake else 64.0) # hooks / ledges
+	return to_local(from).y > HEAD.y + (110.0 if intake else 64.0)
 
 
 func _enter(s: S) -> void:
@@ -210,7 +180,6 @@ func _physics_process(delta: float) -> void:
 			_spin_speed = move_toward(_spin_speed, 0.0, 0.8 * delta)
 			_ball_drop = move_toward(_ball_drop, 1.0, 1.0 * delta)
 			if intake:
-				# lean further and further, then go over with a crash
 				var was := _tilt
 				_tilt = minf(_tilt + delta * (0.15 + _t * 0.6), 1.35)
 				if was < 1.35 and _tilt >= 1.35:
@@ -238,7 +207,6 @@ func _physics_process(delta: float) -> void:
 	queue_redraw()
 
 
-## Ball i's position and whether it's on its near (dangerous) pass.
 func ball(i: int) -> Dictionary:
 	var a := _angle + PI * i
 	var reach := REACH * (1.0 - _ball_drop * 0.85)
@@ -263,7 +231,6 @@ func _set_balls(on: bool) -> void:
 
 
 func _plan_vents(count: int) -> void:
-	# always one under the robot, the rest spread out (never all of them)
 	var px := to_local(player.global_position).x
 	var order := range(VENT_XS.size())
 	order.sort_custom(func(a, b): return absf(VENT_XS[a] - px) < absf(VENT_XS[b] - px))
@@ -321,7 +288,6 @@ func is_vulnerable() -> bool:
 	return state == S.OVERPRESSURE
 
 
-## Each lost quarter: a lurch, and a flyball smashes the next ledge.
 func _check_balance() -> void:
 	var marks := [0.75, 0.5, 0.25]
 	while _knocked < marks.size() and hp <= max_hp * marks[_knocked] and hp > 0:
@@ -330,7 +296,7 @@ func _check_balance() -> void:
 		if _knocked == marks.size():
 			off_balance = true
 			EventBus.toast.emit("The Pendulum is losing its balance!")
-			AudioManager.set_music_pitch(1.08, 2.0)
+			AudioManager.set_music_pitch(1.06, 2.0)
 
 
 func _knock_platform(i: int) -> void:
@@ -342,7 +308,6 @@ func _knock_platform(i: int) -> void:
 		p.call("crumble")
 
 
-## The crane's slam: what's left of The Pendulum breaks into pieces.
 func smash() -> void:
 	_smashed = true
 	_tilt = 0.0
@@ -353,7 +318,6 @@ func smash() -> void:
 	queue_redraw()
 
 
-# ---------------------------------------------------------------- drawing
 func _draw() -> void:
 	if _smashed:
 		for d in _debris:
@@ -370,36 +334,30 @@ func _draw() -> void:
 	var brass_dk := Color8(140, 100, 40)
 	var iron := Color8(44, 32, 34)
 	var iron_hi := Color8(98, 82, 80)
-	# far-side balls first (behind the spindle)
 	var order := [0, 1]
 	order.sort_custom(func(a, b): return ball(a).depth < ball(b).depth)
 	for i in order:
 		if ball(i).depth <= 0.0:
 			_draw_ball(i, brass, brass_dk)
-	# spindle: a fluted column from the floor up to the crown
 	draw_rect(Rect2(CENTER_X - 10, HEAD.y + 18, 20, FLOOR_Y - HEAD.y - 18), iron)
 	draw_rect(Rect2(CENTER_X - 10, HEAD.y + 18, 3, FLOOR_Y - HEAD.y - 18), iron_hi)
 	var y := HEAD.y + 30.0
 	var spin_off := fmod(_angle * 12.0, 12.0)
-	while y < FLOOR_Y - 6.0:  # rotating collar bands show the spin
+	while y < FLOOR_Y - 6.0:
 		draw_rect(Rect2(CENTER_X - 12, y + spin_off * 0.0, 24, 3), brass_dk)
 		y += 24.0
 	draw_rect(Rect2(CENTER_X - 30, FLOOR_Y - 14, 60, 14), iron)
 	draw_rect(Rect2(CENTER_X - 30, FLOOR_Y - 14, 60, 2), brass)
-	# the sliding sleeve the arms hang from (rises as the balls fly out)
 	var sleeve_y := lerpf(HEAD.y + 44.0, HEAD.y + 80.0, _ball_drop)
 	draw_rect(Rect2(CENTER_X - 14, sleeve_y, 28, 10), brass_dk)
 	draw_rect(Rect2(CENTER_X - 14, sleeve_y, 28, 2), brass)
-	# arms
 	for i in [0, 1]:
 		var b := ball(i)
 		draw_line(Vector2(CENTER_X, HEAD.y + 26), b.pos, Color(iron_hi, 0.9 if b.depth > 0 else 0.5), 3.0)
 		draw_line(Vector2(CENTER_X, sleeve_y + 5), b.pos.lerp(Vector2(CENTER_X, HEAD.y + 26), 0.5), Color(iron, 0.9 if b.depth > 0 else 0.5), 2.0)
-	# near-side balls in front
 	for i in order:
 		if ball(i).depth > 0.0:
 			_draw_ball(i, brass, brass_dk)
-	# the crown and its gauge eye
 	var frame := 0
 	if state == S.OVERPRESSURE or state == S.WHISTLE or (_phase2() and state == S.SPIN and fmod(_anim, 0.5) < 0.1):
 		frame = 1
@@ -412,15 +370,13 @@ func _draw() -> void:
 	draw_texture_rect_region(HEAD_TEX, Rect2(HEAD + shake + Vector2(-fw / 2.0, -26 - crown_lift), Vector2(fw, HEAD_TEX.get_height())),
 		Rect2(frame * fw, 0, fw, HEAD_TEX.get_height()), tint)
 	if state == S.OVERPRESSURE:
-		# the open valve: red glow pulsing under the lifted cap
 		var pulse := 0.5 + sin(_anim * 10.0) * 0.3
 		draw_circle(HEAD + Vector2(0, -22), 7.0, Color(1.0, 0.4, 0.25, pulse))
 	if state == S.WHISTLE:
 		for k in 5:
 			var a := _anim * 3.0 + k * TAU / 5.0
 			draw_circle(HEAD + Vector2(cos(a), sin(a)) * (20.0 + _t * 40.0), 4.0, Color(0.95, 0.93, 0.88, 0.5))
-	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)   # the floor doesn't tilt
-	# floor vents: grates, tell puffs, columns
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	for i in VENT_XS.size():
 		var vx: float = VENT_XS[i]
 		draw_rect(Rect2(vx - 12, FLOOR_Y - 2, 24, 3), Color8(68, 54, 54))
@@ -447,5 +403,4 @@ func _draw_ball(i: int, brass: Color, brass_dk: Color) -> void:
 	draw_circle(b.pos, r, Color(brass_dk, a))
 	draw_circle(b.pos + Vector2(-r * 0.3, -r * 0.3), r * 0.45, Color(brass, a))
 	if near and b.near and state in [S.SPIN, S.VENTS]:
-		# hot rim on the dangerous pass
 		draw_arc(b.pos, r + 2.0, 0.0, TAU, 16, Color(1.0, 0.6, 0.3, 0.6), 1.0)

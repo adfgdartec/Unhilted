@@ -19,11 +19,9 @@ import sys
 import numpy as np
 from PIL import Image
 
-# the top-down sprites are 48 px and use the v1 character helpers (the side-view
-# sprites moved to 96 px in build_character.py v2)
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "legacy"))
-import build_character_v1 as bc  # noqa: E402
-from build_character_v1 import (Layer, ramp_from, capsule, disk, ellipse, poly, v, PX, PY,  # noqa: E402
+import build_character_v1 as bc
+from build_character_v1 import (Layer, ramp_from, capsule, disk, ellipse, poly, v, PX, PY,
                              STEEL, STEEL_BACK, GLASS, BRASS, CYAN, CYAN_HI)
 
 ROOT = bc.ROOT
@@ -37,11 +35,11 @@ class Pose:
     def __init__(self, view, k):
         self.view = view
         self.k = k
-        step = [0, 1, 0, -1][k]           # which foot is lifted / forward
+        step = [0, 1, 0, -1][k]
         self.bob = -1 if step != 0 else 0
         self.step = step
         self.head = v(24, 15 + self.bob)
-        self.sh = v(24, 22 + self.bob)     # shoulder line centre
+        self.sh = v(24, 22 + self.bob)
         self.hip = v(24, 32 + self.bob)
         if view == SIDE:
             fx = 3.5 * step
@@ -56,7 +54,6 @@ class Pose:
             self.handR = v(31, 31 + self.bob + (-1 if step > 0 else 0))
 
 
-# ------------------------------------------------------------------ chassis
 def body(p, girl):
     L = Layer()
     h, sh, hp = p.head, p.sh, p.hip
@@ -78,11 +75,9 @@ def body(p, girl):
         L.dot(h[0] - 3, h[1] + 0.5, CYAN)
     else:
         back = p.view == UP
-        # arms at the sides
         for s_, hand in ((-1, p.handL), (1, p.handR)):
             L.paint(capsule(sh + v(s_ * (cw - 0.5), 1), hand, 1.6, 1.5), STEEL)
             L.paint(disk(hand[0], hand[1], 1.9), STEEL)
-        # legs
         for s_, foot in ((-1, p.footL), (1, p.footR)):
             L.paint(capsule(hp + v(s_ * 2.5, 0), foot + v(0, -1.5), 2.0, 1.6), STEEL)
             L.paint(ellipse(foot[0], foot[1] - 0.8, 2.6, 1.6), STEEL)
@@ -91,24 +86,24 @@ def body(p, girl):
         L.paint(torso, STEEL)
         L.line(hp + v(-ww, -2.5), hp + v(ww, -2.5), STEEL[1])
         if back:
-            L.line(sh + v(0, 0), hp + v(0, -3), STEEL[1])        # spine seam
-            L.stamp(ellipse(sh[0], sh[1] + 4, 2.2, 1.2), STEEL[1])  # vent
+            L.line(sh + v(0, 0), hp + v(0, -3), STEEL[1])
+            L.stamp(ellipse(sh[0], sh[1] + 4, 2.2, 1.2), STEEL[1])
         else:
-            L.stamp(disk(sh[0], sh[1] + 4, 1.6), CYAN)            # core light
+            L.stamp(disk(sh[0], sh[1] + 4, 1.6), CYAN)
             L.dot(sh[0] - 0.5, sh[1] + 3.5, CYAN_HI)
         L.paint(capsule(sh + v(0, -1), h + v(0, 5), 1.6), STEEL_BACK)
         L.paint(disk(h[0], h[1], 7.2), STEEL)
-        for s_ in (-1, 1):                                        # ear plates
+        for s_ in (-1, 1):
             L.paint(disk(h[0] + s_ * 6.6, h[1] + 0.5, 1.8), STEEL_BACK, deep=False)
             L.dot(h[0] + s_ * 6.6, h[1] + 0.5, CYAN)
     if girl:
-        L.paint(ellipse(p.head[0], p.head[1] - 6.4, 4.5, 1.8), STEEL)   # rounded crest
-        if p.view == UP:   # the cable braid down her back, glowing bead at the end
+        L.paint(ellipse(p.head[0], p.head[1] - 6.4, 4.5, 1.8), STEEL)
+        if p.view == UP:
             tip = p.head + v(0.5 * p.step, 13)
             L.paint(capsule(p.head + v(0, 5), tip, 1.4, 1.1), STEEL_BACK)
             L.paint(disk(tip[0], tip[1], 1.6), [STEEL[0], (30, 140, 160), CYAN, CYAN_HI, CYAN_HI], deep=False)
     else:
-        L.paint(capsule(p.head + v(-1, -6.8), p.head + v(-2, -9.6), 0.8), STEEL)  # antenna nub
+        L.paint(capsule(p.head + v(-1, -6.8), p.head + v(-2, -9.6), 0.8), STEEL)
         L.dot(p.head[0] - 2, p.head[1] - 10, CYAN)
     return L.outline(STEEL[0])
 
@@ -130,16 +125,15 @@ def face(p):
     return L.outline(GLASS[0])
 
 
-# ------------------------------------------------------------------ clothes
 def pants(p, item):
     L = Layer()
     R = ramp_from(item["color"])
     hp = p.hip
     if p.view == SIDE:
-        L.paint(capsule(hp + v(-1, 0), p.footB + v(0, -4), 2.6, 2.2), [tuple(int(c * 0.8) for c in col) for col in R])  # far leg, in shade
+        L.paint(capsule(hp + v(-1, 0), p.footB + v(0, -4), 2.6, 2.2), [tuple(int(c * 0.8) for c in col) for col in R])
         L.paint(poly([hp + v(-3.5, -2), hp + v(3.5, -2), hp + v(3.5, 2), hp + v(-3.5, 2)]), R)
         L.paint(capsule(hp + v(1, 0), p.footF + v(0, -4), 2.7, 2.3), R)
-        L.stamp(ellipse(hp[0] + 1, hp[1] + 4, 1.4, 1.6), R[1])          # thigh pocket
+        L.stamp(ellipse(hp[0] + 1, hp[1] + 4, 1.4, 1.6), R[1])
     else:
         L.paint(poly([hp + v(-4.6, -2), hp + v(4.6, -2), hp + v(4.8, 2), hp + v(-4.8, 2)]), R)
         for s_, foot in ((-1, p.footL), (1, p.footR)):
@@ -177,7 +171,7 @@ def shirt(p, item):
         for y in (4.5, 7.5):
             L.stamp(body_ & (np.abs(PY - (sh[1] + y)) < 0.6), A[3])
         if p.view == DOWN:
-            L.line(sh + v(0, 0), hp + v(0, -2), R[1])     # the zip
+            L.line(sh + v(0, 0), hp + v(0, -2), R[1])
     return L.outline(R[0])
 
 
@@ -206,7 +200,6 @@ def cloak_front(p, item):
     iid = item["id"]
     sway = p.step * 1.0
     if p.view == UP:
-        # the whole cape, shoulders to calves, over the robot's back
         cape = poly([sh + v(-5.5, -1.5), sh + v(5.5, -1.5), sh + v(8 + sway, 19), sh + v(3, 20), sh + v(-3, 20.5), sh + v(-8 + sway, 19)])
         L.paint(cape, R)
         L.line(sh + v(-2, 2), sh + v(-3 + sway, 18), R[1])
@@ -217,27 +210,25 @@ def cloak_front(p, item):
         L.paint(cape, R)
         hem_y = sh[1] + 5.5
     else:
-        # a short capelet across the shoulders, open at the front
         cape = poly([sh + v(-6, -1.5), sh + v(6, -1.5), sh + v(7, 5), sh + v(2, 6), sh + v(0, 3), sh + v(-2, 6), sh + v(-7, 5)])
         L.paint(cape, R)
         hem_y = sh[1] + 5
-    # per-item details
-    if iid == "cloak_teal":         # a thin neon trim along the hem
+    if iid == "cloak_teal":
         L.stamp(cape & (np.abs(PY - hem_y) < 0.7), CYAN)
-    elif iid == "cloak_patchwork":  # patches
+    elif iid == "cloak_patchwork":
         for (dx, dy) in ((-3, 3), (3, 9), (-2, 14)):
             q = sh + v(dx, dy)
             L.stamp(cape & ellipse(q[0], q[1], 1.6, 1.3), A[2])
-    elif iid == "cloak_rust":       # a bitten hem
+    elif iid == "cloak_rust":
         for dx in (-5, -1, 3, 6):
             m = (np.abs(PX - (sh[0] + dx)) < 0.8) & (np.abs(PY - hem_y) < 1.2)
             L.rgba[m, 3] = 0
-    elif iid == "cloak_bellows":    # a verdigris band along the hem, buttons down the front
+    elif iid == "cloak_bellows":
         L.stamp(cape & (np.abs(PY - (hem_y - 1.5)) < 0.7), A[2])
         if p.view != UP:
             for dy in (1, 4):
                 L.dot(sh[0] + (1.5 if p.view == SIDE else 0), sh[1] + dy, BRASS[3])
-    elif iid == "cloak_wren":       # brass buttons down the front of the coat
+    elif iid == "cloak_wren":
         if p.view != UP:
             for dy in (1, 4):
                 L.dot(sh[0] + (1.5 if p.view == SIDE else 0), sh[1] + dy, BRASS[3])
@@ -254,11 +245,9 @@ def hood(p, item):
         tip = poly([h + v(-1, -8.4), h + v(-7, -7), h + v(-11, -4), h + v(-16, -1 + sway), h + v(-10, 1), h + v(-6, -1.5)])
         opening = ellipse(h[0] + 2.8, h[1] + 1.0, 5.3, 5.0)
     elif p.view == DOWN:
-        # the long tip flops over to one side behind the head
         tip = poly([h + v(2, -8), h + v(8, -6), h + v(13 + sway, -1), h + v(11, 2), h + v(7, -2)])
         opening = ellipse(h[0], h[1] + 1.2, 6.0, 5.3)
     else:
-        # from behind: the hood covers the head; the tip hangs down the back
         tip = poly([h + v(-3, 4), h + v(3, 4), h + v(1.5 + sway, 13), h + v(-0.5 + sway, 14)])
         opening = np.zeros_like(shell)
     shape = (shell | tip) & ~opening
@@ -278,7 +267,6 @@ def mask(p, item):
     A = ramp_from(item["accent"]) if item["accent"] else R
     h = p.head
     if p.view == UP:
-        # only the strap shows from behind
         L.line(h + v(-7, -0.5), h + v(7, -0.5), (60, 40, 30) if item["id"] == "mask_brass_goggles" else R[1])
         return L
     c = h + (v(2.4, 0.8) if p.view == SIDE else v(0, 0.8))
@@ -311,7 +299,6 @@ def mask(p, item):
     return L.outline(R[0])
 
 
-# ------------------------------------------------------------------ sheets
 def sheet(draw):
     img = Image.new("RGBA", (S * 4, S * 3), (0, 0, 0, 0))
     for row in (DOWN, UP, SIDE):

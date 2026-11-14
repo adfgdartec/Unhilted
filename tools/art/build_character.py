@@ -52,9 +52,9 @@ ICONS = os.path.join(ROOT, "art", "ui", "cosmetics")
 for d in (OUT, FR, ICONS):
     os.makedirs(d, exist_ok=True)
 
-K = 2                # detail factor over the old 48 px frames
-S = 48 * K           # frame size
-FEET = 44 * K        # feet row
+K = 2
+S = 48 * K
+FEET = 44 * K
 OLD_FEET = 44
 
 ANIMS = [
@@ -66,7 +66,6 @@ ANIMS = [
 ]
 
 
-# --------------------------------------------------------------- colour ramps
 def ramp_from(rgb, warm=0.03):
     """outline, shadow, base, light, highlight: cool shadows, warm lights."""
     r, g, b = [c / 255.0 for c in rgb]
@@ -88,10 +87,9 @@ CYAN = (56, 242, 255)
 CYAN_MID = (34, 170, 196)
 CYAN_HI = (200, 253, 255)
 RED = (255, 84, 70)
-LIGHT = np.array([0.55, -0.83])   # from the upper right
+LIGHT = np.array([0.55, -0.83])
 
 
-# --------------------------------------------------------------- raster helpers
 YY, XX = np.mgrid[0:S, 0:S]
 PX = XX + 0.5
 PY = YY + 0.5
@@ -173,14 +171,13 @@ class Layer:
             b = gaussian_filter(mask.astype(np.float32), soft)
             gy, gx = np.gradient(b)
             mag = np.hypot(gx, gy) + 1e-6
-            nx, ny = -gx / mag, -gy / mag            # outward normal
+            nx, ny = -gx / mag, -gy / mag
             d = nx * LIGHT[0] + ny * LIGHT[1]
-            edge = np.clip(mag * 9.0, 0, 1)          # 1 at the rim, 0 deep inside
+            edge = np.clip(mag * 9.0, 0, 1)
             t = d * edge + bias
             lvl[t > 0.14] = 3
             lvl[t > 0.58] = 4
             lvl[t < -0.22] = 1
-            # the very rim facing away from the light reads as a thin dark edge
             rim_dark = mask & ~shifted(mask, -1, -1) & (t < -0.45)
             lvl[rim_dark] = 1
         for k in range(5):
@@ -239,7 +236,6 @@ class Layer:
         return out
 
 
-# --------------------------------------------------------------- the rig
 def v(x, y):
     return np.array([float(x), float(y)])
 
@@ -273,12 +269,10 @@ def elbow_for(sh, hand, length, down=True):
     return mid + perp * off
 
 
-# proportions in old 48 px units (read off the drawing): head+hood ~1/4 of
-# the height, legs longer than the torso
-LEG, ARM, TORSO, NECK = 17.4, 13.2, 11.0, 5.6
-LEG_SCALE = 16.6 / 11.0
+LEG, ARM, TORSO, NECK = 18.6, 14.0, 11.5, 5.0
+LEG_SCALE = 17.8 / 11.0
 ARM_SCALE = ARM / 10.0
-HEAD_R = 3.7 * K
+HEAD_R = 3.0 * K
 
 
 class Pose:
@@ -297,7 +291,7 @@ class Pose:
         self.elbow_down_F = True
         self.elbow_down_B = True
         self.blade = 72.0
-        self.blade_back = None      # override for the off-hand blade angle
+        self.blade_back = None
         self.trail = 0.0
         self.flutter = 0.0
         self.lift = 0.0
@@ -306,7 +300,6 @@ class Pose:
         self.lying = False
         for key, val in k.items():
             setattr(self, key, val)
-        # the old rig's shoulders, as the reference the hands were posed from
         old_hip = self.hip + v(0, self.bob * 0.5)
         old_sh = old_hip + v(1 + self.lean, -10 + self.bob * 0.5)
         old_shF, old_shB = old_sh + v(1.5, 1), old_sh + v(-2.5, 1)
@@ -322,7 +315,6 @@ class Pose:
             headc = sh + v(0.8 + self.lean * 0.25, -NECK) + self.head
         handF = sh + v(1.2, 1) + (self.handF - old_shF) * ARM_SCALE
         handB = sh + v(-2.0, 1) + (self.handB - old_shB) * ARM_SCALE
-        # everything below is in 96 px space
         self.hip, self.sh, self.headc = hip * K, sh * K, headc * K
         self.footF, self.footB = self.footF * K, self.footB * K
         self.hipF, self.hipB = self.hip + v(1.5 * K, 0), self.hip + v(-1.5 * K, 0)
@@ -343,7 +335,6 @@ def poses():
     """Hand-keyed poses, written in the old 48 px frame (feet on row 44)."""
     F = OLD_FEET
     out = {}
-    # idle: slow breathing, the cape and cap tip sway, the blades drift
     idle = []
     for i in range(8):
         ph = i / 8 * math.tau
@@ -352,7 +343,6 @@ def poses():
                       footF=v(30, F), footB=v(17, F), blade=35.0 + math.sin(ph) * 4, tip=v(0, math.sin(ph) * 0.7),
                       trail=0.1 + 0.08 * math.sin(ph)))
     out["idle"] = idle
-    # run: 12 frames, long stride, the body rides highest when the legs pass
     run = []
     for i in range(12):
         p = i / 12 * math.tau
@@ -369,7 +359,6 @@ def poses():
                    P(footF=v(27, 40), footB=v(20, 39), handF=v(29, 25), handB=v(17, 25), blade=20, trail=0.25, lift=-0.1, flutter=2)]
     out["fall"] = [P(footF=v(26, 45), footB=v(20, 44), handF=v(30, 24), handB=v(16, 24), blade=10, trail=0.2, lift=0.8,
                      flutter=f, tip=v(0, -1.5)) for f in (0, 1.1, 2.2)]
-    # attack: deep wind-up, a fast strike, a long follow-through
     out["attack"] = [
         P(lean=-1, footF=v(28, F), footB=v(18, F), handF=v(20, 22), elbow_down_F=False, blade=-150, handB=v(22, 32)),
         P(lean=-1.6, footF=v(28, F), footB=v(18, F), handF=v(19, 20), elbow_down_F=False, blade=-168, handB=v(22, 31), flutter=0.6),
@@ -411,7 +400,6 @@ def poses():
                    P(lean=-2.5, head=v(-0.5, 0), footF=v(26, F), footB=v(19, F), handF=v(30, 24), handB=v(16, 25),
                      elbow_down_F=False, blade=-45, eyes="hurt", trail=0.25, flutter=1),
                    P(lean=-1.5, footF=v(26, F), footB=v(19, F), handF=v(30, 27), handB=v(17, 27), blade=-20, eyes="hurt", flutter=2)]
-    # death: hit, stagger, knees buckle, kneel, slump, topple, lie still
     out["dead"] = [
         P(lean=-3, head=v(-1, 0), footF=v(26, F), footB=v(19, F), handF=v(31, 24), handB=v(16, 24), blade=-40, eyes="hurt", trail=0.4),
         P(lean=-2, hip=v(23, 35), footF=v(27, F), footB=v(18, F), handF=v(28, 33), handB=v(20, 33), blade=70, eyes="hurt", flutter=0.8),
@@ -424,7 +412,6 @@ def poses():
     return out
 
 
-# --------------------------------------------------------------- body (the metal frame)
 def joint(L, c, r, ramp=None):
     ramp = ramp or STEEL
     L.paint(disk(c[0], c[1], r), ramp, soft=1.0)
@@ -448,7 +435,6 @@ def draw_body(p, girl):
         tip = h + v(-10 - p.trail * 6, 13 + p.lift * 6) + v(0, math.sin(p.flutter) * 1.6)
         L.paint(capsule(h + v(-5, 2), tip, 1.8, 1.4), B)
         L.paint(disk(tip[0], tip[1], 2.4), [STEEL[0], CYAN_MID, CYAN, CYAN_HI, CYAN_HI], flat=True)
-    # far limbs (darker): rods, ball joints, armour on forearm and shin
     joint(L, p.shB, 2.6, B)
     limb(L, p.shB, p.elbowB, 1.5, 1.4, B)
     joint(L, p.elbowB, 2.0, B)
@@ -457,7 +443,6 @@ def draw_body(p, girl):
     limb(L, p.hipB, p.kneeB, 2.0, 1.7, B)
     joint(L, p.kneeB, 2.4, B)
     limb(L, p.kneeB, p.footB, 2.4, 1.8, B, plate=True)
-    # spine: the exposed waist, three vertebra discs on a dark core with two pistons
     lying = p.lying
     top = sh + v(0.4, 9.0) if not lying else sh + v(-9, 0.4)
     bot = hp + v(0, -3.0) if not lying else hp + v(3, 0)
@@ -468,11 +453,9 @@ def draw_body(p, girl):
     for k in range(3):
         c = top + (bot - top) * ((k + 0.5) / 3)
         L.paint(ellipse(c[0], c[1], 3.6, 1.5) if not lying else ellipse(c[0], c[1], 1.5, 3.6), STEEL, soft=0.8)
-    # pelvis block
     pel = poly([hp + v(-5.6, -3.6), hp + v(5.0, -3.6), hp + v(6.0, 1.8), hp + v(-6.0, 1.8)]) if not lying \
         else ellipse(hp[0], hp[1], 4.2, 5.4)
     L.paint(pel, STEEL)
-    # chest: an armoured shell, rounder at the front, with the core light and vents
     if not lying:
         cw = 7.2 if girl else 8.0
         chest = poly([sh + v(-cw, -2.0), sh + v(cw - 1.6, -2.4), sh + v(cw + 0.6, 2.0), sh + v(cw, 7.0),
@@ -482,27 +465,24 @@ def draw_body(p, girl):
     L.paint(chest, STEEL, soft=2.0)
     core = sh + v(4.6 + p.lean * 0.2, 4.4) if not lying else sh + v(-3, -2)
     if not lying:
-        L.line(sh + v(-cw + 1.5, 1.0), sh + v(cw - 2.0, 1.0), STEEL[1])      # collar seam
-        L.line(sh + v(-1.0, 1.5), sh + v(-1.0, 9.5), STEEL[1])               # centre seam
-        for k in range(3):                                                    # vents
+        L.line(sh + v(-cw + 1.5, 1.0), sh + v(cw - 2.0, 1.0), STEEL[1])
+        L.line(sh + v(-1.0, 1.5), sh + v(-1.0, 9.5), STEEL[1])
+        for k in range(3):
             L.line(sh + v(-4.8, 4.2 + k * 1.8), sh + v(-2.4, 4.2 + k * 1.8), STEEL[1])
-        L.dot(sh[0] + cw - 1.5, sh[1] + 8.5, STEEL[4])                       # rivets
+        L.dot(sh[0] + cw - 1.5, sh[1] + 8.5, STEEL[4])
         L.dot(sh[0] - cw + 1.8, sh[1] + 8.5, STEEL[3])
     L.stamp(disk(core[0], core[1], 2.4), GRIP[1])
     L.stamp(disk(core[0], core[1], 1.7), CYAN)
     L.dot(core[0] - 0.5, core[1] - 0.6, CYAN_HI)
     L.glow(disk(core[0], core[1], 1.7), CYAN, 90, 0)
-    # near leg: rod, knee, shin plate (mostly under the trousers)
     limb(L, p.hipF, p.kneeF, 2.2, 1.9, STEEL)
     joint(L, p.kneeF, 2.6)
     limb(L, p.kneeF, p.footF, 2.6, 2.0, STEEL, plate=True)
-    # neck: rod with two rings
     nk0, nk1 = (sh + v(0.6, -2), h + v(0, 4)) if not lying else (sh + v(2, 0), h + v(-4, 0))
     L.paint(capsule(nk0, nk1, 1.4), GRIP, soft=0.8)
     for k in (0.35, 0.7):
         c = nk0 + (nk1 - nk0) * k
         L.paint(ellipse(c[0], c[1], 2.4, 0.9) if not lying else ellipse(c[0], c[1], 0.9, 2.4), STEEL, flat=True)
-    # head: a rounded casing with a jaw plate; the hood hides most of it
     L.paint(ellipse(h[0], h[1], HEAD_R, HEAD_R * 1.06), STEEL)
     L.paint(poly([h + v(-HEAD_R * 0.6, HEAD_R * 0.5), h + v(HEAD_R * 0.9, HEAD_R * 0.5),
                   h + v(HEAD_R * 0.7, HEAD_R + 1.2), h + v(-HEAD_R * 0.4, HEAD_R + 1.2)]), STEEL, soft=1.0)
@@ -544,16 +524,16 @@ def draw_arm(p):
 def draw_face(p):
     """Round screen face filling the hood opening; two tall oval eyes."""
     L = Layer()
-    c = p.headc + v(2.4, 1.0)
+    c = p.headc + v(2.0, 0.9)
     fr = HEAD_R * 0.9
     L.paint(disk(c[0], c[1], fr), GLASS, soft=1.4)
     for a in range(200, 260, 9):
         rr = math.radians(a)
         L.dot(c[0] + math.cos(rr) * fr * 0.72, c[1] + math.sin(rr) * fr * 0.72, GLASS[4], 200)
     if p.eyes == "open":
-        for ex in (-2.3, 3.0):
+        for ex in (-2.0, 2.6):
             e = c + v(ex, -0.4)
-            L.stamp(ellipse(e[0], e[1], 1.4, 2.4), CYAN)
+            L.stamp(ellipse(e[0], e[1], 1.2, 2.1), CYAN)
             L.dot(e[0] - 0.4, e[1] - 1.1, CYAN_HI)
         L.glow(ellipse(c[0] + 0.4, c[1] - 0.4, 5.0, 3.0) & disk(c[0], c[1], fr - 1), CYAN, 40, 0)
     elif p.eyes == "hurt":
@@ -566,7 +546,6 @@ def draw_face(p):
     return L.outline(GLASS[0])
 
 
-# --------------------------------------------------------------- blades + wires
 def dagger(L, hand, ang, dim=False, length=16.0):
     """Short light dagger with a small dark grip and guard (as drawn)."""
     a = math.radians(ang)
@@ -581,7 +560,6 @@ def dagger(L, hand, ang, dim=False, length=16.0):
     L.glow(blade, edge, 60 if not dim else 40, 2)
     L.stamp(blade, edge)
     L.stamp(capsule(base + d * 1.0, tip - d * 4.0, 0.9, 0.3), core)
-    # grip and guard
     L.paint(capsule(pommel, hand + d * 1.2, 1.9), GRIP, soft=1.2)
     g = hand + d * 2.6
     L.paint(capsule(g - n * 3.8, g + n * 3.8, 1.4), GRIP, soft=1.0)
@@ -625,7 +603,6 @@ def draw_blade_back(p):
     return L
 
 
-# --------------------------------------------------------------- outfit parts
 def draw_hood(p, item):
     """Round hood with a big face opening and a cowl at the neck; the pointy
     cap tip leaves the back of the head and curls up at the end. Thin cloth."""
@@ -636,7 +613,7 @@ def draw_hood(p, item):
         back, up = v(0, 1), v(1, 0)
     else:
         back, up = v(-1, 0), v(0, -1)
-    shell = disk(h[0] - 0.5, h[1] - 0.6, HEAD_R + 2.5)
+    shell = disk(h[0] - 0.4, h[1] - 0.5, HEAD_R + 1.9)
     cowl = ellipse(*(h + up * -(HEAD_R + 1.4) + back * 1.6), 5.0, 1.5)
     sway = math.sin(p.flutter) * 1.4
     pts = []
@@ -647,9 +624,9 @@ def draw_hood(p, item):
         droop = 4.4 * math.sin(t * math.pi * 0.9) - 6.0 * max(0.0, t - 0.6) / 0.4 * (1 - p.lift * 0.3)
         pts.append(h + back * reach + up * (2.0 - droop - p.lift * 6 * t + p.trail * 3 * t) + v(0, sway * t) + p.tip * t)
     tattered = item["id"] == "hood_tattered"
-    tip = ribbon(pts, 9.0, 1.4, jag=1 if tattered else 0)
+    tip = ribbon(pts, 8.0, 1.3, jag=1 if tattered else 0)
     shape = shell | cowl | tip
-    opening = disk(h[0] + 2.6, h[1] + 1.0, HEAD_R * 0.9 + 1.4)
+    opening = disk(h[0] + 2.2, h[1] + 0.9, HEAD_R * 0.9 + 1.0)
     shape &= ~opening
     L.paint(shape, R)
     ring = (shifted(opening, 1, 0) | shifted(opening, -1, 0) | shifted(opening, 0, 1) | shifted(opening, 0, -1)) & shape
@@ -677,15 +654,13 @@ def draw_cloak_front(p, item):
     sway = p.trail * 3.0
     lift = p.lift * 2.0
     wave = math.sin(p.flutter) * 0.8
-    drop = 3.2 - lift
-    # a short shoulder piece: covers the shoulder cap and the back of the
-    # neck, nothing of the chest
-    shape = poly([sh + v(-1.4, -5.4), sh + v(-4.2, -6.0), sh + v(-8.2 - sway, -4.0), sh + v(-9.6 - sway * 1.2, 0.2),
-                  sh + v(-8.8 - sway * 1.3, drop + wave), sh + v(-6.2 - sway, drop - 1.2), sh + v(-4.0 - sway * 0.8, drop + 0.4 + wave),
-                  sh + v(-2.4 - sway * 0.6, drop - 1.6), sh + v(-1.6 - sway * 0.4, 0.6), sh + v(-0.8, -2.6)])
+    drop = 12.0 - lift * 2.0
+    shape = poly([sh + v(3.4, -5.6), sh + v(-2.0, -6.4), sh + v(-8.8 - sway, -4.6), sh + v(-11.4 - sway * 1.2, 0.6),
+                  sh + v(-11.0 - sway * 1.3, drop + wave), sh + v(-7.4 - sway, drop - 1.6), sh + v(-3.6 - sway * 0.8, drop + 1.2 + wave),
+                  sh + v(0.0 - sway * 0.6, drop - 1.0), sh + v(2.6 - sway * 0.4, drop + 0.6 - wave),
+                  sh + v(2.2 - sway * 0.3, 4.0), sh + v(5.0, -1.2)])
     L.paint(shape, R, soft=2.2)
-    # thin cloth: long folds from the shoulder, a hem that catches light
-    for a, b in ((v(-6, -2), v(-7.6 - sway, drop - 0.5)), (v(-3, -3), v(-3.6 - sway * 0.8, drop)), (v(-2.6, -3), v(-3.0 - sway * 0.5, drop - 1.6))):
+    for a, b in ((v(-7, -2), v(-8.6 - sway, drop - 0.5)), (v(-3.5, -3), v(-4.0 - sway * 0.8, drop)), (v(0.5, -2), v(0.0 - sway * 0.5, drop - 1.5))):
         L.line(sh + a, sh + b, R[1])
     style = item["id"]
     if style == "cloak_rust":
@@ -693,15 +668,13 @@ def draw_cloak_front(p, item):
             q = sh + v(x - sway * 0.8, drop - 0.4)
             L.erase(poly([q + v(-1.4, 2), q + v(0, -2.2), q + v(1.4, 2)]))
     if style == "cloak_teal":
-        L.line(sh + v(-9.8 - sway * 1.3, drop), sh + v(-1.8 - sway * 0.6, drop - 2.0), CYAN)
+        L.line(sh + v(-11.0 - sway * 1.3, drop), sh + v(2.6 - sway * 0.4, drop + 0.6), CYAN)
     if style in ("cloak_wren", "cloak_bellows"):
         for k in range(2):
             L.dot(sh[0] - 1.2, sh[1] - 1 + k * 3, BRASS[4])
     if style == "cloak_patchwork":
         L.paint(poly([sh + v(-8, 0), sh + v(-4, 0), sh + v(-4, 4), sh + v(-8, 4)]), A, flat=True)
-    # clasp at the throat
     L.paint(disk(sh[0] + 0.4, sh[1] - 3.4, 1.3), BRASS, soft=0.6)
-    # strap across the bare chest frame, from the near shoulder to the back hip
     s0, s1 = sh + v(4.6, 0.0), hp + v(-6.0, -4.0)
     L.stamp(capsule(s0, s1, 1.4), STRAP[2])
     L.line(s0 + v(0, 1.2), s1 + v(0, 1.2), STRAP[1])
@@ -729,18 +702,16 @@ def draw_cloak_back(p, item):
     hem = []
     for i in range(n + 1):
         t = i / n
-        reach = (hp[1] - sh[1] + 17.0) * (1 - 0.32 * lift) - p.trail * 4.0 * t
-        xb = 6.0 + t * (8 + p.trail * 24)
+        reach = (hp[1] - sh[1] + 27.0) * (1 - 0.32 * lift) - p.trail * 5.0 * t
+        xb = 7.0 + t * (11 + p.trail * 28)
         wave = math.sin(p.flutter + t * 7.0) * (1.6 + p.trail * 2.8) + math.sin(p.flutter * 1.7 + t * 13.0) * 0.6
         hem.append(sh + v(-xb * (0.5 + 0.5 * t), reach * (1 - 0.1 * t) + wave * 0.6 - lift * 15 * t))
-    pts = [sh + v(-2.4, -4.6), sh + v(-8.0, -4.2)] + hem[::-1]
+    pts = [sh + v(-1.0, -5.6), sh + v(-9.0, -4.6)] + hem[::-1]
     shape = poly(pts)
-    L.paint(shape, [R[0], R[0], R[1], R[2], R[3]], soft=2.6, bias=-0.1)
-    # folds: long creases from the shoulder blade down to the hem's troughs
+    L.paint(shape, [R[0], R[1], R[2], R[3], R[4]], soft=3.0, bias=0.05)
     for k in (2, 4, 7, 10):
         L.line(sh + v(-5.5 - k * 0.15, -2), hem[k] + v(0, -1.5), R[0])
         L.line(sh + v(-4.8 - k * 0.15, -1), hem[k] + v(1, -2.5), R[1])
-    # lining: when the hem lifts or streams, the darker inside shows along it
     if lift > 0.1 or p.trail > 0.5:
         for a2, b2 in zip(hem[:-1], hem[1:]):
             L.line(a2 + v(0, -1), b2 + v(0, -1), R[0])
@@ -804,13 +775,11 @@ def draw_pants(p, item):
         side = v(-nn[1], nn[0])
         sd = norm(cuff - knee)
         s2 = v(-sd[1], sd[0])
-        # the knee joint pressing through the cloth: a lit ridge with a crease each side
         kc = knee + v(1.2, 0)
         L.dot(kc[0], kc[1] - 0.5, ramp[4] if ramp is R else ramp[3])
         L.dot(kc[0] + 0.6, kc[1] + 0.6, ramp[3])
         L.line(knee - nn * 3.5 + side * 2.0, knee - nn * 0.5 + side * 3.2, ramp[1])
         L.line(knee + sd * 1.0 + s2 * 2.2, knee + sd * 4.0 + s2 * 1.0, ramp[1])
-        # long hanging folds and the gather at the ankle
         L.line(hip + nn * 2 + side * -1.5, knee - nn * 3 + side * -2.2, ramp[1])
         L.line(mid + s2 * -1.8, cuff - sd * 1.5 + s2 * -1.2, ramp[1])
         for k in range(3):
@@ -845,9 +814,9 @@ def draw_shoes(p, item):
                          foot + v(8.0, 1.4), foot + v(-4.0, 1.4)])
         L.paint(boot, ramp, soft=1.6)
         if not p.lying:
-            L.stamp(boot & (PY > foot[1] - 0.2), (34, 26, 24))      # sole
+            L.stamp(boot & (PY > foot[1] - 0.2), (34, 26, 24))
             L.line(foot + v(-4, -0.6), foot + v(8, -0.6), (52, 40, 34))
-            for k in range(3):                                      # the drawing's stripes
+            for k in range(3):
                 L.dot(foot[0] + 0.6 + k * 2.0, foot[1] - 4.0 + k * 0.8, ramp[4])
                 L.dot(foot[0] + 1.6 + k * 2.0, foot[1] - 4.0 + k * 0.8, ramp[3])
     return L.outline(R[0])
@@ -874,7 +843,6 @@ def draw_mask(p, item):
             L.stamp(disk(e[0], e[1], 2.2), A[2] if p.eyes != "hurt" else RED)
             L.dot(e[0] - 0.8, e[1] - 0.8, A[4])
         return L.outline(R[0])
-    # scrap plate over the lower face with two eye slits
     plate = disk(c[0], c[1] + 0.6, 7.6) & (PY > c[1] - 3.4)
     L.paint(plate, R, soft=1.4)
     for ex in (-2.8, 3.6):
@@ -888,7 +856,6 @@ def draw_mask(p, item):
     return L.outline(R[0])
 
 
-# --------------------------------------------------------------- items + output
 def read_cosmetics():
     items = []
     d = os.path.join(ROOT, "data", "cosmetics")
@@ -982,7 +949,6 @@ def main():
         else:
             icon_layer = DRAW[SLOT_LAYERS[item["slot"]][0]](idle, item)
         icon_from(icon_layer).save(os.path.join(ICONS, item["id"] + ".png"))
-    # the thrown dagger (world sprite), pointing right; the game draws it at half scale
     L = Layer()
     dagger(L, v(16, 24), 0.0, length=20.0)
     ys, xs = np.nonzero(L.rgba[:, :, 3])

@@ -1,13 +1,9 @@
 class_name BouncePad
 extends Area2D
-## A scrap spring pad: an old tyre with a bed spring bolted on top. Land on
-## it and it fires you back up, higher than a jump. The node sits on the
-## floor surface.
-## Part of the demo's "bouncing back" theme: knocked down, you go back up.
 
 const WIDTH := 22.0
 
-@export var strength := 470.0   ## launch speed (a normal jump is about 340)
+@export var strength := 470.0
 
 var _squash := 0.0
 var _t := 0.0
@@ -16,7 +12,7 @@ var _cooldown := 0.0
 
 func _ready() -> void:
 	collision_layer = 0
-	collision_mask = 2   # the player's body
+	collision_mask = 2
 	monitorable = false
 	var cs := CollisionShape2D.new()
 	var r := RectangleShape2D.new()
@@ -55,19 +51,16 @@ func launch(p: Player) -> void:
 func _draw() -> void:
 	var sq := _squash
 	var bob := sin(_t * 3.0) * 0.5
-	# tyre
 	draw_rect(Rect2(-WIDTH / 2.0, -5, WIDTH, 5), Color8(30, 26, 30))
 	draw_rect(Rect2(-WIDTH / 2.0 + 1, -5, WIDTH - 2, 1), Color8(70, 62, 66))
 	for x in range(-9, 10, 4):
 		draw_rect(Rect2(x, -3, 2, 1), Color8(48, 42, 46))
-	# spring coil: compresses when used
 	var h := 7.0 - sq * 4.0 + bob * 0.3
 	var coils := 3
 	for i in coils:
 		var y := -5.0 - (i + 0.5) * h / coils
 		draw_line(Vector2(-7, y + 1), Vector2(7, y - 1), Color8(150, 150, 156), 1.0)
 		draw_line(Vector2(-7, y), Vector2(7, y - 2), Color8(96, 96, 104), 1.0)
-	# plate on top, with a cyan-lit stripe so it reads as "use me"
 	var top := -5.0 - h - 2.0
 	draw_rect(Rect2(-9, top, 18, 2), Color8(120, 118, 124))
 	draw_rect(Rect2(-9, top, 18, 1), Color8(200, 198, 196))

@@ -1,12 +1,4 @@
 extends Node
-## Tests the showcase demo (scripts/demo/demo_mode.gd). Run:
-##   godot --headless --path . res://tools/demo_test.tscn -- demo
-## Plays the route start to finish: Under the Heap -> Camp -> Scrap Fields ->
-## Crane Yard -> Conveyor Hall -> the Intake -> Shard I -> the end card, then
-## checks the return to the title, side exits being shut, the per-room
-## respawn, the idle reset, and that nothing was saved.
-## Rooms are crossed by stepping onto each exit (the Heap bot test covers the
-## platforming itself); the boss is fought through its real states.
 
 var fails := 0
 var main: Node
@@ -36,7 +28,6 @@ func skip_dialogue() -> void:
 		await frames(2)
 
 
-## Step onto the exit that leads to target_room and wait for the new room.
 func go_through(target: String) -> bool:
 	var ex: RoomExit = null
 	for n in room().find_children("*", "RoomExit", true, false):
@@ -77,18 +68,23 @@ func _run() -> void:
 	title.demo_run_requested.emit()
 	await frames(60)
 	check(DialogueManager.active, "Play opens with the wake-up scene")
+	var elder: NPC = room().get_node_or_null("TrashCollector")
+	check(elder != null and elder.age == "elder" and elder.pin_goggles == "cracked", "Trash Collector waits by the wake pod, cracked glasses and all")
 	await skip_dialogue()
 	check(room().room_id == &"heap_01_pit" and main.demo.running, "...under the Heap, with the demo running")
+	check(AudioManager.current_track() == "beginning_underground", "music: the underground theme plays in the opening cave")
+	check(room().find_children("*", "BouncePad", true, false).is_empty(), "no springs in the opening cave")
+	check(Rect2(656, 448, 48, 48) in room().solids, "the side nook off the climb is walled up")
 	check(not GameState.has_shard(1), "no shards yet: Shard I is the prize")
 	player.hurtbox.invulnerable = true
 
 	check(await go_through("heap_02_camp"), "Under the Heap -> Scavenger Camp")
+	check(AudioManager.current_track() == "beginning_aboveground", "music: the above-ground theme takes over at the camp")
 	check(shut("ExitToUnder"), "the hatch down to the Hollow is shut for the demo")
 	var doors_open: bool = room().get_node("DoorRusty").monitoring and room().get_node("DoorDot").monitoring and room().get_node("DoorMags").monitoring
 	check(doors_open, "...but the walk-in buildings stay open")
 	check(await go_through("heap_05_fields"), "Camp -> Scrap Fields")
 	check(shut("ExitToSinkhole") and shut("ExitToGiant"), "the Sinkhole drop and the Giant's Brow path are shut")
-	# dying here puts you back at this room's entrance, not the wake-up chamber
 	player.hurtbox.invulnerable = false
 	player.health.damage(99)
 	for i in 400:
@@ -104,18 +100,18 @@ func _run() -> void:
 	check(shut("ExitToPit"), "the side door to the Compactor Pit is shut")
 	check(await go_through("heap_03_intake"), "Conveyor Hall -> the Intake")
 
-	# the boss: The Pendulum, the crane's takeover, then the crane
 	var arena = room().get_node("BossArena")
 	var show: IntakeShowdown = arena.get_node("IntakeShowdown")
 	var boss: IntakeCrane = arena.get_node("IntakeCrane")
 	var gov: GreatGovernor = show.governor
 	check(boss.state == IntakeCrane.S.PARKED, "INTAKE UNIT 7 waits up on its rail")
-	check(room().find_children("*", "CrumblePlatform", true, false).size() == 4, "four girder ledges hang beside The Pendulum's crown")
+	check(room().find_children("*", "CrumblePlatform", true, false).size() == 4, "four girder ledges hang beside the Governor's crown")
 	player.global_position = Vector2(200, 320)
 	await frames(5)
 	await skip_dialogue()
 	await frames(10)
-	check(gov.state != GreatGovernor.S.IDLE, "The Pendulum spins up")
+	check(gov.state != GreatGovernor.S.IDLE, "THE PENDULUM spins up")
+	check(AudioManager.current_track() == "boss_og", "music: bossog for the Governor")
 	check(main.demo.running, "...and the demo keeps going through the fight")
 	player.global_position = Vector2(100, 320)
 	var guard := 0
@@ -124,19 +120,24 @@ func _run() -> void:
 		if gov.state == GreatGovernor.S.OVERPRESSURE:
 			gov._hurtbox.take_hit(2, gov.to_global(GreatGovernor.HEAD))
 		await frames(3)
-	check(gov.hp <= 0, "The Pendulum goes down in its overpressure windows")
+	check(gov.hp <= 0, "the Governor goes down in its overpressure windows")
 	check(gov.off_balance and gov._knocked == 3, "...knocking out its ledges as it loses balance")
+	var went_quiet := false
 	for i in 1200:
 		await frames(1)
+		if AudioManager.current_track() == "silence":
+			went_quiet = true
 		if show.phase == "crane":
 			break
 		if DialogueManager.active:
 			DialogueManager._close()
+	check(went_quiet, "music: it cuts out when the crane drops in")
 	check(show.phase == "crane" and boss.empowered, "the crane smashes the wreck, takes the shard and absorbs it")
 	check(not is_instance_valid(show.governor) or show.governor == null, "...after hauling the wreckage away")
 	await skip_dialogue()
 	await frames(10)
 	check(boss.state != IntakeCrane.S.PARKED and boss.state != IntakeCrane.S.CUTSCENE, "then INTAKE UNIT 7 attacks")
+	check(AudioManager.current_track() == "boss_final", "music: boss final for the crane")
 	guard = 0
 	while boss.hp > 0 and guard < 900:
 		guard += 1
@@ -162,7 +163,6 @@ func _run() -> void:
 	await frames(40)
 	check(title.visible and not main.demo.running and not get_tree().paused, "...and goes back to the title")
 
-	# idle reset
 	title.demo_run_requested.emit()
 	await frames(60)
 	await skip_dialogue()

@@ -22,7 +22,6 @@ SR = 44100
 rng = np.random.default_rng(7)
 
 
-# ------------------------------------------------------------------ building blocks
 def t_(dur):
     return np.arange(int(SR * dur)) / SR
 
@@ -126,7 +125,6 @@ def tail(x, secs=0.25):
 
 def write_wav(name, x, peak=0.85):
     x = norm(x, peak)
-    # tiny fades so nothing clicks
     f = min(64, len(x) // 4)
     x[:f] *= np.linspace(0, 1, f)
     x[-f:] *= np.linspace(1, 0, f)
@@ -138,7 +136,6 @@ def write_wav(name, x, peak=0.85):
         w.writeframes(data.tobytes())
 
 
-# ------------------------------------------------------------------ sound effects
 def metal_ping(f, dur, bright=1.0):
     """Inharmonic struck-metal partials (the robot's world is made of scrap)."""
     parts = [(1.0, 1.0), (2.76, 0.5), (5.40, 0.25 * bright), (8.93, 0.12 * bright)]
@@ -149,7 +146,6 @@ def metal_ping(f, dur, bright=1.0):
 def sfx():
     S = {}
     n = lambda d: int(SR * d)
-    # movement
     d = 0.16
     S["jump"] = lp(noise(d), 1800) * env(n(d), 0.004, 0.12) * 0.5 + sine(np.linspace(180, 340, n(d)), d) * env(n(d), 0.002, 0.08) * 0.4
     d = 0.18
@@ -158,9 +154,8 @@ def sfx():
     S["dash"] = sweep_lp(noise(d), 600, 5000) * env(n(d), 0.01, 0.2) + sine(np.linspace(300, 900, n(d)), d) * env(n(d), 0.01, 0.18) * 0.2
     d = 0.08
     S["step"] = lp(noise(d), 900) * expdecay(n(d), 0.015) * 0.6
-    d = 0.32  # metal-on-junk scrape when you drop into a slide
+    d = 0.32
     S["slide"] = sweep_lp(noise(d), 3200, 900) * env(n(d), 0.01, 0.22) * 0.55 + sine(np.linspace(95, 70, n(d)), d) * env(n(d), 0.01, 0.2) * 0.25
-    # blade
     d = 0.17
     S["swing"] = bp(noise(d), 2400, 2) * env(n(d), 0.01, 0.15) + sine(np.linspace(900, 500, n(d)), d) * env(n(d), 0.005, 0.1) * 0.15
     d = 0.24
@@ -184,7 +179,6 @@ def sfx():
     S["hook"] = mix(metal_ping(700, d) * 0.6, lp(noise(0.08), 2500) * 0.6, *(metal_ping(900 + 120 * k, 0.1) * 0.15 for k in range(3)))
     d = 0.2
     S["glance"] = mix(metal_ping(1900, d, 1.5) * 0.6, hp(noise(0.03), 4000) * 0.4)
-    # damage
     d = 0.4
     S["hurt"] = mix(lp(noise(d), 1500) * expdecay(n(d), 0.08), square(np.linspace(220, 80, n(d)), d, 0.3) * expdecay(n(d), 0.1) * 0.3)
     d = 1.2
@@ -206,7 +200,6 @@ def sfx():
     S["horn"] = lp(S["horn"], 1400)
     d = 0.5
     S["break"] = mix(lp(noise(d), 3000) * expdecay(n(d), 0.12), *(metal_ping(300 + 170 * k, 0.4) * 0.2 for k in range(4)))
-    # pickups and UI
     d = 0.18
     S["scrap"] = metal_ping(1400 + 200 * rng.random(), d, 0.5) * 0.6
     d = 0.45
@@ -243,7 +236,6 @@ def sfx():
     S["sludge"] = lp(noise(d), 700) * env(n(d), 0.01, 0.35) * 0.8 + sine(np.linspace(90, 50, n(d)), d) * expdecay(n(d), 0.1) * 0.5
     d = 0.5
     S["crusher"] = mix(lp(noise(d), 600) * expdecay(n(d), 0.1), metal_ping(140, d) * 0.6, sine(np.linspace(80, 35, n(d)), d) * expdecay(n(d), 0.15))
-    # Underworks: steam, valves, gears and the things that live in the pipes
     d = 0.9
     S["steam"] = hp(noise(d), 2200) * env(n(d), 0.02, 0.3, 0.5, 0.4, 0.2) * 0.55 + lp(noise(d), 500) * env(n(d), 0.05, 0.6) * 0.25
     d = 0.45
@@ -256,14 +248,13 @@ def sfx():
     d = 0.7
     S["burst"] = mix(lp(noise(d), 2500) * expdecay(n(d), 0.12), hp(noise(d), 2000) * env(n(d), 0.005, 0.6) * 0.5,
                      sine(np.linspace(140, 40, n(d)), d) * expdecay(n(d), 0.15) * 0.8)
-    d = 0.5  # the wire taking your weight
+    d = 0.5
     S["creak"] = mix(bp(noise(d), 700, 6) * env(n(d), 0.05, 0.4) * 0.6, metal_ping(880, d, 0.3) * 0.15)
     for name, x in S.items():
         write_wav(name, reverb(x, 0.18, 0.03, 0.4) if name not in ("ui_move", "ui_select", "ui_back", "blip") else x)
     return list(S)
 
 
-# ------------------------------------------------------------------ music
 NOTE = {"C": 0, "C#": 1, "D": 2, "D#": 3, "E": 4, "F": 5, "F#": 6, "G": 7, "G#": 8, "A": 9, "A#": 10, "B": 11}
 
 
@@ -294,7 +285,6 @@ def render_track(name, length, layers):
         i = int(start * SR)
         seg = sig[: max(0, len(x) - i)]
         x[i:i + len(seg)] += seg
-    # make the loop seamless: fold the tail back onto the head
     fade = int(2.0 * SR)
     head = x[:fade].copy()
     x[:fade] = head * np.linspace(0, 1, fade) + x[-fade:] * np.linspace(1, 0, fade)
@@ -314,7 +304,6 @@ def render_track(name, length, layers):
 
 
 def music():
-    # Under the Heap: a low drone, slow dripping and faint metal groans
     L = 48.0
     layers = [(0, pad_voice(hz("D", 2), L, 320) * env(int(SR * L), 3, 0, 1, 3, L - 6))]
     layers.append((0, pad_voice(hz("A", 2), L, 260) * 0.6 * (0.6 + 0.4 * np.sin(2 * np.pi * t_(L) / 16))))
@@ -325,7 +314,6 @@ def music():
         layers.append((s, lp(noise(4.0), 200) * env(int(SR * 4), 1.5, 2.5) * 0.25))
     render_track("cave", L, layers)
 
-    # Scavenger Camp: warm plucked arpeggios over a soft pad (D major-ish, hopeful)
     beat = 0.5
     prog = [("D", "F#", "A"), ("B", "D", "F#"), ("G", "B", "D"), ("A", "C#", "E")]
     L = beat * 8 * len(prog) * 2
@@ -341,7 +329,6 @@ def music():
             layers.append((t0, pluck(hz(chord[0], 2), 2.0, 0.9, 1200) * 0.6))
     render_track("camp", L, layers)
 
-    # The Hollow / Underworks hint: bells and a breathing steam texture
     L = 40.0
     layers = [(0, pad_voice(hz("F", 2), L, 500) * 0.6 * env(int(SR * L), 3, 0, 1, 3, L - 6))]
     bells = [hz("F", 5), hz("A#", 4), hz("C", 5), hz("G#", 4), hz("D#", 5)]
@@ -351,7 +338,6 @@ def music():
         layers.append((k * 4.0 + 1.0, hp(noise(2.0), 2500) * env(int(SR * 2), 0.8, 1.2) * 0.07))
     render_track("hollow", L, layers)
 
-    # Industrial (Scrap Fields / Conveyor Hall): a machine pulse in 6/8
     bpm = 104
     b = 60 / bpm
     L = b * 48
@@ -368,7 +354,6 @@ def music():
         layers.append((k * b * 3, lp(square(riff[k % 4], b * 2.5, 0.3), 900) * env(int(SR * b * 2.5), 0.01, 0.4, 0.3, 0.2, b) * 0.2))
     render_track("industrial", L, layers)
 
-    # Boss: Intake Unit 7 - driving drums, distorted bass, horn stabs
     bpm = 148
     b = 60 / bpm
     L = b * 64
@@ -387,7 +372,6 @@ def music():
         layers.append((k * b, lp(saw(hz("C", 3), b * 3) + saw(hz("G", 3), b * 3) * 0.7, 1500) * env(int(SR * b * 3), 0.02, 0.5, 0.4, 0.3, b) * 0.35))
     render_track("boss", L, layers)
 
-    # Title: the theme, slow and lonely (a single wire-like lead over a pad)
     L = 36.0
     melody = [("D", 4, 2), ("F", 4, 1), ("E", 4, 1), ("A", 3, 3), ("C", 4, 1), ("D", 4, 2), ("A", 4, 2), ("G", 4, 3), ("F", 4, 1), ("E", 4, 4)]
     layers = [(0, (pad_voice(hz("D", 2), L, 500) + pad_voice(hz("A", 2), L, 500) * 0.7) * 0.6 * env(int(SR * L), 2, 0, 1, 3, L - 5))]
@@ -400,8 +384,6 @@ def music():
         tt += dur
     render_track("title", L, layers)
 
-    # Underworks: a slow 3/4 waltz on a wheezing harmonium, a ticking clock and
-    # far-off hammer strikes; minor, warm, a little lonely (D minor)
     bpm = 84
     b = 60 / bpm
     prog = [("D", "F", "A"), ("A#", "D", "F"), ("G", "A#", "D"), ("A", "C#", "E")]
@@ -429,7 +411,6 @@ def music():
         tt += dur
     render_track("underworks", L, layers)
 
-    # The Pendulum: a runaway engine in 6/8, the beat speeding the bar
     bpm = 156
     b = 60 / bpm
     L = b * 96
@@ -440,14 +421,14 @@ def music():
         if k % 3 == 0:
             layers.append((tk, sine(np.linspace(130, 40, int(SR * 0.28)), 0.28) * expdecay(int(SR * 0.28), 0.08)))
         else:
-            layers.append((tk, hp(noise(0.08), 3500) * expdecay(int(SR * 0.08), 0.02) * 0.35))  # the chuff
+            layers.append((tk, hp(noise(0.08), 3500) * expdecay(int(SR * 0.08), 0.02) * 0.35))
         if k % 6 == 3:
             layers.append((tk, metal_ping(392, 0.4, 1.0) * 0.25))
         f = bass[(k // 3) % len(bass)]
         layers.append((tk, np.tanh(2.5 * lp(saw(f, b * 0.9), 700)) * env(int(SR * b * 0.9), 0.005, 0.3, 0.4, 0.05, b * 0.4) * 0.3))
     for k in range(0, 96, 24):
         layers.append((k * b, lp(saw(hz("D", 3), b * 5) + saw(hz("A", 3), b * 5) * 0.7, 1300) * env(int(SR * b * 5), 0.02, 0.5, 0.4, 0.4, b * 2) * 0.3))
-        layers.append((k * b + b * 12, hp(noise(1.2), 1800) * env(int(SR * 1.2), 0.05, 1.0) * 0.25))  # the whistle of release
+        layers.append((k * b + b * 12, hp(noise(1.2), 1800) * env(int(SR * 1.2), 0.05, 1.0) * 0.25))
     render_track("governor", L, layers)
 
 

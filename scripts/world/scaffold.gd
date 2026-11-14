@@ -1,12 +1,6 @@
 @tool
 class_name Scaffold
 extends Node2D
-## Rusted steel structure drawn BEHIND a room's solids (no collision), so
-## platforms read as floors of a building instead of floating slabs.
-##   columns: each Rect2 is one tower bay (x, top, width, bottom). Draws two
-##            legs, horizontal ties at `ties` heights and X-bracing between.
-##   stilts:  platforms to hold up with a pair of legs down to `ground_y`.
-## Light comes from the low sun on the right: right edges are lit warm.
 
 @export var columns: Array[Rect2] = []:
 	set(v):
@@ -21,10 +15,9 @@ extends Node2D
 		stilts = v
 		queue_redraw()
 @export var ground_y := 336.0
-## platforms hung from above by two chains (drawn up to `hang_top`)
 @export var hangers: Array[Rect2] = []
 @export var hang_top := -200.0
-@export var mast := Vector2.ZERO        ## top of a beacon mast (ZERO = none)
+@export var mast := Vector2.ZERO
 @export var mast_base_y := 16.0
 
 const DARK := Color8(58, 30, 26)
@@ -39,7 +32,7 @@ var _t := 0.0
 
 func _ready() -> void:
 	show_behind_parent = true
-	self_modulate = Color(0.8, 0.76, 0.82) # a shade behind the floors, so floors read as standable
+	self_modulate = Color(0.8, 0.76, 0.82)
 	if not Engine.is_editor_hint() and mast != Vector2.ZERO:
 		var beacon := Fx.make_light(Color(1.0, 0.3, 0.2), 40.0, 0.8)
 		beacon.position = mast
@@ -60,14 +53,13 @@ func _leg(x: float, top: float, bottom: float, w := 4.0) -> void:
 	draw_rect(Rect2(x - w * 0.5, top, w, bottom - top), MID)
 	draw_rect(Rect2(x - w * 0.5, top, 1, bottom - top), DARK)
 	draw_rect(Rect2(x + w * 0.5 - 1.0, top, 1, bottom - top), LIT)
-	# rust streaks running down from the joints
 	var y := top + 6.0
 	while y < bottom - 8.0:
 		var h := _h(x, y)
 		if h % 3 == 0:
 			draw_rect(Rect2(x - 1.0, y, 1, 4 + h % 6), STREAK)
 		y += 11.0
-	draw_rect(Rect2(x - w * 0.5 - 1.0, bottom - 2.0, w + 2.0, 2.0), DARK) # foot plate
+	draw_rect(Rect2(x - w * 0.5 - 1.0, bottom - 2.0, w + 2.0, 2.0), DARK)
 
 
 func _tie(x0: float, x1: float, y: float) -> void:
@@ -93,7 +85,6 @@ func _draw() -> void:
 				levels.append(y)
 		levels.append(c.end.y - 2.0)
 		levels.sort()
-		# X-bracing in every bay, then ties, then legs on top
 		for i in levels.size() - 1:
 			var ya := levels[i] + 2.0
 			var yb := levels[i + 1] - 2.0
@@ -127,7 +118,6 @@ func _draw() -> void:
 				draw_rect(Rect2(x - 1.0, y - 4.0, 1, 3), LIT)
 				y -= 4.0
 	if mast != Vector2.ZERO:
-		# antenna mast with a rag flag and a blinking beacon
 		_leg(mast.x, mast.y, mast_base_y, 2.0)
 		var wave := sin(_t * 4.0)
 		var flag := PackedVector2Array([mast + Vector2(1, 3), mast + Vector2(13, 5 + wave), mast + Vector2(11, 9 + wave * 0.5), mast + Vector2(1, 10)])

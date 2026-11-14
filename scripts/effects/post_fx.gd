@@ -1,18 +1,12 @@
 class_name PostFX
 extends CanvasLayer
-## The finishing pass over the game world (bloom, grade, vignette, fringe).
-## Sits between the world (layer 0) and the HUD (layer 20).
-## Regions set their own grade; damage pulses the edges red (unless
-## flashing effects are turned off in Settings).
 
 const SHADER := preload("res://shaders/post_fx.gdshader")
 
-## Per-region colour grades: shadow tint, highlight tint, saturation.
 const GRADES := {
 	&"heap": [Vector3(0.95, 1.0, 1.04), Vector3(1.04, 1.0, 0.95), 1.02],
 	&"cave": [Vector3(0.9, 0.95, 1.12), Vector3(1.1, 1.0, 0.88), 0.96],
 	&"intake": [Vector3(1.0, 0.97, 0.98), Vector3(1.05, 1.0, 0.93), 1.0],
-	# green-black shadows, amber gaslight highlights
 	&"underworks": [Vector3(0.9, 1.04, 1.0), Vector3(1.1, 1.0, 0.86), 0.98],
 }
 

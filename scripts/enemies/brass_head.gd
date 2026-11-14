@@ -1,12 +1,5 @@
 class_name BrassHead
 extends Node2D
-## Optional mini-boss: the brass giant's head, waking up in Giant's Brow.
-## Its weak point is the eye, which is only open (and hittable) during and
-## right after a beam. Attacks cycle: BEAM (a ray from the eye sweeps along
-## the floor: jump it), DEBRIS (shadows mark where junk will fall), STEAM
-## (vents along the floor puff, then blast). Phase 2 at half health: the beam
-## sweeps back, more debris. Throws are the safe way to hit the eye.
-## The node's position is the bottom-centre of the head sprite.
 
 const TEX := preload("res://art/enemies/brass_head.png")
 const MAX_HP := 24
@@ -27,8 +20,8 @@ var _flash := 0.0
 var _beam_x := 0.0
 var _beam_dir := -1
 var _beam_passes := 0
-var _shadows: Array = []        ## [x, t] falling-debris telegraphs
-var _rocks: Array = []          ## [Vector2 pos, vy]
+var _shadows: Array = []
+var _rocks: Array = []
 var _vent_t := -1.0
 var _seal: StaticBody2D
 var _light: PointLight2D
@@ -132,7 +125,7 @@ func _wake() -> void:
 
 func _start_beam() -> void:
 	_go(S.BEAM_TELL)
-	_hurt.invulnerable = false # the eye is open from the tell until it closes again
+	_hurt.invulnerable = false
 	AudioManager.sfx(&"telegraph", -2.0)
 
 
@@ -145,7 +138,7 @@ func _start_debris() -> void:
 	for i in n:
 		var x := randf_range(arena_left + 20.0, global_position.x - 90.0)
 		if i == 0 and p:
-			x = clampf(p.global_position.x, arena_left + 20.0, global_position.x - 90.0) # one aimed at you
+			x = clampf(p.global_position.x, arena_left + 20.0, global_position.x - 90.0)
 		_shadows.append([x, 0.0])
 
 
@@ -155,7 +148,6 @@ func _start_steam() -> void:
 	AudioManager.sfx(&"telegraph", -8.0)
 
 
-## A ray from the eye to a point on the floor; hit if the robot's body is near it.
 func _beam_hits(p: Player) -> bool:
 	var a := to_global(EYE)
 	var b := Vector2(_beam_x, floor_y)
@@ -248,7 +240,6 @@ func _draw() -> void:
 	var tint := Color(2.2, 2.2, 2.2) if _flash > 0.0 else Color.WHITE
 	draw_texture_rect_region(TEX, Rect2(-fw / 2, -h, fw, h), Rect2(_frame() * fw, 0, fw, h), tint)
 	var eye := EYE
-	# beam telegraph: a thin flickering line toward the floor ahead
 	if state == S.BEAM_TELL and fmod(_st, 0.1) < 0.06:
 		draw_line(eye, to_local(Vector2(global_position.x - 60.0, floor_y)), Color(0.5, 1.0, 1.0, 0.5), 1.0)
 	if state == S.BEAM:
@@ -257,7 +248,7 @@ func _draw() -> void:
 		draw_line(eye, b, Color(0.7, 1.0, 1.0, 0.8), 4.0)
 		draw_line(eye, b, Color.WHITE, 1.5)
 		draw_circle(b, 5.0, Color(1.0, 1.0, 1.0, 0.8))
-	for sh in _shadows:  # where debris will land
+	for sh in _shadows:
 		var k: float = sh[1] / 0.75
 		draw_rect(Rect2(to_local(Vector2(sh[0] - 10 * k - 4, floor_y - 2)), Vector2(20 * k + 8, 2)), Color(0, 0, 0, 0.5))
 	for r in _rocks:
@@ -268,13 +259,13 @@ func _draw() -> void:
 	if _vent_t >= 0.0:
 		for vx in vents:
 			var base := to_local(Vector2(vx, floor_y))
-			if _vent_t < 0.6:   # puffs: the tell
+			if _vent_t < 0.6:
 				var a := 0.4 + 0.4 * sin(_vent_t * 30.0)
 				draw_circle(base + Vector2(0, -4), 5.0, Color(1, 1, 1, a))
-			elif _vent_t < 1.5: # the blast
+			elif _vent_t < 1.5:
 				for k in 6:
 					var y := -k * 24.0 - fmod(_vent_t * 200.0, 24.0)
 					draw_circle(base + Vector2(sin(k + _vent_t * 9.0) * 3.0, y), 9.0 - k * 0.6, Color(0.95, 0.95, 0.92, 0.55))
-		for vx in vents:   # the grates
+		for vx in vents:
 			var g := to_local(Vector2(vx, floor_y))
 			draw_rect(Rect2(g + Vector2(-8, -2), Vector2(16, 2)), Color8(98, 82, 80))

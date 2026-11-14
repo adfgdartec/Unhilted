@@ -1,12 +1,9 @@
 class_name RebindScreen
 extends PanelContainer
-## Settings > Rebind keys: one row per action. Pick a row, then press the key
-## or mouse button you want for it. Backspace puts that action back to the
-## preset; Esc cancels a pick. Changes save straight away.
 
 signal closed
 
-var _waiting := ""            ## action being rebound, "" when none
+var _waiting := ""
 var _box: VBoxContainer
 var _hint: Label
 

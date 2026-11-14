@@ -1,5 +1,4 @@
 extends Node2D
-## Hit spark: lines that burst outward and fade in 0.16 s.
 
 const LIFETIME := 0.16
 var color := Color.WHITE

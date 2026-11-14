@@ -1,5 +1,4 @@
 extends Node2D
-## Landing dust puff: 4 frames over 0.24 s.
 
 const TEX := preload("res://art/fx/dust.png")
 var _age := 0.0

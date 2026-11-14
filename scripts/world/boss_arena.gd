@@ -1,23 +1,16 @@
 class_name BossArena
 extends Node2D
-## Runs one boss room: shuts the door when the player walks in, starts the
-## boss, shows the health bar, and on victory opens the door, saves, and drops
-## the reward (a shard, or a core cell for a mini-boss). If the boss is already
-## beaten, it shows the wreck instead (and the reward, if the player died
-## before picking it up).
-## The boss is any child node (boss_path) with: signal defeated, start(player),
-## set_wrecked(), and MAX_HP (IntakeCrane, Lamplighter, GreatGovernor).
 
 @export var boss_flag := "boss_intake_defeated"
 @export var boss_name := "INTAKE UNIT 7"
-@export var trigger_x := 120.0           ## player x (room coords) that starts the fight
+@export var trigger_x := 120.0
 @export var door_rect := Rect2(0, 272, 16, 48)
 @export var boss_path: NodePath = ^"IntakeCrane"
 @export_enum("shard", "core_cell", "none") var reward := "shard"
 @export var shard_number := 1
-@export var shard_position := Vector2(320, 304)   ## where the reward appears
-@export var reward_id := ""                     ## unique id for a core-cell reward
-@export var victory_text := ""                  ## toast on victory (default: "<NAME> shuts down.")
+@export var shard_position := Vector2(320, 304)
+@export var reward_id := ""
+@export var victory_text := ""
 @export var intro_lines: Array[String] = []
 
 const COLLECTIBLE_SCENE := preload("res://scenes/world/collectible.tscn")
@@ -67,7 +60,7 @@ func _on_defeated() -> void:
 
 
 func _exit_tree() -> void:
-	if _active: # player died or left mid-fight: hide the health bar
+	if _active:
 		EventBus.boss_ended.emit()
 
 

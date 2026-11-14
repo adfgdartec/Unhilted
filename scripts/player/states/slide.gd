@@ -1,8 +1,4 @@
 extends PlayerState
-## Ultrakill-style slide: drop low and keep your speed for as long as you hold
-## it (it never bleeds off on flat ground). You fit under gaps half your
-## height. Jumping out is a slide-jump: a long, low, fast jump that keeps all
-## that speed in the air. Sliding off a ledge keeps it too.
 
 const MIN_SPEED := 280.0
 const SLIDE_JUMP_SPEED := 360.0
@@ -32,7 +28,7 @@ func physics_update(delta: float) -> void:
 		machine.transition("jump")
 		return
 	if not player.is_on_floor():
-		machine.transition("fall") # slid off a ledge: keep the speed
+		machine.transition("fall")
 		return
 	if player.try_actions():
 		return

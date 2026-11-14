@@ -1,24 +1,16 @@
 @tool
 class_name SteamVent
 extends Node2D
-## A grate in the floor that blows steam. Two kinds:
-##   lift  - the column throws you upward (a launch pad that also gives the air
-##           dash and wall kicks back). Steam fills the column while it's on.
-##   scald - the column burns: it hurts and sends you to safe ground.
-## It runs on a rhythm (period / on_time), or, with a valve, only while that
-## valve is open (or shut, with inverted). Before turning on it hisses and
-## spits a few puffs: the tell.
-## The node's position is the centre of the grate, on the floor surface.
 
 @export var width := 24.0
-@export var reach := 96.0           ## how tall the steam column is
+@export var reach := 96.0
 @export_enum("lift", "scald") var kind := "lift"
 @export var launch_speed := 520.0
-@export var period := 0.0           ## 0 = always on (unless a valve controls it)
+@export var period := 0.0
 @export var on_time := 1.2
 @export var offset := 0.0
-@export var valve_path: NodePath    ## optional Valve that switches it
-@export var inverted := false       ## on while the valve is SHUT
+@export var valve_path: NodePath
+@export var inverted := false
 
 const TELL := 0.45
 
@@ -27,7 +19,7 @@ var _on := true
 var _area: Area2D
 var _valve: Node = null
 var _inside: Player = null
-var _puffs: Array = []   ## [pos, age, life, size]
+var _puffs: Array = []
 
 
 func _ready() -> void:
@@ -66,7 +58,6 @@ func _should_be_on() -> bool:
 	return fposmod(_t, period) < on_time
 
 
-## True in the moment before it turns on (the hiss).
 func _telling() -> bool:
 	if _valve or period <= 0.0 or _on:
 		return false
@@ -94,7 +85,6 @@ func _physics_process(delta: float) -> void:
 					_inside.state_machine.transition("jump", {"launched": true})
 		elif not _inside.hurtbox.invulnerable:
 			_inside.hazard_hit(1)
-	# puffs: a steady stream while on, a few spits during the tell
 	var rate := 0.0
 	if _on:
 		rate = 0.03
@@ -110,7 +100,6 @@ func _physics_process(delta: float) -> void:
 
 
 func _draw() -> void:
-	# the grate, set into the floor
 	var hw := width * 0.5
 	draw_rect(Rect2(-hw - 2, -3, width + 4, 4), Color8(68, 54, 54))
 	draw_rect(Rect2(-hw - 2, -3, width + 4, 1), Color8(201, 150, 60))
@@ -129,5 +118,4 @@ func _draw() -> void:
 		var sz: float = p[3] * (1.0 + k * 1.4)
 		draw_circle(pos, sz, Color(col, 0.35 * (1.0 - k)))
 	if _on:
-		# a faint column so the reach is readable at a glance
 		draw_rect(Rect2(-hw + 2, -reach, width - 4, reach), Color(col, 0.07))

@@ -1,8 +1,5 @@
 class_name EnemyBase
 extends CharacterBody2D
-## Shared setup for enemies built in code: body collision, health, a hurtbox
-## the player's attacks find, contact damage, hit flash, knockback, scrap drops.
-## Subclasses call setup(...) in _ready and implement _tick(delta).
 
 const COLLECTIBLE_SCENE := preload("res://scenes/world/collectible.tscn")
 const GRAVITY := 900.0

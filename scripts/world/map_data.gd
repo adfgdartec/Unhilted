@@ -1,9 +1,5 @@
 class_name MapData
 extends RefCounted
-## Where every room sits in its region, for the in-game map.
-## origin = world position of the room's (0, 0); rect = the room's bounds
-## (kept in sync with the scene; a test checks every entry against its scene).
-## icons: "dock", "shop", "boss", "miniboss", "secret", "town", "exit"
 
 const REGIONS := {
 	&"heap": {
@@ -38,7 +34,7 @@ const REGIONS := {
 			&"uw_13_cistern": {"name": "The Cistern", "origin": Vector2(4640, 540), "rect": Rect2(0, 0, 800, 400), "icons": []},
 			&"uw_08_gauge": {"name": "Pressure Gauge Hall", "origin": Vector2(6080, 228), "rect": Rect2(0, 0, 1280, 400), "icons": []},
 			&"uw_15_trials": {"name": "Steam Trials", "origin": Vector2(6700, -132), "rect": Rect2(0, 0, 640, 360), "icons": ["secret"]},
-			&"uw_09_approach": {"name": "Governor's Approach", "origin": Vector2(7360, 228), "rect": Rect2(0, 0, 960, 400), "icons": ["dock"]},
+			&"uw_09_approach": {"name": "Pendulum's Approach", "origin": Vector2(7360, 228), "rect": Rect2(0, 0, 960, 400), "icons": ["dock"]},
 			&"uw_10_governor": {"name": "The Pendulum", "origin": Vector2(8320, 260), "rect": Rect2(0, 0, 640, 360), "icons": ["boss"]},
 			&"uw_11_galleries": {"name": "Swing Galleries", "origin": Vector2(8960, 228), "rect": Rect2(0, 0, 1280, 400), "icons": []},
 			&"uw_14_loft": {"name": "Clockmaker's Loft", "origin": Vector2(10020, -132), "rect": Rect2(0, 0, 480, 360), "icons": ["secret"]},
@@ -54,7 +50,6 @@ static func region_of(room_id: StringName) -> StringName:
 	return &""
 
 
-## World-space rectangle a room covers on the region map.
 static func world_rect(region: StringName, room_id: StringName) -> Rect2:
 	var e: Dictionary = REGIONS[region]["rooms"][room_id]
 	var r: Rect2 = e["rect"]

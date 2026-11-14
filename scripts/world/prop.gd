@@ -1,12 +1,6 @@
 @tool
 class_name Prop
 extends Node2D
-## A piece of set dressing: a pixel-art sprite (optionally animated) with an
-## optional additive glow for anything that gives off light.
-## The node's position is the sprite's BOTTOM-CENTRE, so props sit on the
-## ground by placing them at the floor's y.
-## lit_when_quest: frame 0 until that quest is turned in, then frame 1
-## (used for Tinker's generator and the camp lights).
 
 const GLOW := preload("res://art/fx/glow.png")
 
@@ -19,7 +13,6 @@ const GLOW := preload("res://art/fx/glow.png")
 		frames = maxi(v, 1)
 		queue_redraw()
 @export var fps := 0.0
-## Hanging props (cave roof junk) are anchored at their TOP-centre instead.
 @export var hanging := false:
 	set(v):
 		hanging = v
@@ -28,8 +21,6 @@ const GLOW := preload("res://art/fx/glow.png")
 	set(v):
 		flip = v
 		queue_redraw()
-## Background props are dimmed slightly so they never read as something you
-## can stand on or interact with.
 @export var background := false:
 	set(v):
 		background = v
@@ -39,10 +30,8 @@ const GLOW := preload("res://art/fx/glow.png")
 @export var glow_radius := 0.0
 @export var glow_offset := Vector2.ZERO
 @export var glow_flicker := 0.0
-## Real light cast on the surroundings (0 = none). Uses glow_color.
 @export var light_radius := 0.0
 @export var light_energy := 0.9
-## Light only while frame 0 is showing (blinking warning lamps).
 @export var light_on_frame_zero := false
 @export_group("Particles")
 @export_enum("none", "embers", "smoke", "sparks", "trickle") var emit := "none"
@@ -62,7 +51,6 @@ func _ready() -> void:
 		return
 	_t = randf() * 10.0
 	if Fx.art_variant != "" and texture:
-		# a palette-matched copy for the art variant being trialled, if one exists
 		var alt := texture.resource_path.get_base_dir() + "/" + Fx.art_variant + "/" + texture.resource_path.get_file()
 		if ResourceLoader.exists(alt):
 			texture = load(alt)
@@ -72,7 +60,7 @@ func _ready() -> void:
 		var mat := CanvasItemMaterial.new()
 		mat.blend_mode = CanvasItemMaterial.BLEND_MODE_ADD
 		_glow.material = mat
-		_glow.modulate = Color(glow_color, glow_color.a * 0.6) # bloom does the rest
+		_glow.modulate = Color(glow_color, glow_color.a * 0.6)
 		_glow.scale = Vector2.ONE * (glow_radius / 32.0)
 		_glow.position = glow_offset
 		add_child(_glow)

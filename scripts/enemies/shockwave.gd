@@ -1,7 +1,5 @@
 class_name Shockwave
 extends Hitbox
-## A ripple of force that runs along the floor from a stomp. Jump over it.
-## Spawned by PistonWalker (and The Pendulum's slam); frees itself.
 
 var dir := 1.0
 var speed := 220.0
@@ -15,7 +13,7 @@ static func spawn(parent: Node, at: Vector2, direction: float, travel_speed := 2
 	w.speed = travel_speed
 	w.life = lifetime
 	w.collision_layer = 0
-	w.collision_mask = 8 # player hurtbox
+	w.collision_mask = 8
 	w.monitorable = false
 	w.continuous = true
 	var cs := CollisionShape2D.new()
@@ -41,7 +39,6 @@ func _physics_process(delta: float) -> void:
 func _draw() -> void:
 	var k := _age / life
 	var a := 1.0 - k
-	# a curling crest of dust and steam
 	draw_arc(Vector2(-dir * 2, 0), 8.0, PI, TAU, 10, Color(0.93, 0.9, 0.82, 0.7 * a), 2.0)
 	draw_circle(Vector2(-dir * 6, -3), 3.0, Color(0.93, 0.9, 0.82, 0.4 * a))
 	draw_circle(Vector2(-dir * 11, -2), 2.0, Color(0.93, 0.9, 0.82, 0.25 * a))

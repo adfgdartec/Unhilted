@@ -1,17 +1,11 @@
 class_name ArenaWaves
 extends Node2D
-## A sealed combat room. Walk into the trigger and the exits slam shut;
-## clear every wave to reopen them and earn the reward. Cleared for good.
-## waves: one String per wave, "type@x,type@x" with type = compactor,
-## rustcrawler, drone (the Heap), piston_walker, clock_spider, bellows_bat,
-## boiler_bloat (the Underworks); spawned on the floor at that x, or at y
-## when given as "type@x:y".
 
 @export var trigger := Rect2(0, 0, 100, 100)
 @export var seals: Array[Rect2] = []
 @export var waves: Array[String] = []
 @export var floor_y := 336.0
-@export var reward_kind := 3        ## Collectible.Kind (3 = chip)
+@export var reward_kind := 3
 @export var reward_id: StringName = &""
 @export var reward_pos := Vector2.ZERO
 @export var arena_id := ""
@@ -137,7 +131,7 @@ func _spawn_reward() -> void:
 func _draw() -> void:
 	if not _active:
 		return
-	for r in seals:  # shutters
+	for r in seals:
 		draw_rect(r, Color8(74, 34, 28))
 		var y := r.position.y
 		while y < r.end.y:

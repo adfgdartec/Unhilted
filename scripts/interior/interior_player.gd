@@ -1,8 +1,5 @@
 class_name InteriorPlayer
 extends CharacterBody2D
-## The robot indoors, seen from above (Undertale style): walks in 8 directions,
-## shows its front, back or side, no jumping or fighting. [E] uses the nearest
-## thing in reach (people first): talk, look, shop. Feet are at the origin.
 
 const SPEED := 92.0
 
@@ -35,7 +32,6 @@ func _physics_process(delta: float) -> void:
 	var moving := dir.length() > 0.1
 	visuals.walking = moving
 	if moving:
-		# the strongest axis picks the view; ties go to the side view, like Undertale
 		if absf(dir.x) >= absf(dir.y) - 0.01:
 			visuals.facing = OverworldVisuals.Facing.SIDE
 			visuals.flip = dir.x < 0.0
@@ -54,7 +50,6 @@ func _physics_process(delta: float) -> void:
 
 
 func _update_target(locked: bool) -> void:
-	# people first (a shopkeeper behind her counter beats the counter), then the nearest thing
 	var best: Node = null
 	var best_score := INF
 	if not locked:

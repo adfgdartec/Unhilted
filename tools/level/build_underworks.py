@@ -9,7 +9,7 @@ gaslamps, swing anchors (Shard II), and the Underworks enemies.
 
 Critical path: 01 Descent -> 02 Pipe Market -> 03 Bellows Row -> 04 Boiler
 Works -> 05 Gearworks -> 07 Condensate Falls -> 08 Pressure Gauge Hall ->
-09 Governor's Approach -> 10 The Pendulum (Shard II) -> 11 Swing
+09 Governor's Approach -> 10 The Great Governor (Shard II) -> 11 Swing
 Galleries -> back up to the Pipe Market's high walkway.
 Side rooms: 06 Lamplighter's Gallery (mini-boss), 12 Old Tram Tunnel (the
 sealed Forge Gate), 13 Cistern, 14 Clockmaker's Loft (secret, Swing),
@@ -20,7 +20,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from build_heap_rooms import RoomBuilder, ROOT, V, R, C, SN, S, SA, RA  # noqa: E402
+from build_heap_rooms import RoomBuilder, ROOT, V, R, C, SN, S, SA, RA
 
 OUT = os.path.join(ROOT, "scenes", "rooms", "underworks")
 KIN = "res://data/lineages/bellows_kin.tres"
@@ -41,7 +41,6 @@ class UWBuilder(RoomBuilder):
         super().__init__(room_id, name, bounds, **opts)
         self.coins = 0
 
-    # --- shell: walls, ceiling and floor with openings for exits
     def cog(self, name, x, y):
         self.coins += 1
         self.node(name, scene="res://scenes/world/collectible.tscn", pos=(x, y), props={"kind": "1"})
@@ -50,7 +49,6 @@ class UWBuilder(RoomBuilder):
         self.node(name, scene="res://scenes/world/collectible.tscn", pos=(x, y),
                   props={"kind": "2", "item_id": SN("letter"), "display_name": S("a lost letter")})
 
-    # --- gimmicks
     def vent(self, name, x, y, reach=120, kind="lift", period=0.0, on_time=1.2, offset=0.0, width=24, valve=None, inverted=False):
         props = {"reach": "%g" % reach, "kind": S(kind), "width": "%g" % width}
         if period:
@@ -92,7 +90,6 @@ class UWBuilder(RoomBuilder):
     def boiling(self, name, x, y, w, h=16):
         self.hazard(name, x, y, w, h, "boiling")
 
-    # --- enemies
     def enemy(self, name, cls, x, y, **props):
         self.node(name, "CharacterBody2D", "res://scripts/enemies/%s.gd" % cls, pos=(x, y),
                   props={k: str(v) for k, v in props.items()})
@@ -103,7 +100,6 @@ class UWBuilder(RoomBuilder):
             props["valve_path"] = 'NodePath("../%s")' % valve
         self.node(name, "CharacterBody2D", "res://scripts/enemies/valve_turret.gd", pos=(x, y), props=props)
 
-    # --- town
     def npc(self, name, x, y, npc_id, display, lines, quest=None, age="adult", headwear="", goggles="", accessory="", seed=0):
         props = {"npc_id": SN(npc_id), "display_name": S(display), "idle_lines": SA(lines),
                  "lineage": self.res(KIN, "Resource"), "age": S(age)}
@@ -133,24 +129,23 @@ def lamp_glow():
     return dict(glow_color=C(1, 0.72, 0.36, 0.45), glow_radius="18")
 
 
-# ------------------------------------------------------------------ 01 The Descent
 def descent():
     r = UWBuilder("uw_01_descent", "The Descent", (0, 0, 640, 480))
     r.solid(16, 0, 624, 24, "brick")
     r.solid(0, 0, 16, 96, "brick")
-    r.solid(0, 160, 120, 16, "grate")            # where the Heap's stairs come out
+    r.solid(0, 160, 120, 16, "grate")
     r.solid(0, 176, 16, 304, "brick")
-    for i in range(6):                            # a long iron stair down into the vault
+    for i in range(6):
         r.solid(120 + 64 * i, 200 + 40 * i, 64, 12, "grate")
     r.solid(16, 440, 624, 40, "plate")
     r.solid(624, 0, 16, 376, "brick")
-    r.solid(476, 170, 64, 12, "grate")            # alcove over the vent
+    r.solid(476, 170, 64, 12, "grate")
     r.vent("LiftVent", 584, 440, reach=230)
     r.cog("CogAlcove", 508, 150)
     r.exit("ExitToGate", 4, 128, 8, 64, "heap_13_gate", "from_underworks")
     r.exit("ExitToMarket", 636, 408, 8, 64, "uw_02_market", "from_descent")
     r.spawn("from_heap", 50, 160)
-    r.spawn("from_market", 530, 440)            # clear of the vent column
+    r.spawn("from_market", 530, 440)
     r.prop("Pipes", "uw_pipes", 300, 150, background="true")
     r.prop("Flywheel", "uw_flywheel", 120, 420, background="true", frames="4", fps="3")
     r.prop("Boiler", "uw_boiler", 380, 440, background="true", frames="2", fps="2",
@@ -166,15 +161,14 @@ def descent():
     return r
 
 
-# ------------------------------------------------------------------ 02 Pipe Market (town)
 def market():
     r = UWBuilder("uw_02_market", "Pipe Market", (0, 0, 1600, 400), ambient=(0.72, 0.66, 0.58))
     r.solid(0, 0, 1600, 24, "brick")
     r.solid(0, 0, 16, 288, "brick")
     r.solid(0, 352, 1300, 48, "plate")
-    r.solid(1380, 352, 220, 48, "plate")         # the stairwell down to Line 4
+    r.solid(1380, 352, 220, 48, "plate")
     r.solid(1584, 0, 16, 168, "brick")
-    r.solid(1440, 232, 160, 12, "grate")         # the high walkway (Swing Galleries)
+    r.solid(1440, 232, 160, 12, "grate")
     r.solid(1584, 244, 16, 44, "brick")
     r.exit("ExitToDescent", 4, 320, 8, 64, "uw_01_descent", "from_market")
     r.exit("ExitToRow", 1596, 320, 8, 64, "uw_03_row", "from_market")
@@ -184,7 +178,6 @@ def market():
     r.spawn("from_row", 1550, 352)
     r.spawn("from_tunnel", 1270, 352)
     r.spawn("from_galleries", 1550, 232)
-    # the shopfronts, with walk-in doors
     r.prop("FrontGauge", "front_gauge", 300, 352)
     r.door("DoorGauge", 320, 352, "gauge_gear", "from_gauge", "Enter Gauge & Gear")
     r.prop("FrontKettle", "front_kettle", 700, 352)
@@ -206,19 +199,19 @@ def market():
         "Gauges are all in the red. Have been for a week."], quest="pressure_drop", headwear="stovepipe", goggles="raised", accessory="apron")
     r.npc("Pell", 790, 352, "pell", "Pell", [
         "Are you a tram? You're a bit small for a tram.",
-        "My gran says The Pendulum used to sing. Now it just screams.",
+        "My gran says the Governor used to sing. Now it just screams.",
         "If you go to the Galleries, swing on the big rings! I'm not allowed. I'm too swingy, gran says."],
         age="child", headwear="none", goggles="double", accessory="none")
     r.npc("Corra", 1220, 352, "corra", "Old Corra", [
         "Sit, sit. Mind the steam.",
-        "The smiths built The Pendulum to keep the city above warm. Then the city above forgot we were down here.",
+        "The smiths built the Governor to keep the city above warm. Then the city above forgot we were down here.",
         "That brass blade of yours. Seven hammers on the pommel? ...No. I'm imagining things. Old eyes."],
         age="elder", headwear="bowler", goggles="monocle", accessory="cane")
     r.npc("Fenwick", 470, 352, "fenwick", "Fenwick", [
         "Cogs! Spare cogs! Some are even round!",
         "Gilda sells the good stuff, I sell the stuff Gilda threw out. Very different."],
         headwear="bowler", goggles="monocle", accessory="brass_arm", seed=7)
-    r.anchor("SwingRing", 1370, 170)               # with Swing: up to the walkway
+    r.anchor("SwingRing", 1370, 170)
     r.cog("CogStall", 470, 280)
     r.cog("CogWalk", 1520, 212)
     r.readable("Notice", 1180, 352, "NOTICE", [
@@ -228,14 +221,13 @@ def market():
     return r
 
 
-# ------------------------------------------------------------------ 03 Bellows Row
 def row():
     r = UWBuilder("uw_03_row", "Bellows Row", (0, 0, 1280, 400))
     r.solid(0, 0, 1280, 24, "brick")
     r.solid(0, 0, 16, 288, "brick")
     r.solid(1264, 0, 16, 288, "brick")
     r.solid(0, 352, 1280, 48, "brick")
-    r.solid(340, 312, 40, 40, "plate")           # a crate step up to the roofs
+    r.solid(340, 312, 40, 40, "plate")
     r.solid(420, 270, 80, 10, "grate")
     r.solid(560, 230, 100, 10, "grate")
     r.solid(720, 270, 80, 10, "grate")
@@ -244,8 +236,7 @@ def row():
     r.exit("ExitToWorks", 1276, 320, 8, 64, "uw_04_works", "from_row")
     r.spawn("from_market", 50, 352)
     r.spawn("from_works", 1230, 352)
-    # scalding vents along the street: time the gaps, or take the roofs
-    for i, x in enumerate((530, 690, 920)):      # between the roofs, never under them
+    for i, x in enumerate((530, 690, 920)):
         r.vent("ScaldVent%d" % i, x, 352, reach=110, kind="scald", period=2.4, on_time=1.0, offset=i * 0.8)
     r.valve("ReliefValve", 630, 230, quest=True)
     for i, (x, tex) in enumerate(((180, "uw_house_a"), (300, "uw_house_b"), (980, "uw_house_a"), (1120, "uw_house_b"))):
@@ -261,7 +252,6 @@ def row():
     return r
 
 
-# ------------------------------------------------------------------ 04 Boiler Works
 def works():
     r = UWBuilder("uw_04_works", "Boiler Works", (0, 0, 960, 480), **WORKS)
     r.solid(0, 0, 960, 24, "brick")
@@ -269,8 +259,8 @@ def works():
     r.solid(0, 440, 960, 40, "plate")
     r.solid(944, 0, 16, 136, "brick")
     r.solid(944, 212, 16, 228, "brick")
-    r.solid(480, 280, 200, 12, "grate")          # the catwalk the first piston lifts you to
-    r.solid(760, 200, 184, 12, "grate")          # the high exit ledge
+    r.solid(480, 280, 200, 12, "grate")
+    r.solid(760, 200, 184, 12, "grate")
     r.exit("ExitToRow", 4, 408, 8, 64, "uw_03_row", "from_works")
     r.exit("ExitToGearworks", 956, 168, 8, 64, "uw_05_gearworks", "from_works")
     r.spawn("from_row", 50, 440)
@@ -291,22 +281,21 @@ def works():
     r.lamp("Lamp2", 860, 200)
     r.readable("Plate", 220, 440, "MAKER'S PLATE", [
         "> BOILER 3. INSTALLED BY THE GUILD OF THE SEVEN HAMMERS.",
-        "> PRESSURE SET BY The Pendulum. DO NOT ADJUST.",
+        "> PRESSURE SET BY THE GREAT GOVERNOR. DO NOT ADJUST.",
         "> Somebody has adjusted it. The needle is wedged with a spoon."], lore="uw_boiler_plate")
     r.cog("CogCatwalk", 610, 250)
     return r
 
 
-# ------------------------------------------------------------------ 05 Gearworks
 def gearworks():
     r = UWBuilder("uw_05_gearworks", "Gearworks", (0, 0, 960, 480), **WORKS)
     r.solid(0, 0, 960, 24, "brick")
     r.solid(0, 0, 16, 136, "brick")
-    r.solid(0, 200, 160, 12, "grate")            # entry ledge
+    r.solid(0, 200, 160, 12, "grate")
     r.solid(0, 212, 16, 268, "brick")
-    r.solid(16, 440, 704, 40, "plate")           # pit floor (spiked)
-    r.solid(720, 300, 240, 180, "brick")         # the far landing
-    r.solid(800, 120, 144, 12, "grate")          # high ledge to the Gallery
+    r.solid(16, 440, 704, 40, "plate")
+    r.solid(720, 300, 240, 180, "brick")
+    r.solid(800, 120, 144, 12, "grate")
     r.solid(944, 0, 16, 56, "brick")
     r.solid(944, 132, 16, 104, "brick")
     r.hazard("Spikes", 160, 428, 560, 12, "spikes")
@@ -330,7 +319,6 @@ def gearworks():
     return r
 
 
-# ------------------------------------------------------------------ 06 Lamplighter's Gallery (mini-boss)
 def gallery():
     r = UWBuilder("uw_06_gallery", "Lamplighter's Gallery", (0, 0, 640, 360), **DARK)
     r.solid(0, 0, 640, 24, "brick")
@@ -353,21 +341,19 @@ def gallery():
     return r
 
 
-# ------------------------------------------------------------------ 07 Condensate Falls
 def falls():
     r = UWBuilder("uw_07_falls", "Condensate Falls", (0, 0, 640, 440))
     r.solid(0, 0, 640, 24, "brick")
     r.solid(0, 0, 16, 88, "brick")
-    r.solid(0, 120, 110, 12, "grate")            # stops short of the stair, so you can jump back up onto it
+    r.solid(0, 120, 110, 12, "grate")
     r.solid(0, 132, 16, 204, "brick")
-    for i in range(5):                           # a stair of grates down past the falling water
+    for i in range(5):
         r.solid(140 + 80 * i, 160 + 40 * i, 80, 12, "grate")
-    r.solid(540, 360, 100, 80, "plate")          # the stair lands here (nothing low to walk under)
+    r.solid(540, 360, 100, 80, "plate")
     r.solid(624, 0, 16, 296, "brick")
-    r.solid(16, 400, 144, 40, "plate")           # the Cistern side
-    r.solid(160, 420, 380, 20, "plate")          # the pool's bottom
+    r.solid(16, 400, 144, 40, "plate")
+    r.solid(160, 420, 380, 20, "plate")
     r.boiling("Pool", 160, 404, 380, 16)
-    # a staggered ladder of grates up the left wall, back to the entry ledge
     for i, (x, y) in enumerate(((16, 360), (84, 320), (16, 280), (84, 240), (16, 200), (84, 168))):
         r.solid(x, y, 56, 8, "grate")
     r.exit("ExitToGearworks", 4, 88, 8, 64, "uw_05_gearworks", "from_falls")
@@ -377,7 +363,7 @@ def falls():
     r.spawn("from_cistern", 50, 400)
     r.spawn("from_gauge", 590, 360)
     r.valve("ReliefValve", 604, 360, quest=True)
-    for i, x in enumerate((250, 400, 520)):      # the falls themselves (steam where they hit)
+    for i, x in enumerate((250, 400, 520)):
         r.glow("Fall%d" % i, x, 404, C(0.85, 0.9, 0.95, 0.3), 26, 60, 0.4, "smoke")
     r.enemy("Bloat", "boiler_bloat", 330, 130)
     r.enemy("Spider", "clock_spider", 580, 360)
@@ -387,7 +373,6 @@ def falls():
     return r
 
 
-# ------------------------------------------------------------------ 08 Pressure Gauge Hall
 def gauge():
     r = UWBuilder("uw_08_gauge", "Pressure Gauge Hall", (0, 0, 1280, 400), **WORKS)
     r.solid(0, 0, 900, 24, "brick")
@@ -395,9 +380,9 @@ def gauge():
     r.solid(0, 0, 16, 288, "brick")
     r.solid(1264, 0, 16, 288, "brick")
     r.solid(0, 352, 1280, 48, "plate")
-    r.solid(400, 312, 32, 40, "brick")           # a block with a turret bolted to its face
+    r.solid(400, 312, 32, 40, "brick")
     r.solid(520, 312, 40, 40, "plate")
-    r.solid(580, 260, 160, 10, "grate")          # catwalk over the vents (a hop up from the step)
+    r.solid(580, 260, 160, 10, "grate")
     r.solid(1100, 300, 80, 12, "grate")
     r.exit("ExitToFalls", 4, 320, 8, 64, "uw_07_falls", "from_gauge")
     r.exit("ExitToApproach", 1276, 320, 8, 64, "uw_09_approach", "from_gauge")
@@ -420,18 +405,17 @@ def gauge():
     return r
 
 
-# ------------------------------------------------------------------ 09 Governor's Approach
 def approach():
     r = UWBuilder("uw_09_approach", "Governor's Approach", (0, 0, 960, 400), **WORKS)
     r.solid(0, 0, 960, 24, "brick")
     r.solid(0, 0, 16, 288, "brick")
     r.solid(944, 0, 16, 288, "brick")
     r.solid(0, 352, 400, 48, "plate")
-    r.solid(490, 312, 40, 88, "brick")           # an island in the boiling pit
+    r.solid(490, 312, 40, 88, "brick")
     r.solid(620, 352, 340, 48, "plate")
     r.solid(400, 384, 220, 16, "plate")
     r.boiling("Pit", 400, 368, 220, 16)
-    r.solid(820, 200, 124, 12, "grate")          # a ledge only Swing reaches (for now)
+    r.solid(820, 200, 124, 12, "grate")
     r.exit("ExitToGauge", 4, 320, 8, 64, "uw_08_gauge", "from_approach")
     r.exit("ExitToGovernor", 956, 320, 8, 64, "uw_10_governor", "from_approach")
     r.spawn("from_gauge", 50, 352)
@@ -439,9 +423,9 @@ def approach():
     r.dock(200, 352)
     r.anchor("SwingRing", 760, 140)
     r.cog("CogLedge", 900, 180)
-    r.gear("Gear", 510, 150, radius=60, platforms=0, speed=0.3)  # decorative: The Pendulum's drive train
+    r.gear("Gear", 510, 150, radius=60, platforms=0, speed=0.3)
     r.readable("Warning", 300, 352, "PLAQUE", [
-        "> The Pendulum. KEEPS THE PRESSURE OF THE WHOLE UNDERWORKS.",
+        "> THE GREAT GOVERNOR. KEEPS THE PRESSURE OF THE WHOLE UNDERWORKS.",
         "> WHEN THE BALLS FLY OUT, IT IS RUNNING FAST. WHEN THE CROWN LIFTS, IT IS ABOUT TO BURST.",
         "> Scratched underneath: hooks either side of the crown. Hit it while it's open. -B."], lore="uw_governor_plaque")
     r.enemy("Bat", "bellows_bat", 510, 180)
@@ -450,9 +434,8 @@ def approach():
     return r
 
 
-# ------------------------------------------------------------------ 10 The Pendulum (boss)
 def governor():
-    r = UWBuilder("uw_10_governor", "The Pendulum", (0, 0, 640, 360), music="governor", **{k: v for k, v in WORKS.items() if k != "music"})
+    r = UWBuilder("uw_10_governor", "The Great Governor", (0, 0, 640, 360), music="governor", **{k: v for k, v in WORKS.items() if k != "music"})
     r.solid(0, 0, 640, 24, "brick")
     r.solid(0, 0, 16, 256, "brick")
     r.solid(624, 0, 16, 256, "brick")
@@ -461,32 +444,29 @@ def governor():
     r.exit("ExitToGalleries", 636, 288, 8, 64, "uw_11_galleries", "from_governor")
     r.spawn("from_approach", 40, 320)
     r.spawn("from_galleries", 600, 320)
-    # in reach of the wire from a jump (150 px), level with the crown's rim
     r.hook("HookL", 240, 150, chain=110)
     r.hook("HookR", 400, 150, chain=110)
     r.node("BossArena", "Node2D", "res://scripts/world/boss_arena.gd", props={
-        "boss_flag": S("boss_governor_defeated"), "boss_name": S("The Pendulum"), "trigger_x": "100",
+        "boss_flag": S("boss_governor_defeated"), "boss_name": S("THE GREAT GOVERNOR"), "trigger_x": "100",
         "door_rect": R(0, 256, 16, 64), "boss_path": 'NodePath("GreatGovernor")', "reward": S("shard"),
         "shard_number": "2", "shard_position": V(320, 290),
-        "victory_text": S("The Pendulum slows... and settles into a steady, quiet hum."),
+        "victory_text": S("The Great Governor slows... and settles into a steady, quiet hum."),
         "intro_lines": SA(["> The whole hall is one machine. Its flyballs lift as it notices you.",
                            "> The gauge on its crown swings into the red."])})
     r.node("GreatGovernor", "Node2D", "res://scripts/enemies/great_governor.gd", parent="BossArena")
-    # the way on stays shut until The Pendulum stops (Shard II opens it)
     r.gate("ShutGate", 616, 320, 16, 64, gate_id="uw_governor_gate", shard=2)
     return r
 
 
-# ------------------------------------------------------------------ 11 Swing Galleries
 def galleries():
     r = UWBuilder("uw_11_galleries", "Swing Galleries", (0, 0, 1280, 400))
     r.solid(0, 0, 1280, 24, "brick")
     r.solid(0, 0, 16, 288, "brick")
     r.solid(1264, 0, 16, 136, "brick")
-    r.solid(1160, 200, 104, 10, "grate")         # the ledge to the Loft: only a swing gets you up here
+    r.solid(1160, 200, 104, 10, "grate")
     r.solid(1264, 212, 16, 76, "brick")
     r.solid(0, 352, 200, 48, "plate")
-    r.solid(440, 320, 48, 80, "brick")           # pillars between the boiling pits
+    r.solid(440, 320, 48, 80, "brick")
     r.solid(720, 320, 48, 80, "brick")
     r.solid(960, 352, 320, 48, "plate")
     r.solid(200, 384, 760, 16, "plate")
@@ -514,14 +494,13 @@ def galleries():
     return r
 
 
-# ------------------------------------------------------------------ 12 Old Tram Tunnel
 def tunnel():
     r = UWBuilder("uw_12_tunnel", "Old Tram Tunnel", (0, 0, 1280, 360), **DARK)
     r.solid(0, 0, 16, 360, "brick")
     r.solid(96, 0, 1184, 24, "brick")
     r.solid(16, 320, 1264, 40, "plate")
-    r.solid(480, 280, 40, 40, "plate")          # a crate: one hop up, then a running jump onto the roof
-    r.solid(560, 262, 160, 8, "grate")           # the tram's roof
+    r.solid(480, 280, 40, 40, "plate")
+    r.solid(560, 262, 160, 8, "grate")
     r.solid(1264, 0, 16, 360, "brick")
     r.vent("LiftVent", 56, 320, reach=260)
     r.exit("ExitToMarket", 56, 4, 80, 8, "uw_02_market", "from_tunnel")
@@ -542,7 +521,6 @@ def tunnel():
     return r
 
 
-# ------------------------------------------------------------------ 13 The Cistern
 def cistern():
     r = UWBuilder("uw_13_cistern", "The Cistern", (0, 0, 800, 400), **DARK)
     r.solid(0, 0, 800, 24, "brick")
@@ -568,7 +546,6 @@ def cistern():
     return r
 
 
-# ------------------------------------------------------------------ 14 Clockmaker's Loft (secret)
 def loft():
     r = UWBuilder("uw_14_loft", "Clockmaker's Loft", (0, 0, 480, 360), ambient=(0.72, 0.64, 0.56))
     r.solid(0, 0, 480, 24, "brick")
@@ -583,14 +560,13 @@ def loft():
     r.prop("Gauge", "uw_gauge", 80, 200, background="true", frames="2", fps="1")
     r.lamp("Lamp0", 300, 320)
     r.readable("Notes", 330, 320, "THE CLOCKMAKER'S NOTES", [
-        "> Pages of drawings of The Pendulum. Then drawings of something smaller: a robot, with a blade on a wire.",
+        "> Pages of drawings of the Governor. Then drawings of something smaller: a robot, with a blade on a wire.",
         "> \"The smiths left five pieces of the edge in five places, and a body to carry them.\"",
         "> \"If it ever wakes, it will come down here looking for the second. Leave it something useful.\""],
         lore="uw_clockmaker", size=(40, 40))
     return r
 
 
-# ------------------------------------------------------------------ 15 Steam Trials (arena)
 def trials():
     r = UWBuilder("uw_15_trials", "Steam Trials", (0, 0, 640, 360), **WORKS)
     r.solid(0, 0, 640, 24, "brick")

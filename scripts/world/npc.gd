@@ -1,18 +1,13 @@
 class_name NPC
 extends Interactable
-## A villager. Can give a quest, run a shop, or just chat (in that priority).
-## Lines can use {they}/{them}/{their} pronoun tokens.
 
 @export var npc_id: StringName = &"npc"
 @export var display_name := "???"
 
 @export_group("Look")
-## The town family this resident belongs to (shared silhouette, palette, signature).
 @export var lineage: Lineage
 @export_enum("adult", "teen", "child", "elder") var age := "adult"
-## 0 = derive from npc_id, so each resident keeps the same look forever.
 @export var look_seed := 0
-## Optional pins: leave empty to inherit a rolled trait from the lineage.
 @export var pin_headwear := ""
 @export var pin_goggles := ""
 @export var pin_accessory := ""
@@ -26,7 +21,6 @@ var _t := 0.0
 var _busy := false
 var _frames: Array[ImageTexture] = []
 var _facing := -1
-## Who to turn toward (defaults to the robot outdoors; walk-in rooms set their own).
 var face_target: Node2D = null
 
 
@@ -41,6 +35,10 @@ func _ready() -> void:
 		var lens := Fx.make_light(lineage.lens_color, 18.0, 0.55)
 		lens.position = NPCLook.lens_offset(traits) + Vector2(NPCLook.W / 2, 0)
 		add_child(lens)
+	if age == "elder":
+		var glow := Fx.make_light(Color(1.0, 0.78, 0.5), 44.0, 0.45)
+		glow.position = Vector2(0, -14)
+		add_child(glow)
 
 
 func interact(_player: Player) -> void:
@@ -82,7 +80,6 @@ func _talk() -> void:
 
 func _process(delta: float) -> void:
 	_t += delta
-	# turn to look at the robot when it comes close
 	var target: Node2D = face_target if is_instance_valid(face_target) else WorldManager.player
 	if target and global_position.distance_to(target.global_position) < 90.0:
 		if absf(target.global_position.x - global_position.x) > 2.0:
@@ -92,7 +89,7 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	if _frames.size() == 2:
-		var f := 1 if fmod(_t, 2.4) > 1.6 else 0  # slow breath
+		var f := 1 if fmod(_t, 2.4) > 1.6 else 0
 		if _facing < 0:
 			draw_set_transform(Vector2.ZERO, 0.0, Vector2(-1, 1))
 		draw_texture(_frames[f], Vector2(-NPCLook.W / 2, -NPCLook.H))

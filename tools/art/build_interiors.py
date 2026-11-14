@@ -19,7 +19,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from pix import Spr, PAL  # noqa: E402
+from pix import Spr, PAL
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "art", "interiors")
@@ -40,7 +40,6 @@ def save(s, name, folder=OUT):
     s.save(os.path.join(folder, name + ".png"))
 
 
-# ================================================================ surfaces
 def floor_plate():
     """Diamond-plate steel, scuffed, with rust blooming at the seams."""
     s = Spr(32, 32)
@@ -76,7 +75,7 @@ def floor_planks():
         s.hline(0, y0, 32, "r")
         cut = (row * 13 + 7) % 32
         s.vline(cut, y0, 8, "r")
-        for _ in range(5):   # grain
+        for _ in range(5):
             x = rnd.randrange(32)
             s.hline(x, y0 + rnd.randrange(2, 7), rnd.randrange(3, 8), "b" if tone == "E" else "r")
         s.px((cut + 3) % 32, y0 + 3, "k", alpha=160)
@@ -91,7 +90,6 @@ def floor_concrete():
         s.px(rnd.randrange(32), rnd.randrange(32), rnd.choice(["m", "l", "m"]))
     s.hline(0, 0, 32, "m")
     s.vline(0, 0, 32, "m")
-    # an oil stain that wraps across the tile edge
     for y in range(32):
         for x in range(32):
             d = math.hypot(min(abs(x - 22), 32 - abs(x - 22)), min(abs(y - 20), 32 - abs(y - 20)))
@@ -100,7 +98,7 @@ def floor_concrete():
     return s
 
 
-WH = 64   # walls are 4 units tall
+WH = 64
 
 
 def wall_corrugated():
@@ -118,10 +116,10 @@ def wall_corrugated():
     s.rect(0, 0, 32, 6, "e")
     s.hline(0, 0, 32, "E")
     s.hline(0, 6, 32, "k")
-    s.rect(0, WH - 7, 32, 7, "d")       # skirting: dark, scuffed
+    s.rect(0, WH - 7, 32, 7, "d")
     s.hline(0, WH - 7, 32, "k")
     for x in range(2, 32, 8):
-        s.px(x, 2, "y")                 # rivets in the beam
+        s.px(x, 2, "y")
         s.px(x, 3, "b")
     return s
 
@@ -156,18 +154,17 @@ def wall_brick():
             x0 = bx * 8 + off
             s.rect(x0 + 1, y0 + 1, 7, 5, "r" if (row + bx) % 3 else "R")
             s.hline(x0 + 1, y0 + 1, 7, "R" if (row + bx) % 3 else "o")
-    for y in range(0, 26):               # soot from the forge side
+    for y in range(0, 26):
         for x in range(32):
             if (x * 7 + y * 3) % 11 < (26 - y) // 3:
                 s.px(x, y, "k", alpha=90)
-    s.rect(0, 10, 32, 4, "g")            # pipe
+    s.rect(0, 10, 32, 4, "g")
     s.hline(0, 10, 32, "l")
     s.hline(0, 13, 32, "m")
-    s.rect(14, 9, 3, 6, "B")             # a brass coupling
+    s.rect(14, 9, 3, 6, "B")
     return s
 
 
-# ================================================================ furniture
 def shelf(variant):
     s = Spr(48, 60)
     s.rect(2, 2, 3, 58, "e")
@@ -182,17 +179,17 @@ def shelf(variant):
         x = 6
         while x < 40:
             kind = rnd.randrange(6)
-            if kind == 0:     # tin can
+            if kind == 0:
                 s.rect(x, shelf_y - 6, 4, 6, "l"); s.hline(x, shelf_y - 6, 4, "w"); s.hline(x, shelf_y - 3, 4, "x"); x += 6
-            elif kind == 1:   # gear
+            elif kind == 1:
                 s.ellipse(x + 3, shelf_y - 4, 3, 3, "B"); s.px(x + 3, shelf_y - 4, "k"); s.px(x + 1, shelf_y - 6, "y"); x += 8
-            elif kind == 2:   # bottle
+            elif kind == 2:
                 s.rect(x + 1, shelf_y - 8, 2, 8, "t"); s.px(x + 1, shelf_y - 8, "T"); s.rect(x + 1, shelf_y - 10, 2, 2, "s"); x += 5
-            elif kind == 3:   # radio box
+            elif kind == 3:
                 s.rect(x, shelf_y - 7, 8, 7, "e"); s.rect(x + 1, shelf_y - 6, 3, 3, "k"); s.px(x + 6, shelf_y - 5, "a"); x += 10
-            elif kind == 4:   # coil of cable
+            elif kind == 4:
                 s.ellipse(x + 3, shelf_y - 3, 3, 2, "z"); s.ellipse(x + 3, shelf_y - 3, 1, 1, "d"); x += 7
-            else:             # a bulb in a box
+            else:
                 s.rect(x, shelf_y - 5, 5, 5, "w"); s.rect(x + 1, shelf_y - 4, 3, 2, "A"); x += 7
     s.outline("k")
     return s
@@ -207,7 +204,6 @@ def counter():
     s.rect(0, 13, 84, 5, "E")
     s.hline(0, 13, 84, "o")
     s.hline(0, 17, 84, "r")
-    # till
     s.rect(52, 2, 18, 11, "B")
     s.hline(52, 2, 18, "y")
     s.rect(54, 4, 9, 3, "k")
@@ -215,13 +211,11 @@ def counter():
     for i in range(4):
         s.px(55 + i * 3, 9, "Y")
     s.rect(50, 11, 22, 2, "b")
-    # scale
     s.rect(18, 9, 12, 2, "l")
     s.vline(23, 4, 5, "g")
     s.hline(14, 4, 20, "g")
     s.rect(14, 5, 5, 2, "B")
     s.rect(29, 5, 5, 2, "B")
-    # a SCRAP stencil on the front
     for i, ch in enumerate([[1, 1, 1], [1, 0, 0], [1, 1, 1], [0, 0, 1], [1, 1, 1]]):
         for j, on in enumerate(ch):
             if on:
@@ -256,14 +250,14 @@ def desk():
     s.rect(36, 16, 24, 12, "e")
     s.rect(38, 18, 20, 3, "r"); s.px(47, 19, "y")
     s.rect(38, 23, 20, 3, "r"); s.px(47, 24, "y")
-    s.rect(10, 7, 22, 5, "w")      # an open map on the desk
+    s.rect(10, 7, 22, 5, "w")
     s.line(12, 10, 18, 8, "e"); s.line(18, 8, 24, 10, "e"); s.rect(26, 8, 2, 2, "x")
-    s.rect(34, 8, 4, 4, "k"); s.px(35, 8, "s")    # ink pot
-    s.line(37, 4, 39, 9, "w")                     # quill
-    s.rect(50, 0, 3, 12, "l")                     # lamp
+    s.rect(34, 8, 4, 4, "k"); s.px(35, 8, "s")
+    s.line(37, 4, 39, 9, "w")
+    s.rect(50, 0, 3, 12, "l")
     s.rect(46, 0, 10, 3, "B")
     s.rect(47, 3, 8, 1, "A")
-    for i in range(3):                            # rolled maps
+    for i in range(3):
         s.rect(58 + i * 3, 6, 3, 6, "w"); s.px(59 + i * 3, 6, "l")
     s.outline("k")
     return s
@@ -276,7 +270,7 @@ def globe():
         s.hline(x, y, w, "Q")
         s.hline(x + 1, y + 1, w - 2, "q")
     s.px(8, 6, "S"); s.px(9, 5, "S")
-    s.line(2, 12, 22, 12, "B")   # brass meridian
+    s.line(2, 12, 22, 12, "B")
     s.vline(12, 1, 22, "B")
     s.rect(11, 22, 3, 8, "e")
     s.rect(6, 30, 13, 3, "e")
@@ -315,18 +309,18 @@ def bench():
     s.rect(4, 19, 4, 19, "m")
     s.rect(70, 19, 4, 19, "m")
     s.rect(4, 30, 70, 2, "d")
-    s.rect(10, 4, 10, 10, "g")     # vise
+    s.rect(10, 4, 10, 10, "g")
     s.rect(8, 8, 14, 3, "l")
     s.hline(6, 6, 18, "B")
-    s.rect(30, 5, 16, 9, "m")      # motor
+    s.rect(30, 5, 16, 9, "m")
     s.ellipse(38, 9, 4, 4, "d")
     s.ellipse(38, 9, 2, 2, "B")
     s.rect(46, 8, 4, 2, "l")
-    s.line(52, 12, 60, 8, "l")     # wrench
+    s.line(52, 12, 60, 8, "l")
     s.rect(60, 7, 3, 3, "l")
-    s.rect(64, 10, 7, 4, "x")      # toolbox
+    s.rect(64, 10, 7, 4, "x")
     s.hline(64, 10, 7, "X")
-    s.rect(26, 33, 10, 5, "e")     # a parts tray under it
+    s.rect(26, 33, 10, 5, "e")
     s.outline("k")
     return s
 
@@ -346,9 +340,9 @@ def robot_frame():
     s.hline(10, 0, 14, "l")
     s.rect(12, 4, 10, 4, "z")
     s.px(15, 5, "s"); s.px(18, 5, "s")
-    s.rect(1, 13, 6, 3, "g")       # one arm on, one missing
+    s.rect(1, 13, 6, 3, "g")
     s.rect(1, 16, 3, 10, "g")
-    s.line(27, 14, 31, 20, "z")    # loose wires where the other arm goes
+    s.line(27, 14, 31, 20, "z")
     s.line(27, 16, 30, 23, "x")
     s.outline("k")
     return s
@@ -368,12 +362,11 @@ def engine():
     return s
 
 
-# ================================================================ decals
 def window():
     s = Spr(34, 26)
     s.rect(0, 0, 34, 26, "e")
     s.rect(2, 2, 30, 22, "4")
-    for y in range(2, 24):          # dusk sky, warm at the horizon
+    for y in range(2, 24):
         key = "4" if y < 9 else ("7" if y < 16 else "o")
         s.hline(2, y, 30, key)
     for (x, h) in ((3, 6), (7, 9), (11, 4), (15, 12), (19, 7), (23, 10), (27, 5)):
@@ -399,7 +392,7 @@ def wall_map(seed, w, h):
         rx, ry = rnd.randrange(3, w - 6), rnd.randrange(3, h - 5)
         s.rect(rx, ry, 3, 2, "e")
     s.px(rnd.randrange(3, w - 3), rnd.randrange(3, h - 3), "x")
-    s.px(w // 2, 0, "x")             # the pin
+    s.px(w // 2, 0, "x")
     s.px(w // 2, 1, "X")
     s.outline("k")
     return s
@@ -411,11 +404,11 @@ def pegboard():
     for y in range(4, 32, 4):
         for x in range(4, 50, 4):
             s.px(x, y, "e")
-    s.line(6, 6, 6, 22, "l"); s.rect(4, 4, 5, 3, "l")             # hammer
-    s.line(14, 6, 20, 20, "l"); s.rect(19, 19, 3, 3, "l")         # wrench
-    s.rect(26, 6, 3, 14, "x"); s.rect(26, 20, 3, 4, "l")          # screwdriver
-    s.ellipse(38, 12, 6, 6, "z"); s.ellipse(38, 12, 3, 3, "E")    # coil of hose
-    s.rect(44, 22, 5, 8, "y")                                       # brass oil can
+    s.line(6, 6, 6, 22, "l"); s.rect(4, 4, 5, 3, "l")
+    s.line(14, 6, 20, 20, "l"); s.rect(19, 19, 3, 3, "l")
+    s.rect(26, 6, 3, 14, "x"); s.rect(26, 20, 3, 4, "l")
+    s.ellipse(38, 12, 6, 6, "z"); s.ellipse(38, 12, 3, 3, "E")
+    s.rect(44, 22, 5, 8, "y")
     s.outline("k")
     return s
 
@@ -424,11 +417,11 @@ def poster():
     s = Spr(22, 30)
     s.rect(1, 1, 20, 28, "W")
     s.rect(3, 3, 16, 14, "x")
-    s.rect(7, 6, 8, 8, "k")          # the corp's eye logo
+    s.rect(7, 6, 8, 8, "k")
     s.rect(9, 8, 4, 4, "X")
     for y in (20, 23, 26):
         s.hline(4, y, 14, "g")
-    s.line(2, 28, 20, 2, "k")        # someone slashed it
+    s.line(2, 28, 20, 2, "k")
     s.outline("k")
     return s
 
@@ -458,7 +451,6 @@ def doormat():
     return s
 
 
-# ================================================================ shopfronts (2D, camp)
 def door(s, x, y, w, h):
     """A doorway with warm light spilling from inside."""
     s.rect(x, y, w, h, "k")
@@ -479,13 +471,13 @@ def front_rusty():
     for x0 in (14, 40, 88, 104):
         for y in range(36, 36 + rnd.randrange(14, 30)):
             s.px(x0, y, "R", alpha=170)
-    s.rect(2, 24, 116, 7, "e")         # roof edge
+    s.rect(2, 24, 116, 7, "e")
     s.hline(2, 24, 116, "E")
-    for i in range(0, 116, 10):        # awning stripes
+    for i in range(0, 116, 10):
         s.rect(2 + i, 31, 5, 8, "R")
         s.rect(7 + i, 31, 5, 8, "w")
     s.hline(2, 39, 116, "k")
-    s.rect(18, 2, 84, 20, "E")          # sign board
+    s.rect(18, 2, 84, 20, "E")
     s.rect(20, 4, 80, 16, "e")
     letters = {"R": ["110", "101", "110", "101", "101"], "U": ["101", "101", "101", "101", "111"],
                "S": ["111", "100", "111", "001", "111"], "T": ["111", "010", "010", "010", "010"],
@@ -500,10 +492,10 @@ def front_rusty():
         x += len(rows[0]) * 2 + 3
     s.vline(30, 22, 2, "z"); s.vline(90, 22, 2, "z")
     door(s, 48, 54, 22, 38)
-    s.rect(80, 50, 26, 18, "k")          # a window with junk in it
+    s.rect(80, 50, 26, 18, "k")
     s.rect(81, 51, 24, 16, "a")
     s.rect(84, 58, 6, 9, "g"); s.rect(92, 55, 8, 12, "B"); s.px(95, 57, "k")
-    s.rect(10, 74, 20, 18, "e")          # crates by the door
+    s.rect(10, 74, 20, 18, "e")
     s.hline(10, 74, 20, "E")
     s.outline("k")
     return s
@@ -516,7 +508,7 @@ def front_dot():
     for x in range(6, 90, 7):
         s.vline(x, 20, 64, "r")
     s.hline(6, 20, 84, "E")
-    for y in range(4, 20):              # pitched tin roof
+    for y in range(4, 20):
         half = (y - 4) * 3
         s.hline(48 - half, y, half * 2, "m" if y % 2 else "g")
     s.hline(2, 19, 92, "k")
@@ -525,7 +517,7 @@ def front_dot():
         s.line(mx + 2, my + mh // 2, mx + mw - 3, my + 3, "e")
         s.px(mx + mw // 2, my, "x")
     door(s, 37, 46, 22, 38)
-    s.rect(36, 30, 24, 10, "B")          # sign: a brass compass rose
+    s.rect(36, 30, 24, 10, "B")
     s.hline(36, 30, 24, "Y")
     s.vline(48, 31, 8, "k"); s.hline(42, 35, 13, "k"); s.px(48, 31, "x")
     s.outline("k")
@@ -544,20 +536,20 @@ def front_mags():
             s.rect(max(2, x0 + 1), y0 + 1, 7, 5, "R" if (row + bx) % 3 else "r")
     s.rect(0, 10, 128, 7, "m")
     s.hline(0, 10, 128, "l")
-    s.rect(22, 34, 64, 50, "k")          # roll-up door, half open
+    s.rect(22, 34, 64, 50, "k")
     for y in range(34, 58, 3):
         s.hline(23, y, 62, "g" if y % 2 else "m")
     s.rect(23, 58, 62, 26, "a")
     s.rect(24, 60, 60, 24, "A")
-    s.rect(30, 70, 20, 14, "m")          # the engine on the floor inside
+    s.rect(30, 70, 20, 14, "m")
     s.ellipse(40, 76, 4, 4, "d")
     door(s, 96, 46, 20, 38)
-    s.ellipse(64, 6, 7, 7, "B")          # gear sign on the roof
+    s.ellipse(64, 6, 7, 7, "B")
     s.ellipse(64, 6, 3, 3, "k")
     for a in range(8):
         ang = a * math.pi / 4
         s.px(int(64 + math.cos(ang) * 8), int(6 + math.sin(ang) * 8), "y")
-    s.rect(4, 64, 12, 20, "m")           # oil drum
+    s.rect(4, 64, 12, 20, "m")
     s.hline(4, 70, 12, "x")
     s.outline("k")
     return s

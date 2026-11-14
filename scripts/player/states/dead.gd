@@ -1,5 +1,4 @@
 extends PlayerState
-## Robot shuts down. Player.gd handles the respawn timer.
 
 func enter(_msg := {}) -> void:
 	player.visuals.play("dead")

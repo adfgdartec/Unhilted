@@ -1,7 +1,4 @@
 extends SceneTree
-## One-off tool: writes the Input Map into project.godot.
-## Run:  godot --headless --path . --script res://tools/setup_input.gd
-## After that you can edit everything in Project Settings > Input Map as normal.
 
 func _key(code: int) -> InputEventKey:
 	var e := InputEventKey.new()

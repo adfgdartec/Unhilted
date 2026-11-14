@@ -1,11 +1,10 @@
 class_name QuestData
 extends Resource
-## A side quest. Make one .tres per quest in res://data/quests and point an NPC at it.
 
 @export var id: StringName
 @export var title := ""
 @export_multiline var description := ""
-@export var region_id: StringName = &"heap" ## Which local currency the reward pays.
+@export var region_id: StringName = &"heap"
 @export var giver_name := ""
 @export var prerequisite_quests: Array[StringName] = []
 @export var objectives: Array[QuestObjective] = []

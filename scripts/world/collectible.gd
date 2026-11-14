@@ -1,12 +1,5 @@
 class_name Collectible
 extends Area2D
-## Anything you pick up by touching it.
-##   SCRAP          universal currency (respawns, can be farmed)
-##   LOCAL_COIN     this region's currency (Bottlecaps in the Heap) - unique, never respawns
-##   QUEST_ITEM     key item for a quest (item_id must match the quest objective)
-##   CHIP / COSMETIC / CONSUMABLE / PORT_EXPANSION / CORE_CELL
-##   SHARD          a sword shard (amount = shard number); plays its attach dialogue
-## Everything except scrap is remembered by unique_id once collected.
 
 enum Kind { SCRAP, LOCAL_COIN, QUEST_ITEM, CHIP, COSMETIC, CONSUMABLE, PORT_EXPANSION, CORE_CELL, SHARD }
 
@@ -14,7 +7,7 @@ enum Kind { SCRAP, LOCAL_COIN, QUEST_ITEM, CHIP, COSMETIC, CONSUMABLE, PORT_EXPA
 @export var item_id: StringName
 @export var amount := 1
 @export var display_name := ""
-@export var unique_id := "" ## Leave empty to auto-generate from room + node name.
+@export var unique_id := ""
 
 const ICONS := {
 	&"scrap": preload("res://art/items/scrap.png"),
@@ -30,15 +23,15 @@ const ICONS := {
 	&"letter": preload("res://art/items/letter.png"),
 }
 
-var is_lost_cache := false ## The scrap you dropped when you died.
+var is_lost_cache := false
 var pop_velocity := Vector2.ZERO
 var _t := 0.0
 var _player: Player
 
 
 func _ready() -> void:
-	collision_layer = 64 # pickups
-	collision_mask = 2   # player body
+	collision_layer = 64
+	collision_mask = 2
 	if get_child_count() == 0:
 		var shape := CollisionShape2D.new()
 		var circle := CircleShape2D.new()
@@ -61,11 +54,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	_t += delta
-	# Dropped scrap pops out, then settles.
 	if pop_velocity != Vector2.ZERO:
 		position += pop_velocity * delta
 		pop_velocity = pop_velocity.move_toward(Vector2.ZERO, 500.0 * delta)
-	# Scrap magnet (stat can be boosted by the Magnet Coil chip)
 	if kind == Kind.SCRAP:
 		if _player == null:
 			_player = get_tree().get_first_node_in_group("player")
@@ -173,7 +164,6 @@ func _draw() -> void:
 			_icon(&"shard", bob)
 
 
-## A small four-point glint every couple of seconds, so pickups catch the eye.
 func _twinkle(offset: Vector2) -> void:
 	var t := fmod(_t, 2.4)
 	if t > 0.3:

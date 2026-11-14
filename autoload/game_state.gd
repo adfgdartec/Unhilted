@@ -1,7 +1,4 @@
 extends Node
-## Every piece of persistent data lives here: chassis, shards, ports, outfit,
-## currencies, quests, collected pickups and respawn point.
-## SaveManager turns it into JSON with to_dict()/from_dict().
 
 enum Gender { GIRL, BOY }
 enum QuestState { LOCKED, AVAILABLE, ACTIVE, COMPLETE, TURNED_IN }
@@ -11,43 +8,37 @@ const MAX_PORTS := 8
 const START_ROOM := "res://scenes/rooms/heap/heap_01_pit.tscn"
 const START_SPAWN := &"wake"
 
-# --- Identity ---
 var gender: Gender = Gender.BOY
 
-# --- Progression ---
 var shards: Array[bool] = [false, false, false, false, false]
-var max_health_bonus := 0                  ## From core cells.
+var max_health_bonus := 0
 var max_ports := BASE_PORTS
 var owned_chips: Array[StringName] = []
 var equipped_chips: Array[StringName] = []
 var owned_cosmetics: Array[StringName] = []
-var outfit: Dictionary = {}                ## CosmeticItem.Slot (int) -> cosmetic id. Missing slot = "none".
+var outfit: Dictionary = {}
 
-# --- Economy ---
-var scrap := 0                             ## Universal currency. Dropped on death.
-var local_balance: Dictionary = {}         ## region id -> spendable local coins
-var local_found: Dictionary = {}           ## region id -> lifetime coins found (for "x / total")
-var consumables: Dictionary = {}           ## item id -> count
-var key_items: Dictionary = {}             ## quest items: id -> count
-var lost_scrap: Dictionary = {}            ## {room, x, y, amount} where the robot last died
-var shop_bought: Dictionary = {}           ## "npc_id:item_id" -> count
+var scrap := 0
+var local_balance: Dictionary = {}
+var local_found: Dictionary = {}
+var consumables: Dictionary = {}
+var key_items: Dictionary = {}
+var lost_scrap: Dictionary = {}
+var shop_bought: Dictionary = {}
 
-# --- World ---
-var collected_ids: Dictionary = {}         ## unique pickups / broken gates -> true
-var quest_states: Dictionary = {}          ## quest id -> {"state": int, "progress": Array}
-var flags: Dictionary = {}                 ## free-form story flags
-var visited_rooms: Dictionary = {}         ## room id (String) -> true, for the map
-var lore: Dictionary = {}                  ## lore id -> {"title": String, "lines": Array} read so far
+var collected_ids: Dictionary = {}
+var quest_states: Dictionary = {}
+var flags: Dictionary = {}
+var visited_rooms: Dictionary = {}
+var lore: Dictionary = {}
 var current_room := START_ROOM
 var current_region: StringName = &"heap"
 var respawn_room := START_ROOM
 var respawn_spawn: StringName = START_SPAWN
 
-# --- Runtime only (not saved) ---
 var _ui_lock := 0
 
 
-# ---------------------------------------------------------------- setup
 func reset() -> void:
 	gender = Gender.BOY
 	shards = [false, false, false, false, false]
@@ -76,9 +67,7 @@ func reset() -> void:
 	_ui_lock = 0
 
 
-## Called once after the chassis is picked on New Game.
 func give_starting_items() -> void:
-	# the look from the concept drawing: navy hood and poncho (both are cosmetics)
 	for id in [&"hood_navy", &"cloak_navy", &"pants_cargo", &"shoes_old_boots"]:
 		add_cosmetic(id, false)
 		var item: CosmeticItem = ItemDB.cosmetics.get(id)
@@ -88,9 +77,6 @@ func give_starting_items() -> void:
 	EventBus.cosmetics_changed.emit()
 
 
-# ---------------------------------------------------------------- UI lock
-## Anything that takes control away from the player (dialogue, menus,
-## room fades) calls lock_ui()/unlock_ui(). The player ignores input while locked.
 func lock_ui() -> void:
 	_ui_lock += 1
 
@@ -101,15 +87,12 @@ func is_ui_locked() -> bool:
 	return _ui_lock > 0
 
 
-# ---------------------------------------------------------------- pronouns
-## Dialogue uses {they} {them} {their} {theirs} {They} {Them} {Their}.
 func pronouns() -> Dictionary:
 	if gender == Gender.GIRL:
 		return {"they": "she", "them": "her", "their": "her", "theirs": "hers"}
 	return {"they": "he", "them": "him", "their": "his", "theirs": "his"}
 
 
-# ---------------------------------------------------------------- shards
 func has_shard(number: int) -> bool:
 	return number >= 1 and number <= shards.size() and shards[number - 1]
 
@@ -122,19 +105,16 @@ func give_shard(number: int) -> void:
 	EventBus.loadout_changed.emit()
 
 
-# ---------------------------------------------------------------- currency
 func add_scrap(amount: int) -> void:
 	scrap = maxi(scrap + amount, 0)
 	EventBus.currency_changed.emit()
 
-## found = true when picked up in the world / earned (counts toward "x / total").
 func add_local(region: StringName, amount: int, found := true) -> void:
 	local_balance[region] = int(local_balance.get(region, 0)) + amount
 	if found:
 		local_found[region] = int(local_found.get(region, 0)) + amount
 	EventBus.currency_changed.emit()
 
-## currency is &"scrap" or a region id like &"heap".
 func get_balance(currency: StringName) -> int:
 	if currency == &"scrap":
 		return scrap
@@ -151,7 +131,6 @@ func spend(currency: StringName, amount: int) -> bool:
 	return true
 
 
-# ---------------------------------------------------------------- items
 func add_chip(id: StringName, announce := true) -> void:
 	if id in owned_chips or not ItemDB.chips.has(id):
 		return
@@ -207,7 +186,6 @@ func is_collected(unique_id: String) -> bool:
 	return collected_ids.has(unique_id)
 
 
-# ---------------------------------------------------------------- ports
 func ports_used() -> int:
 	var total := 0
 	for id in equipped_chips:
@@ -216,7 +194,6 @@ func ports_used() -> int:
 			total += chip.port_cost
 	return total
 
-## Overclock: you may go ONE port over the limit, but take double damage.
 func can_equip(id: StringName) -> bool:
 	var chip: UpgradeChip = ItemDB.chips.get(id)
 	if chip == null or id in equipped_chips or not (id in owned_chips):
@@ -239,12 +216,10 @@ func toggle_chip(id: StringName) -> bool:
 	return true
 
 
-## Map ownership per region (bought from Dot in the Heap).
 func has_map(region: StringName) -> bool:
 	return bool(flags.get("map_" + String(region), false))
 
 
-# ---------------------------------------------------------------- save / load
 func to_dict() -> Dictionary:
 	var outfit_out := {}
 	for slot in outfit:
@@ -299,7 +274,7 @@ func from_dict(d: Dictionary) -> void:
 	shop_bought = (d.get("shop_bought", {}) as Dictionary).duplicate(true)
 	collected_ids = (d.get("collected_ids", {}) as Dictionary).duplicate(true)
 	quest_states = _keys_to_names(d.get("quest_states", {}), false)
-	for id in quest_states: # JSON turns every number into a float; make them ints again
+	for id in quest_states:
 		var q: Dictionary = quest_states[id]
 		q["state"] = int(q.get("state", 0))
 		q["progress"] = (q.get("progress", []) as Array).map(func(v): return int(v))

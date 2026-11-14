@@ -9,7 +9,7 @@ import random
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
-from pix import Spr  # noqa: E402
+from pix import Spr
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(ROOT, "art")
@@ -32,7 +32,6 @@ def junk_mound(s, x0, x1, top, bottom, seed):
         s.px(x, y, rnd.choice(["l", "d", "R", "d"]))
 
 
-# ======================================================================= PROPS
 def ancient_casing():
     """The robot's brass pod, cracked open where it woke. Old-world brass among modern junk."""
     s = Spr(50, 26)
@@ -48,16 +47,16 @@ def ancient_casing():
                 s.px(x, y, k)
     for x in range(8, 38, 3):
         s.px(x, cy - 7, "Y")
-    for rx_ in (12, 33):  # riveted bands
+    for rx_ in (12, 33):
         for y in range(cy - 7, cy + 8):
             if s.get(rx_, y)[3]:
                 s.px(rx_, y, "b")
         s.px(rx_, cy - 5, "Y"); s.px(rx_, cy + 1, "Y")
-    s.ellipse(41, cy, 3, 6, "k")  # the open end
+    s.ellipse(41, cy, 3, 6, "k")
     s.px(41, cy - 1, "c"); s.px(40, cy, "c"); s.px(41, cy, "C"); s.px(42, cy + 2, "c")
-    for (x, y) in ((19, 5), (20, 6), (20, 7), (21, 8), (22, 9), (22, 10), (23, 11)):  # crack
+    for (x, y) in ((19, 5), (20, 6), (20, 7), (21, 8), (22, 9), (22, 10), (23, 11)):
         s.px(x, y, "k")
-    s.ellipse(46, 20, 3, 2, "B"); s.px(45, 19, "y")  # the burst lid fragment
+    s.ellipse(46, 20, 3, 2, "B"); s.px(45, 19, "y")
     junk_mound(s, 2, 50, 18, 26, 3)
     s.outline().save(out("props", "ancient_casing.png"))
 
@@ -66,16 +65,16 @@ def crt_pile():
     s = Spr(36, 30, frames=2)
     for f in range(2):
         s.frame(f)
-        s.rect(1, 16, 20, 14, "g"); s.hline(1, 16, 20, "l")               # bottom TV
+        s.rect(1, 16, 20, 14, "g"); s.hline(1, 16, 20, "l")
         s.rect(3, 18, 12, 9, "s")
         for y in range(18, 27, 2):
-            s.hline(3, y + f % 2, 12, "S")                                 # live static
+            s.hline(3, y + f % 2, 12, "S")
         s.rect(17, 19, 2, 1, "l"); s.rect(17, 22, 2, 1, "l")
-        s.rect(20, 21, 15, 9, "m"); s.rect(22, 23, 9, 5, "k")              # dead TV
+        s.rect(20, 21, 15, 9, "m"); s.rect(22, 23, 9, 5, "k")
         s.line(23, 23, 27, 27, "d")
-        s.rect(6, 6, 16, 10, "g"); s.hline(6, 6, 16, "l")                   # top TV, tilted look
+        s.rect(6, 6, 16, 10, "g"); s.hline(6, 6, 16, "l")
         s.rect(8, 8, 10, 6, "s"); s.px(9, 9, "S"); s.px(10, 9, "S")
-        s.line(11, 6, 8, 1, "l"); s.line(15, 6, 19, 2, "l")                 # antenna
+        s.line(11, 6, 8, 1, "l"); s.line(15, 6, 19, 2, "l")
     s.outline().save(out("props", "crt_pile.png"))
 
 
@@ -83,7 +82,7 @@ def tyres():
     s = Spr(24, 14)
     for cy in (9, 4):
         s.ellipse(12, cy, 10, 3.5, "d")
-        for x in range(3, 22, 2):          # tread blocks along the rim
+        for x in range(3, 22, 2):
             s.px(x, cy + 2, "m"); s.px(x, cy - 2, "g")
         s.ellipse(12, cy, 4.5, 1.2, "k")
         s.hline(9, cy - 1, 6, "m")
@@ -96,7 +95,7 @@ def barrel():
     s.hline(2, 8, 12, "r"); s.hline(2, 14, 12, "r")
     s.vline(4, 4, 15, "O"); s.vline(5, 4, 15, "o")
     s.ellipse(8, 4, 6, 2.2, "o"); s.ellipse(8, 4, 4, 1, "k")
-    s.px(13, 11, "T"); s.px(13, 12, "T"); s.px(14, 18, "T"); s.px(15, 18, "t")  # toxic leak
+    s.px(13, 11, "T"); s.px(13, 12, "T"); s.px(14, 18, "T"); s.px(15, 18, "t")
     s.outline().save(out("props", "barrel.png"))
 
 
@@ -115,7 +114,6 @@ def car_cube():
     for x in (15, 24, 30):
         s.vline(x, 1, 23, "k")
     s.hline(1, 1, 34, "O")
-    # what makes it read as a car: a squashed wheel, a headlight, a door handle
     s.ellipse(7, 20, 5, 3.5, "z"); s.ellipse(7, 20, 2, 1.2, "l")
     s.rect(30, 5, 4, 2, "A"); s.px(31, 5, "W")
     s.hline(19, 13, 3, "w")
@@ -149,9 +147,9 @@ def bus():
     s.rect(4, 10, 114, 40, "Q")
     s.rect(6, 7, 110, 3, "q"); s.hline(8, 6, 106, "q")
     s.hline(4, 10, 114, "S")
-    s.rect(6, 13, 11, 18, "s")                                   # windscreen
+    s.rect(6, 13, 11, 18, "s")
     s.line(7, 29, 15, 15, "S"); s.line(8, 29, 16, 15, "S")
-    s.rect(6, 8, 10, 3, "k"); s.ascii(8, 8, ["a.aaa", "a...a", "a..a."])  # route 17
+    s.rect(6, 8, 10, 3, "k"); s.ascii(8, 8, ["a.aaa", "a...a", "a..a."])
     wx = 21
     lit = [True, False, True, "board", True, False]
     for state in lit:
@@ -160,21 +158,21 @@ def bus():
             s.rect(wx + 1, 15, 9, 9, "E")
             s.hline(wx + 1, 17, 9, "e"); s.hline(wx + 1, 21, 9, "e")
         elif state:
-            s.rect(wx + 1, 15, 9, 9, "A"); s.rect(wx + 1, 21, 9, 3, "a")  # warm light, someone home
+            s.rect(wx + 1, 15, 9, 9, "A"); s.rect(wx + 1, 21, 9, 3, "a")
         else:
             s.rect(wx + 1, 15, 9, 9, "s")
         wx += 13
-    s.rect(102, 26, 10, 24, "q"); s.vline(106, 27, 23, "A")     # door ajar, light spilling
-    s.rect(4, 31, 114, 2, "a")                                    # faded stripe
+    s.rect(102, 26, 10, 24, "q"); s.vline(106, 27, 23, "A")
+    s.rect(4, 31, 114, 2, "a")
     rnd = random.Random(9)
     for _ in range(40):
         x, y = rnd.randint(5, 116), rnd.randint(34, 48)
         s.px(x, y, rnd.choice(["R", "o", "q"]))
     for ax in (16, 82):
         s.ellipse(ax + 9, 50, 9, 6, "k")
-    s.line(30, 6, 33, 0, "l"); s.ellipse(34, 2, 3, 2, "l"); s.px(34, 2, "g")  # dish
-    s.rect(58, 3, 22, 3, "s"); s.hline(58, 3, 22, "S")           # salvaged solar panel
-    s.vline(96, 0, 6, "l"); s.px(96, 0, "x")                      # antenna + beacon
+    s.line(30, 6, 33, 0, "l"); s.ellipse(34, 2, 3, 2, "l"); s.px(34, 2, "g")
+    s.rect(58, 3, 22, 3, "s"); s.hline(58, 3, 22, "S")
+    s.vline(96, 0, 6, "l"); s.px(96, 0, "x")
     junk_mound(s, 0, 124, 46, 60, 11)
     s.outline().save(out("props", "bus.png"))
 
@@ -204,13 +202,13 @@ def brazier():
         s.frame(f)
         s.ascii(4, 4, flames[f])
         s.rect(3, 9, 10, 12, "r"); s.hline(3, 9, 10, "R"); s.vline(4, 10, 11, "R")
-        for x in (5, 7, 9, 11):  # a row of vent slits low on the drum (not a face)
+        for x in (5, 7, 9, 11):
             s.px(x, 17, "f" if (x + f) % 2 else "F"); s.px(x, 18, "f")
     s.outline().save(out("props", "brazier.png"))
 
 
 def string_lights():
-    s = Spr(128, 12, frames=2)  # frame 0 = dark, frame 1 = lit (after the generator is fixed)
+    s = Spr(128, 12, frames=2)
     colors = ["a", "p", "c", "A"]
     for f in range(2):
         s.frame(f)
@@ -230,13 +228,13 @@ def generator():
     for f in range(2):
         s.frame(f)
         s.rect(2, 8, 26, 16, "g"); s.hline(2, 8, 26, "l"); s.rect(2, 22, 26, 2, "m")
-        s.rect(5, 11, 8, 8, "k")                                        # cell slot
+        s.rect(5, 11, 8, 8, "k")
         if f == 1:
             s.rect(6, 12, 6, 6, "a"); s.hline(6, 12, 6, "A")
         for y in range(11, 20, 2):
-            s.hline(16, y, 9, "m")                                      # vents
-        s.rect(20, 3, 3, 5, "m")                                        # exhaust
-        s.px(26, 10, "T" if f == 1 else "x")                            # status LED
+            s.hline(16, y, 9, "m")
+        s.rect(20, 3, 3, 5, "m")
+        s.px(26, 10, "T" if f == 1 else "x")
         s.line(28, 18, 29, 25, "k")
     s.outline().save(out("props", "generator.png"))
 
@@ -247,12 +245,12 @@ def rusty_stall():
     for x in range(6, 44, 8):
         s.vline(x, 15, 14, "e")
     s.vline(3, 2, 12, "e"); s.vline(42, 2, 12, "e")
-    for x in range(1, 45):  # striped awning
+    for x in range(1, 45):
         for y in range(0, 4):
             s.px(x, y, "x" if (x // 4) % 2 == 0 else "W")
-    s.ellipse(9, 11, 3, 3, "B"); s.px(9, 11, "k")                       # gear for sale
-    s.rect(16, 8, 3, 6, "S"); s.rect(21, 9, 3, 5, "S"); s.px(17, 7, "s")  # bottles
-    s.rect(29, 10, 8, 4, "g"); s.hline(29, 10, 8, "l")                 # a box of bolts
+    s.ellipse(9, 11, 3, 3, "B"); s.px(9, 11, "k")
+    s.rect(16, 8, 3, 6, "S"); s.rect(21, 9, 3, 5, "S"); s.px(17, 7, "s")
+    s.rect(29, 10, 8, 4, "g"); s.hline(29, 10, 8, "l")
     s.outline().save(out("props", "rusty_stall.png"))
 
 
@@ -286,7 +284,7 @@ def warning_sign():
         half = 7 - abs(y - 7)
         if half > 0:
             s.px(10 - half, y, "k"); s.px(10 + half - 1, y, "k")
-    s.ascii(6, 4, ["..k.k..", "..k.k..", ".kkkkk.", "k..k..k", "k.....k"])  # the claw
+    s.ascii(6, 4, ["..k.k..", "..k.k..", ".kkkkk.", "k..k..k", "k.....k"])
     s.outline().save(out("props", "warning_sign.png"))
 
 
@@ -296,7 +294,7 @@ def junk_small():
         junk_mound(s, 1, w - 1, 5, 12, seed)
         rnd = random.Random(seed)
         px_ = rnd.randint(3, w - 9)
-        s.hline(px_, 4, 7, "l"); s.hline(px_, 5, 7, "g")              # a pipe on top
+        s.hline(px_, 4, 7, "l"); s.hline(px_, 5, 7, "g")
         s.outline().save(out("props", name + ".png"))
 
 
@@ -347,7 +345,6 @@ def hanging_cables():
 
 def hanging_junk():
     """Junk 'stalactites' hanging from the cave roof (anchored at the TOP)."""
-    # a: rebar bundle with a dangling cable and a bottle caught in it
     s = Spr(16, 40)
     for x, ln in ((5, 30), (8, 38), (11, 24)):
         s.vline(x, 0, ln, "m")
@@ -357,7 +354,6 @@ def hanging_junk():
     s.ascii(6, 22, [".l.", "lSl", "lSl", "lsl", ".l."])
     s.rect(2, 0, 12, 4, "d")
     s.outline().save(out("props", "hang_a.png"))
-    # b: a drooping clump of compacted trash with a cable tail
     s = Spr(24, 34)
     s.ellipse(12, 6, 11, 7, "d")
     s.ellipse(11, 12, 8, 6, "d")
@@ -369,7 +365,6 @@ def hanging_junk():
         s.px(12 + int(1.5 * math.sin(y / 4.0)), y, "k")
     s.px(12, 33, "c")
     s.outline().save(out("props", "hang_b.png"))
-    # c: an old fridge door hanging by its hinge chain
     s = Spr(18, 44)
     for y in range(0, 14):
         s.px(9 + (y % 2), y, "g")
@@ -393,7 +388,7 @@ def noticeboard():
         s.hline(1, y, 30, "e")
     for x, y, w, h, k in ((4, 4, 7, 8, "W"), (13, 5, 6, 6, "A"), (21, 3, 7, 9, "W"), (12, 12, 8, 6, "w")):
         s.rect(x, y, w, h, k)
-        s.px(x + w // 2, y, "x")                    # pin
+        s.px(x + w // 2, y, "x")
         for ly in range(y + 2, y + h - 1, 2):
             s.hline(x + 1, ly, w - 2, "l")
     s.rect(1, 20, 30, 1, "e")
@@ -407,7 +402,7 @@ def telescope():
     s.line(12, 16, 19, 29, "e")
     s.line(12, 16, 12, 29, "E")
     s.rect(10, 14, 4, 3, "b")
-    for i in range(14):                              # tube, angled up-right
+    for i in range(14):
         x, y = 4 + i, 16 - i // 2
         s.px(x, y, "y")
         s.px(x, y + 1, "B")
@@ -426,9 +421,9 @@ def hatch():
         s.rect(0, 0, 40, 2, "o")
         s.rect(0, 10, 40, 2, "k")
         for x in range(3, 40, 8):
-            s.px(x, 4, "O")                           # rivets
+            s.px(x, 4, "O")
             s.px(x, 8, "R")
-        s.rect(16, 3, 8, 6, "R")                      # handle plate
+        s.rect(16, 3, 8, 6, "R")
         s.hline(17, 5, 6, "k")
         if f >= 1:
             s.line(6, 2, 12, 9, "k")
@@ -446,7 +441,7 @@ def brass_door():
     s = Spr(60, 64)
     cx, cy = 30, 32
     s.ellipse(cx, cy, 29, 30, "b")
-    for a in range(0, 360, 20):                        # gear teeth
+    for a in range(0, 360, 20):
         r = math.radians(a)
         s.rect(int(cx + 28 * math.cos(r)) - 1, int(cy + 29 * math.sin(r)) - 1, 3, 3, "B")
     s.ellipse(cx, cy, 25, 26, "B")
@@ -454,11 +449,11 @@ def brass_door():
     s.ellipse(cx, cy, 20, 21, "B")
     s.ellipse(cx, cy, 8, 8, "b")
     s.ellipse(cx, cy, 5, 5, "z")
-    s.ellipse(cx, cy, 2, 2, "c")                      # it glows like the blade's wire
-    for a in range(0, 360, 45):                        # bolts around the rim
+    s.ellipse(cx, cy, 2, 2, "c")
+    for a in range(0, 360, 45):
         r = math.radians(a)
         s.px(int(cx + 17 * math.cos(r)), int(cy + 18 * math.sin(r)), "Y")
-    for a in (30, 150, 270):                           # spokes
+    for a in (30, 150, 270):
         r = math.radians(a)
         for d in range(9, 19):
             s.px(int(cx + d * math.cos(r)), int(cy + d * math.sin(r)), "b")
@@ -495,7 +490,7 @@ def lore_tablet():
             w = 2 + (x * 7 + y) % 3
             s.hline(x, y, w, "c" if (i + x) % 3 else "C")
             x += w + 1
-    s.line(12, 4, 9, 14, "m")                          # crack
+    s.line(12, 4, 9, 14, "m")
     s.outline().save(out("props", "lore_tablet.png"))
 
 
@@ -529,31 +524,31 @@ def dish():
 def tram():
     """A dead tram car on a buried line: the old Heap-to-Underworks route."""
     s = Spr(112, 52)
-    s.rect(4, 46, 104, 3, "m")                          # rail
+    s.rect(4, 46, 104, 3, "m")
     for x in range(8, 108, 10):
-        s.rect(x, 49, 4, 2, "e")                         # sleepers
-    for x in (20, 88):                                   # bogies
+        s.rect(x, 49, 4, 2, "e")
+    for x in (20, 88):
         s.ellipse(x, 44, 6, 4, "z")
         s.ellipse(x - 5, 46, 3, 3, "d")
         s.ellipse(x + 5, 46, 3, 3, "d")
-    s.rect(6, 12, 100, 30, "q")                         # body: faded teal paint
+    s.rect(6, 12, 100, 30, "q")
     s.rect(6, 12, 100, 2, "Q")
     s.rect(6, 38, 100, 4, "r")
-    s.rect(6, 30, 100, 2, "y")                          # brass trim line
-    for x in range(12, 100, 16):                         # windows, two still lit faintly
+    s.rect(6, 30, 100, 2, "y")
+    for x in range(12, 100, 16):
         s.rect(x, 17, 11, 9, "s")
         s.rect(x, 17, 11, 1, "S")
     s.rect(28, 18, 9, 7, "a")
     s.rect(28, 18, 9, 1, "A")
-    s.rect(98, 14, 6, 24, "Q")                          # front cab
-    s.rect(100, 18, 3, 6, "c")                          # cab lamp, still on
-    s.rect(46, 4, 20, 8, "m")                           # roof pantograph
+    s.rect(98, 14, 6, 24, "Q")
+    s.rect(100, 18, 3, 6, "c")
+    s.rect(46, 4, 20, 8, "m")
     s.line(50, 4, 58, 0, "g")
     s.line(58, 0, 66, 4, "g")
-    for (x, y) in ((14, 34), (60, 33), (80, 35)):        # rust blooms
+    for (x, y) in ((14, 34), (60, 33), (80, 35)):
         s.rect(x, y, 5, 3, "R")
-    s.rect(40, 12, 1, 26, "Q")                          # door seam
-    s.ascii(42, 34, ["4"])                               # line number plate
+    s.rect(40, 12, 1, 26, "Q")
+    s.ascii(42, 34, ["4"])
     s.rect(42, 33, 7, 5, "W")
     s.px(44, 35, "k"); s.px(45, 34, "k"); s.px(45, 35, "k"); s.px(45, 36, "k"); s.px(46, 35, "k")
     s.outline().save(out("props", "tram.png"))
@@ -565,18 +560,17 @@ def brass_door_open():
     cx, cy = 30, 32
     s.ellipse(cx, cy, 29, 30, "b")
     s.ellipse(cx, cy, 25, 26, "B")
-    s.ellipse(cx, cy, 21, 22, "f")                       # the light from below
+    s.ellipse(cx, cy, 21, 22, "f")
     s.ellipse(cx, cy + 4, 16, 16, "F")
     s.ellipse(cx, cy + 8, 9, 9, "A")
     for a in range(0, 360, 20):
         r = math.radians(a)
         s.rect(int(cx + 28 * math.cos(r)) - 1, int(cy + 29 * math.sin(r)) - 1, 3, 3, "B")
-    for k in range(5):                                   # stairs leading down into the glow
+    for k in range(5):
         s.rect(cx - 14 + k * 3, cy + 6 + k * 3, 28 - k * 6, 2, "b")
     s.outline().save(out("props", "brass_door_open.png"))
 
 
-# =============================================================== INTERACTABLES
 def charging_dock():
     s = Spr(34, 50, frames=4)
     for f in range(4):
@@ -632,7 +626,7 @@ def scrap_wall_tile():
         s.rect(0, y, 16, h, key)
         s.hline(0, y + h - 1, 16, "k")
         y += h
-    for i in range(16):  # orange spray-paint slash: the "marked" sign Shard I can cut
+    for i in range(16):
         s.px((i + 4) % 16, i, "a"); s.px((i + 5) % 16, i, "O")
     s.save(out("items", "scrap_wall.png"))
 
@@ -649,7 +643,6 @@ def shutter_door():
     s.save(out("items", "shutter_door.png"))
 
 
-# ====================================================================== ITEMS
 def items():
     def icon(name, w, h, rows, outline=True):
         s = Spr(w, h)
@@ -675,7 +668,7 @@ def items():
         ".Cccc...", ".Cccc...", ".Ccc....", "..cc....", "..cc....", "..c.....", "..c....."])
     icon("power_cell", 9, 13, ["..gg...", ".aAAa..", ".aAaa..", ".aaka..", ".akka..", ".aaka..", ".akaa..", ".aaaa..", ".aaaa..", ".bbbb.."])
     icon("bolt", 8, 8, ["..XX..", ".XAAX.", "XAWWAX", "XAWWAX", ".XAAX.", "..XX.."], outline=False)
-    b = Spr(16, 16)  # bale (boss projectile)
+    b = Spr(16, 16)
     b.rect(1, 1, 14, 14, "g"); b.hline(1, 1, 14, "l")
     b.vline(5, 1, 14, "o"); b.vline(10, 1, 14, "o")
     rnd = random.Random(3)
@@ -684,9 +677,8 @@ def items():
     b.outline().save(out("items", "bale.png"))
 
 
-# ========================================================================= FX
 def fx():
-    d = Spr(12, 7, frames=4)  # landing dust
+    d = Spr(12, 7, frames=4)
     for f in range(4):
         d.frame(f)
         a = [200, 150, 90, 40][f]
@@ -694,7 +686,7 @@ def fx():
         for (x, y) in ((6 - spread, 5), (6 + spread - 1, 5), (6 - spread - 1, 4 - f // 2), (6 + spread, 4 - f // 2)):
             d.px(x, y, "l", a); d.px(x + 1, y, "w", a // 2)
     d.save(out("fx", "dust.png"))
-    g = Spr(64, 64)  # banded additive glow (pixel-style light, not a blur)
+    g = Spr(64, 64)
     for y in range(64):
         for x in range(64):
             r = math.hypot(x - 31.5, y - 31.5) / 32
@@ -704,9 +696,8 @@ def fx():
     g.save(out("fx", "glow.png"))
 
 
-# ========================================================================= UI
 def ui():
-    p = Spr(24, 24)  # 9-slice panel, 8 px margins: salvaged-terminal frame
+    p = Spr(24, 24)
     p.rect(0, 0, 24, 24, "m")
     p.hline(0, 0, 24, "g"); p.vline(0, 0, 24, "g")
     p.hline(0, 23, 24, "k"); p.vline(23, 0, 24, "k")
@@ -717,7 +708,7 @@ def ui():
     for (x, y) in ((1, 1), (21, 1), (1, 21), (21, 21)):
         p.px(x, y, "l"); p.px(x + 1, y + 1, "d")
     p.save(out("ui", "panel.png"))
-    b = Spr(12, 12)  # focused button: teal bar with a cursor notch
+    b = Spr(12, 12)
     for y in range(12):
         for x in range(12):
             b.img.putpixel((x, y), (35, 74, 72, 190))
@@ -748,12 +739,12 @@ def ground_decals():
     LT, DK = (62, 46, 46, 255), (32, 23, 25, 255)
     s = Spr(14 * 6, 10)
     shapes = [
-        ["..LLLLLL....", ".LDDDDDDL...", "LD......DL..", "LD..LL..DL..", "LD......DL..", ".LDDDDDDL...", "..LLLLLL...."],  # tyre
-        ["LLLLLLLLLL..", "LDDDDDDDDL..", "LD.L..L.DL..", "LDDDDDDDDL..", "LLLLLLLLLL.."],                                  # panel
-        ["....LL......", "...LDDL.....", "LLLLDDLLLLLL", "DDDDDDDDDDDD", "...LDDL.....", "....LL......"],                  # pipe
-        [".L.L.L.", "LLLLLLL", ".LDDDL.", "LLDLDLL", ".LDDDL.", "LLLLLLL", ".L.L.L."],                                      # gear
-        ["..L..........", "..DL.........", "...DL........", "....DLLLLLLL.", ".....DDDDDDD."],                          # bent rod
-        ["...LL...", "..LDDL..", "..LDDL..", ".LDDDDL.", ".LDDDDL.", ".LLLLLL."],                                          # bottle
+        ["..LLLLLL....", ".LDDDDDDL...", "LD......DL..", "LD..LL..DL..", "LD......DL..", ".LDDDDDDL...", "..LLLLLL...."],
+        ["LLLLLLLLLL..", "LDDDDDDDDL..", "LD.L..L.DL..", "LDDDDDDDDL..", "LLLLLLLLLL.."],
+        ["....LL......", "...LDDL.....", "LLLLDDLLLLLL", "DDDDDDDDDDDD", "...LDDL.....", "....LL......"],
+        [".L.L.L.", "LLLLLLL", ".LDDDL.", "LLDLDLL", ".LDDDL.", "LLLLLLL", ".L.L.L."],
+        ["..L..........", "..DL.........", "...DL........", "....DLLLLLLL.", ".....DDDDDDD."],
+        ["...LL...", "..LDDL..", "..LDDL..", ".LDDDDL.", ".LDDDDL.", ".LLLLLL."],
     ]
     for i, rows in enumerate(shapes):
         for y, row in enumerate(rows):

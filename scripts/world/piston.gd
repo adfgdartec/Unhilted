@@ -1,21 +1,15 @@
 @tool
 class_name Piston
 extends Node2D
-## A steam piston that drives a block out and back on a rhythm. It's a
-## moving platform, not a hazard: ride it up a shaft, or let a sideways one
-## shove you across a gap (it's solid, so it pushes you along).
-## Before each stroke the cylinder vents a puff (the tell).
-## The node's position is the cylinder mouth; the block starts flush with it
-## and travels `travel` px along `direction`.
 
 @export var direction := Vector2.UP
 @export var travel := 80.0
-@export var size := Vector2(40, 16)     ## the block (x across the stroke, y along it)
+@export var size := Vector2(40, 16)
 @export var period := 3.0
 @export var offset := 0.0
 
 var _t := 0.0
-var _out := 0.0  ## 0 retracted .. 1 extended
+var _out := 0.0
 var _body: AnimatableBody2D
 
 
@@ -39,7 +33,6 @@ func _block_size() -> Vector2:
 	return size if absf(direction.y) >= absf(direction.x) else Vector2(size.y, size.x)
 
 
-## 0..0.15 rest in, 0.15..0.2 tell, 0.2..0.4 drive out, 0.4..0.7 hold, 0.7..1 ease back
 func _phase() -> float:
 	return fposmod(_t, period) / period
 
@@ -79,11 +72,9 @@ func _draw() -> void:
 	var bs := _block_size()
 	var along := absf(dir.x) * bs.x * 0.5 + absf(dir.y) * bs.y * 0.5
 	var head := dir * (travel * _out + along)
-	# cylinder behind the mouth
 	var cyl := Rect2(-bs * 0.5 - dir * along * 1.2, bs)
 	draw_rect(Rect2(cyl.position - Vector2(2, 2), cyl.size + Vector2(4, 4)), Color8(44, 32, 34))
 	draw_rect(cyl, Color8(90, 63, 48))
-	# the rod
 	var rod_w := 6.0
 	var a := Vector2.ZERO
 	var b := head - dir * along
@@ -93,7 +84,6 @@ func _draw() -> void:
 	else:
 		draw_rect(Rect2(Vector2(minf(a.x, b.x), -rod_w * 0.5), Vector2(absf(b.x - a.x), rod_w)), Color8(138, 118, 108))
 		draw_rect(Rect2(Vector2(minf(a.x, b.x), -rod_w * 0.5), Vector2(absf(b.x - a.x), 1)), Color8(192, 170, 150))
-	# the block: brass plate, rivets
 	var r := Rect2(head - bs * 0.5, bs)
 	draw_rect(r, Color8(140, 100, 40))
 	draw_rect(Rect2(r.position, Vector2(r.size.x, 2)), Color8(240, 207, 115))

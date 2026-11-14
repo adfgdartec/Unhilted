@@ -1,8 +1,5 @@
 class_name Projectile
 extends Area2D
-## Enemy projectile. Hurts the player's hurtbox, breaks on walls.
-## deflectable = true gives it a small hurtbox, so a melee swing or a thrown
-## blade can knock it out of the air.
 
 const BALE := preload("res://art/items/bale.png")
 const BOLT := preload("res://art/items/bolt.png")
@@ -14,12 +11,10 @@ var lifetime := 3.0
 var radius := 3.5
 var color := Color(1.0, 0.45, 0.3)
 var deflectable := true
-var style := "bolt" ## "bolt" (glowing shot) or "bale" (falling scrap bale)
-var shatter := 0      ## bales: break into this many skidding fragments on impact
-var spin := 0.0       ## bales: radians per second while flying
-var size := 1.0       ## bales: drawing scale (1 = 16 px)
-## Bounce-back: a melee hit or the thrown blade sends this straight back at
-## `return_target` (which must have hit_by_returned_block()) instead of breaking it.
+var style := "bolt"
+var shatter := 0
+var spin := 0.0
+var size := 1.0
 var bounce_back := false
 var return_target: Node2D
 var returned := false
@@ -28,7 +23,7 @@ var _rot := 0.0
 
 func _ready() -> void:
 	collision_layer = 0
-	collision_mask = 8 | 1 # player hurtbox + world
+	collision_mask = 8 | 1
 	monitorable = false
 	var shape := CollisionShape2D.new()
 	var circle := CircleShape2D.new()
@@ -37,7 +32,7 @@ func _ready() -> void:
 	add_child(shape)
 	if deflectable or bounce_back:
 		var hb := Hurtbox.new()
-		hb.collision_layer = 16 # enemy_hurtbox: player attacks can hit it
+		hb.collision_layer = 16
 		hb.collision_mask = 0
 		var hshape := CollisionShape2D.new()
 		var hc := CircleShape2D.new()
@@ -87,7 +82,6 @@ func _pop() -> void:
 	queue_free()
 
 
-## Hit it and it flies back where it came from, faster, and stops hurting you.
 func _bounce_back() -> void:
 	if returned or not is_instance_valid(return_target):
 		return
@@ -96,7 +90,7 @@ func _bounce_back() -> void:
 	gravity_force = 0.0
 	lifetime = 2.5
 	spin *= -2.0
-	set_deferred("collision_mask", 0)   # sails through the world on the way back
+	set_deferred("collision_mask", 0)
 	var to := return_target.call("returned_block_point") as Vector2
 	velocity = (to - global_position).normalized() * maxf(velocity.length() * 1.5, 420.0)
 	Fx.float_text(global_position + Vector2(0, -16), "BOUNCED BACK!")
@@ -107,8 +101,6 @@ func _bounce_back() -> void:
 	color = Color(0.45, 0.95, 1.0)
 
 
-## A thrown block breaks on landing into fragments that skid along the floor:
-## the second thing to dodge.
 func _shatter() -> void:
 	Fx.shake(4.0)
 	Fx.dust(global_position, 1.4)
@@ -124,7 +116,7 @@ func _shatter() -> void:
 		f.lifetime = 1.4
 		f.spin = randf_range(-14.0, 14.0)
 		f.color = color
-		var spread := (float(i) / maxf(shatter - 1, 1) - 0.5) * 2.0   # -1..1
+		var spread := (float(i) / maxf(shatter - 1, 1) - 0.5) * 2.0
 		f.velocity = Vector2(dir * 150.0 + spread * 120.0, -170.0 - absf(spread) * 40.0)
 		get_parent().add_child.call_deferred(f)
 		f.global_position = global_position + Vector2(0, -6)

@@ -1,14 +1,10 @@
 class_name GasLamp
 extends Node2D
-## A gaslight on an iron post (or a bracket on the wall). It's a real light:
-## Underworks rooms are dark between the lamps. The Lamplighter snuffs them;
-## hit a dark lamp (sword or blade) to light it again.
-## The node's position is the foot of the post (or the wall bracket).
 
 signal relit
 
-const POST := preload("res://art/props/uw_gaslamp.png")   # 12x44, 2 frames (flicker)
-const WALL := preload("res://art/props/uw_wall_lamp.png") # 10x16, 2 frames
+const POST := preload("res://art/props/uw_gaslamp.png")
+const WALL := preload("res://art/props/uw_wall_lamp.png")
 
 @export var wall_mounted := false
 @export var lit := true
@@ -88,6 +84,5 @@ func _draw() -> void:
 	var tint := Color.WHITE if lit else Color(0.55, 0.55, 0.6)
 	draw_texture_rect_region(tex, Rect2(origin, Vector2(fw, tex.get_height())), Rect2(frame * fw, 0, fw, tex.get_height()), tint)
 	if not lit:
-		# a dark glass cage: draw over the flame
 		var f := _flame()
 		draw_rect(Rect2(f + Vector2(-2, -3), Vector2(4, 6)), Color(0.12, 0.12, 0.14))

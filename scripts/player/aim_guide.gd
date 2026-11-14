@@ -1,10 +1,4 @@
 extends Node2D
-## Mouse aiming helper.
-##  - Blade in hand: a faint dotted line from the hand toward the cursor, cut
-##    off at the wire's reach, plus brackets on a grapple point it would snap to.
-##  - Gripping (left button held): the line follows the flick instead and
-##    brightens, and a small ring marks where the grip started.
-## Hidden with a gamepad, while the blade is out, or when a menu has control.
 
 var player: Player
 

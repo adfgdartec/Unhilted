@@ -1,7 +1,4 @@
 extends Node
-## Developer cheats, only active in debug builds (i.e. when run from the editor).
-##   F1  give Shard I (Edge)      F2  +50 scrap        F3  +5 local currency
-##   F4  unlock all chips/outfits F5  save now         F9  delete save file
 
 func _input(event: InputEvent) -> void:
 	if not OS.is_debug_build():
