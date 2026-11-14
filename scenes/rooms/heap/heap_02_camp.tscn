@@ -1,0 +1,493 @@
+[gd_scene load_steps=46 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="2_exit"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="3_col"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="4_npc"]
+[ext_resource type="PackedScene" path="res://scenes/world/charging_dock.tscn" id="5_dock"]
+[ext_resource type="Resource" path="res://data/quests/lost_power_cell.tres" id="6_quest"]
+[ext_resource type="Script" path="res://scripts/resources/shop_item.gd" id="7_shopitem"]
+[ext_resource type="Resource" path="res://data/shop/rusty_cloak.tres" id="8_s1"]
+[ext_resource type="Resource" path="res://data/shop/rusty_mask.tres" id="9_s2"]
+[ext_resource type="Resource" path="res://data/shop/rusty_magnet.tres" id="10_s3"]
+[ext_resource type="Resource" path="res://data/shop/rusty_repair.tres" id="11_s4"]
+[ext_resource type="Resource" path="res://data/shop/rusty_reflex.tres" id="12_s5"]
+[ext_resource type="Resource" path="res://data/shop/rusty_port.tres" id="13_s6"]
+[ext_resource type="Resource" path="res://data/shop/dot_map.tres" id="dot_map"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="p_script"]
+[ext_resource type="Texture2D" path="res://art/props/bus.png" id="tex_bus"]
+[ext_resource type="Texture2D" path="res://art/props/generator.png" id="tex_generator"]
+[ext_resource type="Texture2D" path="res://art/props/string_lights.png" id="tex_string_lights"]
+[ext_resource type="Texture2D" path="res://art/props/street_lamp.png" id="tex_street_lamp"]
+[ext_resource type="Texture2D" path="res://art/props/brazier.png" id="tex_brazier"]
+[ext_resource type="Texture2D" path="res://art/props/rusty_stall.png" id="tex_rusty_stall"]
+[ext_resource type="Texture2D" path="res://art/props/neon_scrap.png" id="tex_neon_scrap"]
+[ext_resource type="Texture2D" path="res://art/props/barrel.png" id="tex_barrel"]
+[ext_resource type="Texture2D" path="res://art/props/tarp_shelter.png" id="tex_tarp_shelter"]
+[ext_resource type="Texture2D" path="res://art/props/junk_b.png" id="tex_junk_b"]
+[ext_resource type="Texture2D" path="res://art/props/warning_sign.png" id="tex_warning_sign"]
+[ext_resource type="Resource" path="res://data/lineages/heapfolk.tres" id="lin_heap"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="readable"]
+[ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="scaffold"]
+[ext_resource type="Script" path="res://scripts/world/breakable_floor.gd" id="breakable"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_point.tscn" id="gp"]
+[ext_resource type="Texture2D" path="res://art/props/noticeboard.png" id="tex_notice"]
+[ext_resource type="Texture2D" path="res://art/props/telescope.png" id="tex_scope"]
+[ext_resource type="Texture2D" path="res://art/props/water_tank.png" id="tex_tank"]
+[ext_resource type="Texture2D" path="res://art/props/dish.png" id="tex_dish"]
+[ext_resource type="Texture2D" path="res://art/props/junk_a.png" id="tex_junk_a"]
+[ext_resource type="Texture2D" path="res://art/props/tyres.png" id="tex_tyres"]
+[ext_resource type="Texture2D" path="res://art/props/crt_pile.png" id="tex_crt"]
+[ext_resource type="Texture2D" path="res://art/props/hanging_cables.png" id="tex_cables"]
+[ext_resource type="Texture2D" path="res://art/props/front_rusty.png" id="front_rusty"]
+[ext_resource type="Texture2D" path="res://art/props/front_dot.png" id="front_dot"]
+[ext_resource type="Texture2D" path="res://art/props/front_mags.png" id="front_mags"]
+[ext_resource type="Script" path="res://scripts/world/door.gd" id="door_script"]
+
+[sub_resource type="RectangleShape2D" id="exit_shape"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="hole_shape"]
+size = Vector2(40, 8)
+
+[node name="Heap02Camp" type="Node2D"]
+script = ExtResource("1_room")
+room_id = &"heap_02_camp"
+region_id = &"heap"
+tileset = "heap_scrap"
+solid_styles = PackedStringArray("ground", "ground", "ground", "girder", "girder", "girder", "ground", "girder", "girder", "girder", "girder", "girder", "girder", "girder", "girder", "girder")
+backdrop = "heap_outdoor"
+ambient = Color(0.88, 0.8, 0.78, 1)
+music = "camp"
+grade = &"heap"
+weather = "none"
+motes_color = Color(1, 0.84, 0.6, 0.32)
+motes_amount = 36
+display_name = "Scavenger Camp"
+bounds = Rect2(0, -200, 1920, 560)
+solids = Array[Rect2]([Rect2(0, -200, 16, 472), Rect2(0, 336, 1400, 24), Rect2(1440, 336, 480, 24), Rect2(560, 288, 96, 16), Rect2(700, 240, 96, 16), Rect2(830, 192, 114, 16), Rect2(1904, -200, 16, 472), Rect2(1094, 296, 80, 14), Rect2(970, 256, 80, 16), Rect2(1094, 216, 80, 14), Rect2(970, 176, 80, 16), Rect2(1094, 136, 80, 14), Rect2(970, 96, 80, 16), Rect2(1094, 56, 80, 14), Rect2(950, 16, 100, 16), Rect2(1150, -44, 70, 14)])
+bg_top = Color(0.12, 0.1, 0.16, 1)
+bg_bottom = Color(0.3, 0.2, 0.16, 1)
+
+[node name="FrontRusty" type="Node2D" parent="."]
+position = Vector2(640, 336)
+script = ExtResource("p_script")
+texture = ExtResource("front_rusty")
+background = true
+light_radius = 60.0
+light_energy = 0.7
+glow_color = Color(1, 0.75, 0.4, 0.35)
+glow_radius = 20.0
+glow_offset = Vector2(-1, -20)
+
+[node name="FrontMags" type="Node2D" parent="."]
+position = Vector2(1318, 336)
+script = ExtResource("p_script")
+texture = ExtResource("front_mags")
+background = true
+light_radius = 60.0
+light_energy = 0.6
+glow_color = Color(1, 0.75, 0.4, 0.3)
+glow_radius = 22.0
+glow_offset = Vector2(-10, -12)
+
+[node name="FrontDot" type="Node2D" parent="."]
+position = Vector2(1560, 336)
+script = ExtResource("p_script")
+texture = ExtResource("front_dot")
+background = true
+light_radius = 50.0
+light_energy = 0.6
+glow_color = Color(1, 0.75, 0.4, 0.3)
+glow_radius = 18.0
+glow_offset = Vector2(0, -20)
+
+[node name="RustTower" type="Node2D" parent="."]
+script = ExtResource("scaffold")
+columns = Array[Rect2]([Rect2(966, 16, 88, 320), Rect2(1090, 56, 88, 280)])
+ties = PackedFloat32Array(56, 96, 136, 176, 216, 256, 296)
+stilts = Array[Rect2]([Rect2(560, 288, 96, 16), Rect2(700, 240, 96, 16), Rect2(830, 192, 114, 16)])
+mast = Vector2(1000, -34)
+mast_base_y = 16.0
+hangers = Array[Rect2]([Rect2(1150, -44, 70, 14)])
+
+[node name="CampBus" type="Node2D" parent="."]
+position = Vector2(178, 338)
+script = ExtResource("p_script")
+texture = ExtResource("tex_bus")
+light_radius = 84.0
+light_energy = 0.75
+background = true
+glow_color = Color(1, 0.75, 0.4, 0.5)
+glow_radius = 40.0
+glow_offset = Vector2(0, -36)
+
+[node name="TinkerGenerator" type="Node2D" parent="."]
+position = Vector2(262, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_generator")
+light_radius = 40.0
+light_energy = 0.7
+emit = "smoke"
+emit_offset = Vector2(7, -24)
+frames = 2
+glow_color = Color(1, 0.65, 0.2, 0.5)
+glow_radius = 18.0
+glow_offset = Vector2(-6, -12)
+lit_when_quest = &"lost_power_cell"
+
+[node name="CampLights" type="Node2D" parent="."]
+position = Vector2(308, 294)
+script = ExtResource("p_script")
+texture = ExtResource("tex_string_lights")
+light_radius = 90.0
+light_energy = 0.55
+frames = 2
+glow_color = Color(1, 0.6, 0.6, 0.22)
+glow_radius = 50.0
+glow_offset = Vector2(0, -4)
+lit_when_quest = &"lost_power_cell"
+
+[node name="Prop3_street_lamp" type="Node2D" parent="."]
+position = Vector2(372, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_street_lamp")
+light_radius = 80.0
+light_energy = 0.9
+background = true
+glow_color = Color(1, 0.75, 0.4, 0.5)
+glow_radius = 30.0
+glow_offset = Vector2(5, -52)
+glow_flicker = 0.15
+
+[node name="Prop4_brazier" type="Node2D" parent="."]
+position = Vector2(548, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_brazier")
+light_radius = 90.0
+light_energy = 1.0
+emit = "embers"
+emit_offset = Vector2(0, -16)
+frames = 3
+fps = 8.0
+glow_color = Color(1, 0.55, 0.2, 0.55)
+glow_radius = 34.0
+glow_offset = Vector2(0, -18)
+glow_flicker = 0.3
+
+[node name="Prop7_barrel" type="Node2D" parent="."]
+position = Vector2(716, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_barrel")
+background = true
+
+[node name="PipTarp" type="Node2D" parent="."]
+position = Vector2(806, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_tarp_shelter")
+background = true
+
+[node name="Prop9_junk_b" type="Node2D" parent="."]
+position = Vector2(876, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_junk_b")
+background = true
+
+[node name="IntakeWarning" type="Node2D" parent="."]
+position = Vector2(1878, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_warning_sign")
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_rusty" type="Marker2D" parent="Spawns"]
+position = Vector2(639, 336)
+
+[node name="from_mags" type="Marker2D" parent="Spawns"]
+position = Vector2(1360, 336)
+
+[node name="from_dot" type="Marker2D" parent="Spawns"]
+position = Vector2(1560, 336)
+
+[node name="from_pit" type="Marker2D" parent="Spawns"]
+position = Vector2(60, 336)
+
+[node name="dock" type="Marker2D" parent="Spawns"]
+position = Vector2(480, 336)
+
+[node name="from_intake" type="Marker2D" parent="Spawns"]
+position = Vector2(1856, 336)
+
+[node name="from_fields" type="Marker2D" parent="Spawns"]
+position = Vector2(1856, 336)
+
+[node name="from_under" type="Marker2D" parent="Spawns"]
+position = Vector2(1474, 336)
+
+[node name="ExitToPit" type="Area2D" parent="."]
+position = Vector2(4, 304)
+script = ExtResource("2_exit")
+target_room = "res://scenes/rooms/heap/heap_01_pit.tscn"
+target_spawn = &"from_camp"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToPit"]
+shape = SubResource("exit_shape")
+
+[node name="ExitToFields" type="Area2D" parent="."]
+position = Vector2(1916, 304)
+script = ExtResource("2_exit")
+target_room = "res://scenes/rooms/heap/heap_05_fields.tscn"
+target_spawn = &"from_camp"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToFields"]
+shape = SubResource("exit_shape")
+
+[node name="ChargingDock" parent="." instance=ExtResource("5_dock")]
+position = Vector2(480, 336)
+spawn_name = &"dock"
+
+[node name="Tinker" parent="." instance=ExtResource("4_npc")]
+position = Vector2(300, 336)
+npc_id = &"tinker"
+display_name = "Tinker"
+idle_lines = Array[String](["Generator's humming. Life is good."])
+quest = ExtResource("6_quest")
+lineage = ExtResource("lin_heap")
+pin_headwear = "cap"
+pin_goggles = "raised"
+pin_accessory = "belt"
+
+[node name="Pip" parent="." instance=ExtResource("4_npc")]
+position = Vector2(800, 336)
+npc_id = &"pip"
+display_name = "Pip"
+idle_lines = Array[String](["Mom says robots are dangerous.", "...Are you dangerous? You don't look dangerous. Your hood is kinda cool.", "Hey Tinker! The robot's back! I think {they} likes me!"])
+lineage = ExtResource("lin_heap")
+age = "child"
+pin_headwear = "hood"
+pin_goggles = "double"
+pin_accessory = "none"
+
+[node name="CapCamp1" parent="." instance=ExtResource("3_col")]
+position = Vector2(608, 270)
+kind = 1
+
+[node name="CapCamp2" parent="." instance=ExtResource("3_col")]
+position = Vector2(860, 174)
+kind = 1
+
+[node name="ChipSteamVent" parent="." instance=ExtResource("3_col")]
+position = Vector2(910, 174)
+kind = 3
+item_id = &"steam_vent"
+
+[node name="GranOxa" parent="." instance=ExtResource("4_npc")]
+position = Vector2(588, 336)
+npc_id = &"gran_oxa"
+display_name = "Gran Oxa"
+idle_lines = Array[String](["Sit, sit. Fire's free. Talk's cheap, and I'm cheaper.", "Everybody in this camp is my grandkid, near enough. Same goggles, same bad knees. Runs in the family.", "That big brass face out past the crane? It was there before the city. My gran swore it used to hum on cold nights."])
+lineage = ExtResource("lin_heap")
+age = "elder"
+pin_headwear = "none"
+pin_goggles = "single"
+pin_accessory = "cane"
+
+[node name="Sprocket" parent="." instance=ExtResource("4_npc")]
+position = Vector2(146, 336)
+npc_id = &"sprocket"
+display_name = "Sprocket"
+idle_lines = Array[String](["Don't stand there, you're blocking my view of the Intake.", "Somebody's gotta watch the crane. It dumps twice a night. You learn the rhythm or you get buried.", "Gran says {they}'s older than her. That can't be right. Nobody's older than Gran."])
+lineage = ExtResource("lin_heap")
+age = "teen"
+pin_headwear = "beanie"
+pin_goggles = "double"
+pin_accessory = "lantern"
+
+[node name="TowerTank" type="Node2D" parent="."]
+position = Vector2(1010, 256)
+script = ExtResource("p_script")
+texture = ExtResource("tex_tank")
+background = true
+
+[node name="TowerTyres" type="Node2D" parent="."]
+position = Vector2(1134, 216)
+script = ExtResource("p_script")
+texture = ExtResource("tex_tyres")
+background = true
+
+[node name="TowerCables" type="Node2D" parent="."]
+position = Vector2(1010, 112)
+script = ExtResource("p_script")
+texture = ExtResource("tex_cables")
+background = true
+hanging = true
+
+[node name="LookoutScope" type="Node2D" parent="."]
+position = Vector2(990, 16)
+script = ExtResource("p_script")
+texture = ExtResource("tex_scope")
+light_radius = 30.0
+light_energy = 0.5
+glow_color = Color(1, 0.85, 0.5, 0.3)
+glow_radius = 10.0
+glow_offset = Vector2(7, -21)
+
+[node name="Lookout" type="Area2D" parent="."]
+position = Vector2(990, 16)
+script = ExtResource("readable")
+prompt = "Look"
+title = "LOOKOUT"
+lore_id = "spire_lookout"
+lines = Array[String](["> You put your eye to the telescope.", "Past the heap, the megacity runs to the edge of the sky. Every light in it leans toward one tower: the Spire.", "Something at its top is pulling. The smog drifts toward it like water toward a drain.", "> Your blade hums, very faintly, while you look."])
+size = Vector2(24, 32)
+
+[node name="CapTower" parent="." instance=ExtResource("3_col")]
+position = Vector2(1026, 0)
+kind = 1
+
+[node name="AlcoveHook" parent="." instance=ExtResource("gp")]
+position = Vector2(1170, -84)
+chain_length = 100.0
+
+[node name="AlcoveDish" type="Node2D" parent="."]
+position = Vector2(1206, -44)
+script = ExtResource("p_script")
+texture = ExtResource("tex_dish")
+background = true
+
+[node name="CapAlcove" parent="." instance=ExtResource("3_col")]
+position = Vector2(1164, -60)
+kind = 1
+
+[node name="ScrapAlcove" parent="." instance=ExtResource("3_col")]
+position = Vector2(1186, -60)
+kind = 0
+amount = 10
+
+[node name="MarketNotice" type="Node2D" parent="."]
+position = Vector2(1252, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_notice")
+
+[node name="Noticeboard" type="Area2D" parent="."]
+position = Vector2(1252, 336)
+script = ExtResource("readable")
+prompt = "Read"
+title = "NOTICEBOARD"
+lore_id = "camp_noticeboard"
+lines = Array[String](["LOST: one power cell, glows blue. Tinker's going spare. Bring it to him. -Gran", "DUMP TIMES: the crane drops twice a night. Count the warning lamps. Don't be under it. -Sprocket", "To whoever keeps stomping on the old hatch by the water tank: STOP. Something down there hums. -Mags", "MAPS WANTED. Will trade caps. Ask Dot."])
+size = Vector2(24, 32)
+
+[node name="MarketLights" type="Node2D" parent="."]
+position = Vector2(1500, 294)
+script = ExtResource("p_script")
+texture = ExtResource("tex_string_lights")
+light_radius = 80.0
+light_energy = 0.5
+frames = 2
+fps = 0.7
+glow_color = Color(1, 0.6, 0.6, 0.2)
+glow_radius = 46.0
+glow_offset = Vector2(0, -4)
+
+[node name="MarketCrt" type="Node2D" parent="."]
+position = Vector2(1610, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_crt")
+background = true
+frames = 2
+fps = 5.0
+light_radius = 30.0
+light_energy = 0.4
+glow_color = Color(0.3, 0.75, 0.85, 0.25)
+glow_radius = 14.0
+glow_offset = Vector2(-7, -8)
+
+[node name="HatchTank" type="Node2D" parent="."]
+position = Vector2(1386, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_tank")
+background = true
+
+[node name="HatchJunk" type="Node2D" parent="."]
+position = Vector2(1470, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_junk_a")
+background = true
+
+[node name="MarketBrazier" type="Node2D" parent="."]
+position = Vector2(1700, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_brazier")
+light_radius = 90.0
+light_energy = 0.9
+emit = "embers"
+emit_offset = Vector2(0, -16)
+frames = 3
+fps = 8.0
+glow_color = Color(1, 0.55, 0.2, 0.55)
+glow_radius = 30.0
+glow_offset = Vector2(0, -18)
+glow_flicker = 0.3
+
+[node name="EastBarrel" type="Node2D" parent="."]
+position = Vector2(1780, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_barrel")
+background = true
+
+[node name="EastJunk" type="Node2D" parent="."]
+position = Vector2(1830, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_junk_b")
+background = true
+
+[node name="EastLamp" type="Node2D" parent="."]
+position = Vector2(1640, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_street_lamp")
+light_radius = 80.0
+light_energy = 0.85
+background = true
+glow_color = Color(1, 0.75, 0.4, 0.5)
+glow_radius = 28.0
+glow_offset = Vector2(5, -52)
+glow_flicker = 0.1
+
+[node name="CapMarket" parent="." instance=ExtResource("3_col")]
+position = Vector2(1806, 318)
+kind = 1
+
+[node name="OldHatch" type="StaticBody2D" parent="."]
+position = Vector2(1420, 336)
+script = ExtResource("breakable")
+
+[node name="ExitToUnder" type="Area2D" parent="."]
+position = Vector2(1420, 354)
+script = ExtResource("2_exit")
+target_room = "res://scenes/rooms/heap/heap_02b_undercamp.tscn"
+target_spawn = &"from_camp"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToUnder"]
+shape = SubResource("hole_shape")
+
+[node name="DoorRusty" type="Area2D" parent="."]
+position = Vector2(639, 336)
+script = ExtResource("door_script")
+interior = "res://scenes/interiors/rusty_shop.tscn"
+return_spawn = &"from_rusty"
+prompt = "Enter Rusty's"
+
+[node name="DoorMags" type="Area2D" parent="."]
+position = Vector2(1360, 336)
+script = ExtResource("door_script")
+interior = "res://scenes/interiors/mags_garage.tscn"
+return_spawn = &"from_mags"
+prompt = "Enter the garage"
+
+[node name="DoorDot" type="Area2D" parent="."]
+position = Vector2(1560, 336)
+script = ExtResource("door_script")
+interior = "res://scenes/interiors/dot_house.tscn"
+return_spawn = &"from_dot"
+prompt = "Enter Dot's"

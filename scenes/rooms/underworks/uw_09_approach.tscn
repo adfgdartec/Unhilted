@@ -1,0 +1,119 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/hazard.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e2"]
+[ext_resource type="PackedScene" path="res://scenes/world/charging_dock.tscn" id="e3"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_point.tscn" id="e4"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/gear_wheel.gd" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e7"]
+[ext_resource type="Script" path="res://scripts/enemies/bellows_bat.gd" id="e8"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e9"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e10"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[node name="Uw09Approach" type="Node2D"]
+script = ExtResource("e10")
+room_id = &"uw_09_approach"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "brick", "plate", "brick", "plate", "plate", "grate")
+backdrop = "uw_works"
+music = "underworks"
+ambient = Color(0.68, 0.6, 0.54, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Governor's Approach"
+bounds = Rect2(0, 0, 960, 400)
+solids = Array[Rect2]([Rect2(0, 0, 960, 24), Rect2(0, 0, 16, 288), Rect2(944, 0, 16, 288), Rect2(0, 352, 400, 48), Rect2(490, 312, 40, 88), Rect2(620, 352, 340, 48), Rect2(400, 384, 220, 16), Rect2(820, 200, 124, 12)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="Pit" type="Area2D" parent="."]
+position = Vector2(400, 368)
+script = ExtResource("e1")
+size = Vector2(220, 16)
+kind = "boiling"
+
+[node name="ExitToGauge" type="Area2D" parent="."]
+position = Vector2(4, 320)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/underworks/uw_08_gauge.tscn"
+target_spawn = &"from_approach"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGauge"]
+shape = SubResource("s1")
+
+[node name="ExitToGovernor" type="Area2D" parent="."]
+position = Vector2(956, 320)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/underworks/uw_10_governor.tscn"
+target_spawn = &"from_approach"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGovernor"]
+shape = SubResource("s2")
+
+[node name="ChargingDock" parent="." instance=ExtResource("e3")]
+position = Vector2(200, 352)
+spawn_name = &"dock"
+
+[node name="SwingRing" parent="." instance=ExtResource("e4")]
+position = Vector2(760, 140)
+chain_length = 40
+swing_only = true
+
+[node name="CogLedge" parent="." instance=ExtResource("e5")]
+position = Vector2(900, 180)
+kind = 1
+
+[node name="Gear" type="Node2D" parent="."]
+position = Vector2(510, 150)
+script = ExtResource("e6")
+radius = 60
+platforms = 0
+speed = 0.3
+platform_width = 36
+start_angle = 0
+
+[node name="Warning" type="Area2D" parent="."]
+position = Vector2(300, 352)
+script = ExtResource("e7")
+prompt = "Read"
+title = "PLAQUE"
+lines = Array[String](["> THE GREAT GOVERNOR. KEEPS THE PRESSURE OF THE WHOLE UNDERWORKS.", "> WHEN THE BALLS FLY OUT, IT IS RUNNING FAST. WHEN THE CROWN LIFTS, IT IS ABOUT TO BURST.", "> Scratched underneath: hooks either side of the crown. Hit it while it's open. -B."])
+size = Vector2(24, 32)
+lore_id = "uw_governor_plaque"
+
+[node name="Bat" type="CharacterBody2D" parent="."]
+position = Vector2(510, 180)
+script = ExtResource("e8")
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(120, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(700, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_gauge" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 352)
+
+[node name="from_governor" type="Marker2D" parent="Spawns"]
+position = Vector2(910, 352)
+
+[node name="dock" type="Marker2D" parent="Spawns"]
+position = Vector2(200, 352)

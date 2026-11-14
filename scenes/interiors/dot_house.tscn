@@ -1,0 +1,133 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Resource" path="res://data/lineages/heapfolk.tres" id="e1"]
+[ext_resource type="Script" path="res://scripts/resources/shop_item.gd" id="e2"]
+[ext_resource type="Texture2D" path="res://art/interiors/window.png" id="e3"]
+[ext_resource type="Script" path="res://scripts/interior/interior_prop.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/interiors/map_a.png" id="e5"]
+[ext_resource type="Texture2D" path="res://art/interiors/map_b.png" id="e6"]
+[ext_resource type="Texture2D" path="res://art/interiors/desk.png" id="e7"]
+[ext_resource type="Resource" path="res://data/shop/dot_map.tres" id="e8"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="e9"]
+[ext_resource type="Script" path="res://scripts/interior/interior_npc.gd" id="e10"]
+[ext_resource type="Texture2D" path="res://art/interiors/globe.png" id="e11"]
+[ext_resource type="Texture2D" path="res://art/interiors/stool.png" id="e12"]
+[ext_resource type="Texture2D" path="res://art/interiors/papers.png" id="e13"]
+[ext_resource type="Texture2D" path="res://art/interiors/rug.png" id="e14"]
+[ext_resource type="Texture2D" path="res://art/interiors/doormat.png" id="e15"]
+[ext_resource type="Script" path="res://scripts/interior/interior_room.gd" id="e16"]
+[ext_resource type="Texture2D" path="res://art/interiors/floor_planks.png" id="e17"]
+[ext_resource type="Texture2D" path="res://art/interiors/wall_boards.png" id="e18"]
+
+[node name="DotHouse" type="Node2D"]
+script = ExtResource("e16")
+interior_id = &"dot_house"
+display_name = "Dot's Map Room"
+size = Vector2(192, 120)
+floor_texture = ExtResource("e17")
+wall_texture = ExtResource("e18")
+music = "camp"
+ambient = Color(1, 0.96, 0.92, 1)
+exit_x = 96
+
+[node name="Window" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(28, 32)
+texture = ExtResource("e3")
+mode = "wall"
+look_lines = Array[String](["* The Spire: a thin dark line against the smog.", "* A note is pinned to the frame: DON'T MAP THAT."])
+reach = 44
+
+[node name="MapCamp" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(86, 28)
+texture = ExtResource("e5")
+mode = "wall"
+look_lines = Array[String](["* A map of the camp, drawn with care.", "* Your corner of it is labelled: ROBOT (TEMPORARY?)"])
+reach = 44
+
+[node name="MapFields" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(116, 26)
+texture = ExtResource("e6")
+mode = "wall"
+look_lines = Array[String](["* The Scrap Fields, all ridgelines and question marks.", "* In one corner, in very small letters: HERE BE COMPACTORS."])
+reach = 44
+
+[node name="MapBlank" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(150, 32)
+texture = ExtResource("e5")
+mode = "wall"
+look_lines = Array[String](["* This one is blank except for a circle drawn under the camp, and one word:", "* WHY."])
+reach = 44
+
+[node name="Desk" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(52, 88)
+texture = ExtResource("e7")
+mode = "stand"
+footprint = Vector2(66, 10)
+look_lines = Array[String](["* Ink, quills, and a half-finished map of somewhere you haven't been yet."])
+
+[node name="Dot" parent="." instance=ExtResource("e9")]
+position = Vector2(106, 90)
+npc_id = &"dot"
+display_name = "Dot"
+shop_items = Array[ExtResource("e2")]([ExtResource("e8")])
+shop_greeting = "Maps! Real ones. I walked every room myself. Mostly. 25 scrap and it's yours."
+prompt = "Trade"
+idle_lines = Array[String](["I'm drawing every room in the Heap. When I'm done I'll sell the maps. To you, probably. You're the only one who leaves.", "There's a blank spot on my map right under the camp. I hate blank spots."])
+lineage = ExtResource("e1")
+age = "teen"
+pin_headwear = "beanie"
+pin_goggles = "double"
+pin_accessory = "lantern"
+
+[node name="DotInRoom" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(106, 90)
+npc_path = NodePath("../Dot")
+reach = 30
+
+[node name="Globe" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(164, 86)
+texture = ExtResource("e11")
+mode = "stand"
+footprint = Vector2(20, 8)
+look_lines = Array[String](["* A globe made from a hubcap and wire. The continents are guesses.", "* Someone has drawn a little brass door in the middle of the ocean."])
+
+[node name="Stool" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(80, 102)
+texture = ExtResource("e12")
+mode = "stand"
+footprint = Vector2(12, 4)
+
+[node name="Papers1" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(20, 160)
+texture = ExtResource("e13")
+mode = "stand"
+footprint = Vector2(20, 6)
+look_lines = Array[String](["* Surveys. Hundreds of them.", "* ROOM WIDTH: 9 PACES. ROOM WIDTH (AGAIN): 9 AND A HALF PACES. ROOM WIDTH: ARGH."])
+
+[node name="Papers2" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(172, 168)
+texture = ExtResource("e13")
+mode = "stand"
+footprint = Vector2(20, 6)
+
+[node name="Rug" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(96, 134)
+texture = ExtResource("e14")
+mode = "floor"
+
+[node name="Doormat" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(96, 176)
+texture = ExtResource("e15")
+mode = "floor"

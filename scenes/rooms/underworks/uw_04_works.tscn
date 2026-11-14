@@ -1,0 +1,171 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/piston.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/valve.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/enemies/valve_turret.gd" id="e4"]
+[ext_resource type="Script" path="res://scripts/enemies/piston_walker.gd" id="e5"]
+[ext_resource type="Texture2D" path="res://art/props/uw_boiler.png" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e7"]
+[ext_resource type="Texture2D" path="res://art/props/uw_gauge.png" id="e8"]
+[ext_resource type="Texture2D" path="res://art/props/uw_pipes.png" id="e9"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e10"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e11"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e12"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e13"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[node name="Uw04Works" type="Node2D"]
+script = ExtResource("e13")
+room_id = &"uw_04_works"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "plate", "brick", "brick", "grate", "grate")
+backdrop = "uw_works"
+music = "underworks"
+ambient = Color(0.68, 0.6, 0.54, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Boiler Works"
+bounds = Rect2(0, 0, 960, 480)
+solids = Array[Rect2]([Rect2(0, 0, 960, 24), Rect2(0, 0, 16, 376), Rect2(0, 440, 960, 40), Rect2(944, 0, 16, 136), Rect2(944, 212, 16, 228), Rect2(480, 280, 200, 12), Rect2(760, 200, 184, 12)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="ExitToRow" type="Area2D" parent="."]
+position = Vector2(4, 408)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_03_row.tscn"
+target_spawn = &"from_works"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToRow"]
+shape = SubResource("s1")
+
+[node name="ExitToGearworks" type="Area2D" parent="."]
+position = Vector2(956, 168)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_05_gearworks.tscn"
+target_spawn = &"from_works"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGearworks"]
+shape = SubResource("s2")
+
+[node name="LiftA" type="Node2D" parent="."]
+position = Vector2(420, 440)
+script = ExtResource("e2")
+direction = Vector2(0, -1)
+travel = 120
+period = 3
+offset = 0
+size = Vector2(40, 16)
+
+[node name="LiftB" type="Node2D" parent="."]
+position = Vector2(650, 280)
+script = ExtResource("e2")
+direction = Vector2(0, -1)
+travel = 100
+period = 3
+offset = 1.5
+size = Vector2(40, 16)
+
+[node name="ReliefValve" type="Node2D" parent="."]
+position = Vector2(520, 280)
+script = ExtResource("e3")
+quest_item = &"relief_valve"
+
+[node name="TurretValve" type="Node2D" parent="."]
+position = Vector2(880, 440)
+script = ExtResource("e3")
+
+[node name="Turret" type="CharacterBody2D" parent="."]
+position = Vector2(944, 420)
+script = ExtResource("e4")
+face = -1
+offset = 0
+valve_path = NodePath("../TurretValve")
+
+[node name="Walker" type="CharacterBody2D" parent="."]
+position = Vector2(640, 440)
+script = ExtResource("e5")
+
+[node name="Boiler0" type="Node2D" parent="."]
+position = Vector2(140, 440)
+script = ExtResource("e7")
+texture = ExtResource("e6")
+background = true
+frames = 2
+fps = 2
+glow_color = Color(1, 0.55, 0.25, 0.4)
+glow_radius = 20
+glow_offset = Vector2(0, -12)
+
+[node name="Boiler1" type="Node2D" parent="."]
+position = Vector2(300, 440)
+script = ExtResource("e7")
+texture = ExtResource("e6")
+background = true
+frames = 2
+fps = 2
+glow_color = Color(1, 0.55, 0.25, 0.4)
+glow_radius = 20
+glow_offset = Vector2(0, -12)
+
+[node name="Gauge" type="Node2D" parent="."]
+position = Vector2(600, 200)
+script = ExtResource("e7")
+texture = ExtResource("e8")
+background = true
+frames = 2
+fps = 2
+
+[node name="Pipes" type="Node2D" parent="."]
+position = Vector2(820, 150)
+script = ExtResource("e7")
+texture = ExtResource("e9")
+background = true
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(60, 440)
+script = ExtResource("e10")
+radius = 90
+energy = 0.9
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(560, 280)
+script = ExtResource("e10")
+radius = 90
+energy = 0.9
+
+[node name="Lamp2" type="Node2D" parent="."]
+position = Vector2(860, 200)
+script = ExtResource("e10")
+radius = 90
+energy = 0.9
+
+[node name="Plate" type="Area2D" parent="."]
+position = Vector2(220, 440)
+script = ExtResource("e11")
+prompt = "Read"
+title = "MAKER'S PLATE"
+lines = Array[String](["> BOILER 3. INSTALLED BY THE GUILD OF THE SEVEN HAMMERS.", "> PRESSURE SET BY THE GREAT GOVERNOR. DO NOT ADJUST.", "> Somebody has adjusted it. The needle is wedged with a spoon."])
+size = Vector2(24, 32)
+lore_id = "uw_boiler_plate"
+
+[node name="CogCatwalk" parent="." instance=ExtResource("e12")]
+position = Vector2(610, 250)
+kind = 1
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_row" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 440)
+
+[node name="from_gearworks" type="Marker2D" parent="Spawns"]
+position = Vector2(900, 200)

@@ -1,0 +1,124 @@
+[gd_scene load_steps=24 format=3]
+
+[ext_resource type="Resource" path="res://data/lineages/heapfolk.tres" id="e1"]
+[ext_resource type="Resource" path="res://data/shop/rusty_cloak.tres" id="e2"]
+[ext_resource type="Resource" path="res://data/shop/rusty_mask.tres" id="e3"]
+[ext_resource type="Resource" path="res://data/shop/rusty_magnet.tres" id="e4"]
+[ext_resource type="Resource" path="res://data/shop/rusty_repair.tres" id="e5"]
+[ext_resource type="Resource" path="res://data/shop/rusty_reflex.tres" id="e6"]
+[ext_resource type="Resource" path="res://data/shop/rusty_port.tres" id="e7"]
+[ext_resource type="Script" path="res://scripts/resources/shop_item.gd" id="e8"]
+[ext_resource type="Texture2D" path="res://art/interiors/window.png" id="e9"]
+[ext_resource type="Script" path="res://scripts/interior/interior_prop.gd" id="e10"]
+[ext_resource type="Texture2D" path="res://art/interiors/poster.png" id="e11"]
+[ext_resource type="Texture2D" path="res://art/interiors/shelf.png" id="e12"]
+[ext_resource type="Texture2D" path="res://art/interiors/shelf_b.png" id="e13"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="e14"]
+[ext_resource type="Script" path="res://scripts/interior/interior_npc.gd" id="e15"]
+[ext_resource type="Texture2D" path="res://art/interiors/counter.png" id="e16"]
+[ext_resource type="Texture2D" path="res://art/props/tyres.png" id="e17"]
+[ext_resource type="Texture2D" path="res://art/interiors/crates.png" id="e18"]
+[ext_resource type="Texture2D" path="res://art/props/barrel.png" id="e19"]
+[ext_resource type="Texture2D" path="res://art/interiors/doormat.png" id="e20"]
+[ext_resource type="Script" path="res://scripts/interior/interior_room.gd" id="e21"]
+[ext_resource type="Texture2D" path="res://art/interiors/floor_plate.png" id="e22"]
+[ext_resource type="Texture2D" path="res://art/interiors/wall_corrugated.png" id="e23"]
+
+[node name="RustyShop" type="Node2D"]
+script = ExtResource("e21")
+interior_id = &"rusty_shop"
+display_name = "Rusty's Scrap & Sundries"
+size = Vector2(224, 128)
+floor_texture = ExtResource("e22")
+wall_texture = ExtResource("e23")
+music = "camp"
+ambient = Color(1, 0.96, 0.92, 1)
+exit_x = 112
+
+[node name="Window" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(152, 30)
+texture = ExtResource("e9")
+mode = "wall"
+look_lines = Array[String](["* Outside: the camp. Further out, the city's lights, pretending you can't see them."])
+reach = 44
+
+[node name="Poster" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(200, 32)
+texture = ExtResource("e11")
+mode = "wall"
+look_lines = Array[String](["* A corp poster: THE SPIRE PROVIDES.", "* Someone has slashed it. Carefully. Twice."])
+reach = 44
+
+[node name="Shelf1" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(30, 74)
+texture = ExtResource("e12")
+mode = "stand"
+footprint = Vector2(44, 8)
+look_lines = Array[String](["* Tin cans, gears, a radio with no insides.", "* Every price tag just says ASK. You suspect the answer changes."])
+
+[node name="Shelf2" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(80, 74)
+texture = ExtResource("e13")
+mode = "stand"
+footprint = Vector2(44, 8)
+look_lines = Array[String](["* A box of lightbulbs. Most of them are just glass and hope."])
+
+[node name="Rusty" parent="." instance=ExtResource("e14")]
+position = Vector2(116, 98)
+npc_id = &"rusty"
+display_name = "Rusty"
+shop_items = Array[ExtResource("e8")]([ExtResource("e2"), ExtResource("e3"), ExtResource("e4"), ExtResource("e5"), ExtResource("e6"), ExtResource("e7")])
+shop_greeting = "Bottlecaps or scrap, I take both. Bottlecaps only work here in the Heap, mind."
+prompt = "Shop"
+lineage = ExtResource("e1")
+pin_headwear = "bandana"
+pin_goggles = "single"
+pin_accessory = "apron"
+
+[node name="RustyInRoom" type="Node2D" parent="."]
+script = ExtResource("e15")
+position = Vector2(116, 98)
+npc_path = NodePath("../Rusty")
+reach = 44
+
+[node name="Counter" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(112, 122)
+texture = ExtResource("e16")
+mode = "stand"
+footprint = Vector2(84, 12)
+look_lines = Array[String](["* The counter. A till, a scale, and a sign: NO HAGGLING. Under it, smaller: (some haggling)."])
+
+[node name="Tyres" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(198, 100)
+texture = ExtResource("e17")
+mode = "stand"
+footprint = Vector2(30, 8)
+look_lines = Array[String](["* A stack of tyres. Rusty sells them one at a time.", "* Nobody has ever bought one."])
+
+[node name="Crates" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(24, 186)
+texture = ExtResource("e18")
+mode = "stand"
+footprint = Vector2(34, 10)
+look_lines = Array[String](["* Crates stamped with a logo nobody remembers.", "* One of them is ticking. You decide that's Rusty's business."])
+
+[node name="Barrel" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(204, 178)
+texture = ExtResource("e19")
+mode = "stand"
+footprint = Vector2(14, 6)
+look_lines = Array[String](["* It smells like the Intake. You take a step back."])
+
+[node name="Doormat" type="Node2D" parent="."]
+script = ExtResource("e10")
+position = Vector2(112, 184)
+texture = ExtResource("e20")
+mode = "floor"

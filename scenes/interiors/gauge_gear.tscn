@@ -1,0 +1,103 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Resource" path="res://data/lineages/bellows_kin.tres" id="e1"]
+[ext_resource type="Script" path="res://scripts/resources/shop_item.gd" id="e2"]
+[ext_resource type="Resource" path="res://data/shop/gilda_monocle.tres" id="e3"]
+[ext_resource type="Resource" path="res://data/shop/gilda_cell.tres" id="e4"]
+[ext_resource type="Resource" path="res://data/shop/gilda_repair.tres" id="e5"]
+[ext_resource type="Resource" path="res://data/shop/gilda_port.tres" id="e6"]
+[ext_resource type="Texture2D" path="res://art/interiors/timetable.png" id="e7"]
+[ext_resource type="Script" path="res://scripts/interior/interior_prop.gd" id="e8"]
+[ext_resource type="Texture2D" path="res://art/interiors/window.png" id="e9"]
+[ext_resource type="Texture2D" path="res://art/interiors/gauge_case.png" id="e10"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="e11"]
+[ext_resource type="Script" path="res://scripts/interior/interior_npc.gd" id="e12"]
+[ext_resource type="Texture2D" path="res://art/interiors/counter.png" id="e13"]
+[ext_resource type="Texture2D" path="res://art/interiors/crates.png" id="e14"]
+[ext_resource type="Texture2D" path="res://art/interiors/doormat.png" id="e15"]
+[ext_resource type="Script" path="res://scripts/interior/interior_room.gd" id="e16"]
+[ext_resource type="Texture2D" path="res://art/interiors/floor_tile.png" id="e17"]
+[ext_resource type="Texture2D" path="res://art/interiors/wall_brass.png" id="e18"]
+
+[node name="GaugeGear" type="Node2D"]
+script = ExtResource("e16")
+interior_id = &"gauge_gear"
+display_name = "Gauge & Gear"
+size = Vector2(240, 128)
+floor_texture = ExtResource("e17")
+wall_texture = ExtResource("e18")
+music = "underworks"
+ambient = Color(0.96, 0.9, 0.82, 1)
+exit_x = 120
+grade = &"underworks"
+
+[node name="Timetable" type="Node2D" parent="."]
+script = ExtResource("e8")
+position = Vector2(44, 30)
+texture = ExtResource("e7")
+mode = "wall"
+look_lines = Array[String](["* A price list. Every item is priced in cogs, and then, smaller, in 'favours'.", "* The favours column is much longer."])
+reach = 44
+
+[node name="Window" type="Node2D" parent="."]
+script = ExtResource("e8")
+position = Vector2(196, 30)
+texture = ExtResource("e9")
+mode = "wall"
+look_lines = Array[String](["* Pipe Market through warped glass: lamplight, steam, a man arguing with a kettle."])
+reach = 44
+
+[node name="Case1" type="Node2D" parent="."]
+script = ExtResource("e8")
+position = Vector2(40, 94)
+texture = ExtResource("e10")
+mode = "stand"
+footprint = Vector2(44, 10)
+look_lines = Array[String](["* Gauges for pressure, for heat, for depth.", "* One is labelled MOOD. Its needle is at 'FINE'. It's always at 'FINE'."])
+
+[node name="Gilda" parent="." instance=ExtResource("e11")]
+position = Vector2(128, 94)
+npc_id = &"gilda"
+display_name = "Gilda"
+shop_items = Array[ExtResource("e2")]([ExtResource("e3"), ExtResource("e4"), ExtResource("e5"), ExtResource("e6")])
+shop_greeting = "Cogs, please. Scrap if you must. I don't haggle; I calibrate."
+prompt = "Shop"
+lineage = ExtResource("e1")
+pin_headwear = "stovepipe"
+pin_goggles = "monocle"
+pin_accessory = "brass_arm"
+
+[node name="GildaInRoom" type="Node2D" parent="."]
+script = ExtResource("e12")
+position = Vector2(128, 94)
+npc_path = NodePath("../Gilda")
+reach = 44
+
+[node name="Counter" type="Node2D" parent="."]
+script = ExtResource("e8")
+position = Vector2(128, 118)
+texture = ExtResource("e13")
+mode = "stand"
+footprint = Vector2(84, 12)
+look_lines = Array[String](["* A brass counter, polished so hard you can see your eye in it.", "* Your eye looks worried. You decide that's the counter's fault."])
+
+[node name="Case2" type="Node2D" parent="."]
+script = ExtResource("e8")
+position = Vector2(206, 160)
+texture = ExtResource("e10")
+mode = "stand"
+footprint = Vector2(44, 10)
+look_lines = Array[String](["* A case of salvaged parts, labelled by hand: TICKS, TOCKS, MISC. CLOCK."])
+
+[node name="Crates" type="Node2D" parent="."]
+script = ExtResource("e8")
+position = Vector2(24, 184)
+texture = ExtResource("e14")
+mode = "stand"
+footprint = Vector2(34, 10)
+
+[node name="Doormat" type="Node2D" parent="."]
+script = ExtResource("e8")
+position = Vector2(120, 184)
+texture = ExtResource("e15")
+mode = "floor"

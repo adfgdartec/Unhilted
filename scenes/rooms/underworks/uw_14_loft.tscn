@@ -1,0 +1,87 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e1"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e2"]
+[ext_resource type="Texture2D" path="res://art/props/uw_flywheel.png" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/props/uw_gauge.png" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e7"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e8"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[node name="Uw14Loft" type="Node2D"]
+script = ExtResource("e8")
+room_id = &"uw_14_loft"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "brick", "plate")
+backdrop = "uw_vault"
+music = "underworks"
+ambient = Color(0.72, 0.64, 0.56, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Clockmaker's Loft"
+bounds = Rect2(0, 0, 480, 360)
+solids = Array[Rect2]([Rect2(0, 0, 480, 24), Rect2(0, 0, 16, 256), Rect2(464, 0, 16, 360), Rect2(0, 320, 480, 40)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="ExitToGalleries" type="Area2D" parent="."]
+position = Vector2(4, 288)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_11_galleries.tscn"
+target_spawn = &"from_loft"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGalleries"]
+shape = SubResource("s1")
+
+[node name="Port" parent="." instance=ExtResource("e2")]
+position = Vector2(400, 296)
+kind = 6
+item_id = &"port"
+display_name = "port expansion"
+
+[node name="CogShelf" parent="." instance=ExtResource("e2")]
+position = Vector2(60, 300)
+kind = 1
+
+[node name="Flywheel" type="Node2D" parent="."]
+position = Vector2(330, 260)
+script = ExtResource("e4")
+texture = ExtResource("e3")
+background = true
+frames = 4
+fps = 1
+
+[node name="Gauge" type="Node2D" parent="."]
+position = Vector2(80, 200)
+script = ExtResource("e4")
+texture = ExtResource("e5")
+background = true
+frames = 2
+fps = 1
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(300, 320)
+script = ExtResource("e6")
+radius = 90
+energy = 0.9
+
+[node name="Notes" type="Area2D" parent="."]
+position = Vector2(330, 320)
+script = ExtResource("e7")
+prompt = "Read"
+title = "THE CLOCKMAKER'S NOTES"
+lines = Array[String](["> Pages of drawings of the Governor. Then drawings of something smaller: a robot, with a blade on a wire.", "> \"The smiths left five pieces of the edge in five places, and a body to carry them.\"", "> \"If it ever wakes, it will come down here looking for the second. Leave it something useful.\""])
+size = Vector2(40, 40)
+lore_id = "uw_clockmaker"
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_galleries" type="Marker2D" parent="Spawns"]
+position = Vector2(60, 320)

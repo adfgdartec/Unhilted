@@ -1,0 +1,105 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/light_shaft.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e2"]
+[ext_resource type="Texture2D" path="res://art/props/hang_b.png" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/props/hang_a.png" id="e5"]
+[ext_resource type="Script" path="res://scripts/enemies/rustcrawler.gd" id="e6"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e7"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e8"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(160, 8)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[node name="Heap10Sinkhole" type="Node2D"]
+script = ExtResource("e8")
+room_id = &"heap_10_sinkhole"
+region_id = &"heap"
+tileset = "heap_scrap"
+solid_styles = PackedStringArray("ground", "ground", "ground", "ceiling", "ceiling", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground")
+backdrop = "heap_cave"
+music = "cave"
+ambient = Color(0.6, 0.55, 0.64, 1)
+grade = &"cave"
+weather = "none"
+motes_color = Color(1, 0.86, 0.66, 0.2)
+motes_amount = 24
+display_name = "Sinkhole"
+bounds = Rect2(0, 0, 400, 720)
+solids = Array[Rect2]([Rect2(0, 0, 16, 632), Rect2(384, 0, 16, 720), Rect2(0, 696, 400, 24), Rect2(16, 0, 104, 24), Rect2(280, 0, 104, 24), Rect2(184, 656, 80, 12), Rect2(60, 616, 80, 12), Rect2(184, 576, 80, 12), Rect2(60, 536, 80, 12), Rect2(184, 496, 80, 12), Rect2(60, 456, 80, 12), Rect2(184, 416, 80, 12), Rect2(60, 376, 80, 12), Rect2(184, 336, 80, 12), Rect2(60, 296, 80, 12), Rect2(184, 256, 80, 12), Rect2(60, 216, 80, 12), Rect2(184, 176, 80, 12), Rect2(60, 136, 80, 12), Rect2(184, 96, 80, 12), Rect2(60, 56, 80, 12), Rect2(310, 336, 74, 12)])
+
+[node name="ShaftTop" type="Node2D" parent="."]
+position = Vector2(200, 24)
+script = ExtResource("e1")
+length = 420
+top_width = 60
+bottom_width = 110
+slant = 10
+land_light = 0.8
+color = Color(1, 0.84, 0.6, 0.16)
+
+[node name="ExitToFields" type="Area2D" parent="."]
+position = Vector2(200, 4)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/heap/heap_05_fields.tscn"
+target_spawn = &"from_sinkhole"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToFields"]
+shape = SubResource("s1")
+
+[node name="ExitToSeep" type="Area2D" parent="."]
+position = Vector2(4, 664)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/heap/heap_04_seep.tscn"
+target_spawn = &"from_sinkhole"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToSeep"]
+shape = SubResource("s2")
+
+[node name="Hang1" type="Node2D" parent="."]
+position = Vector2(60, 24)
+script = ExtResource("e4")
+texture = ExtResource("e3")
+hanging = true
+background = true
+
+[node name="Hang2" type="Node2D" parent="."]
+position = Vector2(330, 24)
+script = ExtResource("e4")
+texture = ExtResource("e5")
+hanging = true
+background = true
+
+[node name="Crawler1" type="CharacterBody2D" parent="."]
+position = Vector2(100, 468)
+script = ExtResource("e6")
+start_on_ceiling = true
+
+[node name="Crawler2" type="CharacterBody2D" parent="."]
+position = Vector2(100, 228)
+script = ExtResource("e6")
+start_on_ceiling = true
+
+[node name="CapAlcove" parent="." instance=ExtResource("e7")]
+position = Vector2(346, 320)
+kind = 1
+
+[node name="ScrapLow" parent="." instance=ExtResource("e7")]
+position = Vector2(100, 600)
+amount = 4
+
+[node name="ScrapMid" parent="." instance=ExtResource("e7")]
+position = Vector2(224, 400)
+amount = 4
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_fields" type="Marker2D" parent="Spawns"]
+position = Vector2(200, 40)
+
+[node name="from_seep" type="Marker2D" parent="Spawns"]
+position = Vector2(40, 696)

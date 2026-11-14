@@ -1,0 +1,79 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/arena_waves.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/steam_vent.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e4"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e5"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(80, 8)
+
+[node name="Uw15Trials" type="Node2D"]
+script = ExtResource("e5")
+room_id = &"uw_15_trials"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "brick", "plate", "plate", "grate", "grate")
+backdrop = "uw_works"
+music = "underworks"
+ambient = Color(0.68, 0.6, 0.54, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Steam Trials"
+bounds = Rect2(0, 0, 640, 360)
+solids = Array[Rect2]([Rect2(0, 0, 640, 24), Rect2(0, 0, 16, 360), Rect2(624, 0, 16, 360), Rect2(16, 320, 264, 40), Rect2(360, 320, 264, 40), Rect2(120, 220, 80, 10), Rect2(440, 220, 80, 10)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="ExitToGauge" type="Area2D" parent="."]
+position = Vector2(320, 356)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_08_gauge.tscn"
+target_spawn = &"from_trials"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGauge"]
+shape = SubResource("s1")
+
+[node name="Arena" type="Node2D" parent="."]
+script = ExtResource("e2")
+trigger = Rect2(120, 240, 400, 80)
+seals = Array[Rect2]([Rect2(280, 320, 80, 16)])
+waves = Array[String](["clock_spider@150,clock_spider@480", "bellows_bat@200:120,piston_walker@450", "boiler_bloat@160:160,boiler_bloat@480:160,clock_spider@320"])
+floor_y = 320
+reward_kind = 7
+reward_id = &"core_cell"
+reward_pos = Vector2(320, 200)
+
+[node name="VentL" type="Node2D" parent="."]
+position = Vector2(60, 320)
+script = ExtResource("e3")
+reach = 140
+kind = "lift"
+width = 24
+
+[node name="VentR" type="Node2D" parent="."]
+position = Vector2(580, 320)
+script = ExtResource("e3")
+reach = 140
+kind = "lift"
+width = 24
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(100, 320)
+script = ExtResource("e4")
+radius = 90
+energy = 0.9
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(540, 320)
+script = ExtResource("e4")
+radius = 90
+energy = 0.9
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_gauge" type="Marker2D" parent="Spawns"]
+position = Vector2(230, 320)

@@ -1,0 +1,138 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/steam_vent.gd" id="e1"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e3"]
+[ext_resource type="Texture2D" path="res://art/props/uw_pipes.png" id="e4"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e5"]
+[ext_resource type="Texture2D" path="res://art/props/uw_flywheel.png" id="e6"]
+[ext_resource type="Texture2D" path="res://art/props/uw_boiler.png" id="e7"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e8"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e9"]
+[ext_resource type="Script" path="res://scripts/enemies/bellows_bat.gd" id="e10"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e11"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[node name="Uw01Descent" type="Node2D"]
+script = ExtResource("e11")
+room_id = &"uw_01_descent"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "grate", "brick", "grate", "grate", "grate", "grate", "grate", "grate", "plate", "brick", "grate")
+backdrop = "uw_vault"
+music = "underworks"
+ambient = Color(0.62, 0.6, 0.56, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "The Descent"
+bounds = Rect2(0, 0, 640, 480)
+solids = Array[Rect2]([Rect2(16, 0, 624, 24), Rect2(0, 0, 16, 96), Rect2(0, 160, 120, 16), Rect2(0, 176, 16, 304), Rect2(120, 200, 64, 12), Rect2(184, 240, 64, 12), Rect2(248, 280, 64, 12), Rect2(312, 320, 64, 12), Rect2(376, 360, 64, 12), Rect2(440, 400, 64, 12), Rect2(16, 440, 624, 40), Rect2(624, 0, 16, 376), Rect2(476, 170, 64, 12)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="LiftVent" type="Node2D" parent="."]
+position = Vector2(584, 440)
+script = ExtResource("e1")
+reach = 230
+kind = "lift"
+width = 24
+
+[node name="CogAlcove" parent="." instance=ExtResource("e2")]
+position = Vector2(508, 150)
+kind = 1
+
+[node name="ExitToGate" type="Area2D" parent="."]
+position = Vector2(4, 128)
+script = ExtResource("e3")
+target_room = "res://scenes/rooms/heap/heap_13_gate.tscn"
+target_spawn = &"from_underworks"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGate"]
+shape = SubResource("s1")
+
+[node name="ExitToMarket" type="Area2D" parent="."]
+position = Vector2(636, 408)
+script = ExtResource("e3")
+target_room = "res://scenes/rooms/underworks/uw_02_market.tscn"
+target_spawn = &"from_descent"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToMarket"]
+shape = SubResource("s2")
+
+[node name="Pipes" type="Node2D" parent="."]
+position = Vector2(300, 150)
+script = ExtResource("e5")
+texture = ExtResource("e4")
+background = true
+
+[node name="Flywheel" type="Node2D" parent="."]
+position = Vector2(120, 420)
+script = ExtResource("e5")
+texture = ExtResource("e6")
+background = true
+frames = 4
+fps = 3
+
+[node name="Boiler" type="Node2D" parent="."]
+position = Vector2(380, 440)
+script = ExtResource("e5")
+texture = ExtResource("e7")
+background = true
+frames = 2
+fps = 2
+glow_color = Color(1, 0.55, 0.25, 0.4)
+glow_radius = 20
+glow_offset = Vector2(0, -12)
+
+[node name="LampTop" type="Node2D" parent="."]
+position = Vector2(80, 160)
+script = ExtResource("e8")
+radius = 90
+energy = 0.9
+
+[node name="LampMid" type="Node2D" parent="."]
+position = Vector2(280, 440)
+script = ExtResource("e8")
+radius = 90
+energy = 0.9
+
+[node name="LampLow" type="Node2D" parent="."]
+position = Vector2(520, 440)
+script = ExtResource("e8")
+radius = 90
+energy = 0.9
+
+[node name="WallLamp" type="Node2D" parent="."]
+position = Vector2(200, 120)
+script = ExtResource("e8")
+radius = 70
+energy = 0.9
+wall_mounted = true
+
+[node name="Sign" type="Area2D" parent="."]
+position = Vector2(60, 160)
+script = ExtResource("e9")
+prompt = "Read"
+title = "SIGN"
+lines = Array[String](["> A brass plate, polished by a lot of hands: PIPE MARKET, DOWN AND RIGHT.", "> Under it, scratched: MIND THE STEAM. IT MINDS YOU."])
+size = Vector2(24, 32)
+lore_id = "uw_sign"
+
+[node name="Bat" type="CharacterBody2D" parent="."]
+position = Vector2(360, 120)
+script = ExtResource("e10")
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_heap" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 160)
+
+[node name="from_market" type="Marker2D" parent="Spawns"]
+position = Vector2(530, 440)

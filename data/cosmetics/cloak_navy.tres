@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CosmeticItem" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/cosmetic_item.gd" id="1_script"]
+[ext_resource type="SpriteFrames" path="res://art/character/frames/cloak_front_cloak_navy.tres" id="sf"]
+[ext_resource type="SpriteFrames" path="res://art/character/frames/cloak_back_cloak_navy.tres" id="sfb"]
+[ext_resource type="Texture2D" path="res://art/ui/cosmetics/cloak_navy.png" id="ic"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"cloak_navy"
+display_name = "Navy Poncho"
+slot = 2
+color = Color(0.17, 0.22, 0.4, 1)
+accent = Color(0.1, 0.13, 0.25, 1)
+sprite_frames = ExtResource("sf")
+sprite_frames_back = ExtResource("sfb")
+icon = ExtResource("ic")

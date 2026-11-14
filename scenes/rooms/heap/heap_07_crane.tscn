@@ -1,0 +1,115 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/hazard.gd" id="e2"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_point.tscn" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/props/tyres.png" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e6"]
+[ext_resource type="Texture2D" path="res://art/props/bale_stack.png" id="e7"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/spotter_drone.tscn" id="e8"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e9"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e10"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(60, 8)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[node name="Heap07Crane" type="Node2D"]
+script = ExtResource("e10")
+room_id = &"heap_07_crane"
+region_id = &"heap"
+tileset = "heap_scrap"
+solid_styles = PackedStringArray("ground", "ground", "ground", "ground", "ground", "girder", "girder", "girder", "girder", "girder")
+backdrop = "heap_outdoor"
+music = "industrial"
+ambient = Color(0.88, 0.8, 0.78, 1)
+grade = &"heap"
+weather = "none"
+motes_color = Color(1, 0.84, 0.6, 0.3)
+motes_amount = 30
+display_name = "Crane Yard"
+bounds = Rect2(0, 0, 720, 600)
+solids = Array[Rect2]([Rect2(0, 0, 16, 600), Rect2(704, 0, 16, 272), Rect2(704, 336, 16, 264), Rect2(16, 568, 200, 32), Rect2(276, 584, 428, 16), Rect2(286, 512, 70, 12), Rect2(404, 442, 70, 12), Rect2(524, 372, 70, 12), Rect2(600, 336, 104, 16), Rect2(262, 372, 70, 12)])
+
+[node name="YardFrame" type="Node2D" parent="."]
+script = ExtResource("e1")
+columns = Array[Rect2]([Rect2(604, 336, 96, 248)])
+ties = PackedFloat32Array(400, 470, 540)
+stilts = Array[Rect2]([])
+ground_y = 336
+hangers = Array[Rect2]([Rect2(286, 512, 70, 12), Rect2(404, 442, 70, 12), Rect2(524, 372, 70, 12), Rect2(262, 372, 70, 12)])
+hang_top = 0
+
+[node name="Spikes" type="Area2D" parent="."]
+position = Vector2(296, 572)
+script = ExtResource("e2")
+size = Vector2(300, 12)
+kind = "spikes"
+
+[node name="Hook1" parent="." instance=ExtResource("e3")]
+position = Vector2(300, 470)
+chain_length = 120
+
+[node name="Hook2" parent="." instance=ExtResource("e3")]
+position = Vector2(420, 400)
+chain_length = 120
+
+[node name="Hook3" parent="." instance=ExtResource("e3")]
+position = Vector2(540, 330)
+chain_length = 120
+
+[node name="HookSecret" parent="." instance=ExtResource("e3")]
+position = Vector2(330, 330)
+chain_length = 120
+
+[node name="ExitToFields" type="Area2D" parent="."]
+position = Vector2(246, 596)
+script = ExtResource("e4")
+target_room = "res://scenes/rooms/heap/heap_05_fields.tscn"
+target_spawn = &"from_crane"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToFields"]
+shape = SubResource("s1")
+
+[node name="ExitToConveyor" type="Area2D" parent="."]
+position = Vector2(716, 304)
+script = ExtResource("e4")
+target_room = "res://scenes/rooms/heap/heap_08_conveyor.tscn"
+target_spawn = &"from_crane"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToConveyor"]
+shape = SubResource("s2")
+
+[node name="Tyres" type="Node2D" parent="."]
+position = Vector2(80, 568)
+script = ExtResource("e6")
+texture = ExtResource("e5")
+background = true
+
+[node name="Bales" type="Node2D" parent="."]
+position = Vector2(170, 568)
+script = ExtResource("e6")
+texture = ExtResource("e7")
+background = true
+
+[node name="Spotter" parent="." instance=ExtResource("e8")]
+position = Vector2(400, 220)
+
+[node name="CapSecret" parent="." instance=ExtResource("e9")]
+position = Vector2(296, 356)
+kind = 1
+
+[node name="ScrapP2" parent="." instance=ExtResource("e9")]
+position = Vector2(440, 426)
+amount = 4
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_fields" type="Marker2D" parent="Spawns"]
+position = Vector2(110, 568)
+
+[node name="from_conveyor" type="Marker2D" parent="Spawns"]
+position = Vector2(650, 336)

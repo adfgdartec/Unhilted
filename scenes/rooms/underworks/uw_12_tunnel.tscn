@@ -1,0 +1,109 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/steam_vent.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e2"]
+[ext_resource type="Texture2D" path="res://art/props/uw_tram.png" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/props/uw_forge_gate.png" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e6"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e7"]
+[ext_resource type="Script" path="res://scripts/enemies/clock_spider.gd" id="e8"]
+[ext_resource type="Script" path="res://scripts/enemies/bellows_bat.gd" id="e9"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e10"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e11"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(80, 8)
+
+[node name="Uw12Tunnel" type="Node2D"]
+script = ExtResource("e11")
+room_id = &"uw_12_tunnel"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "plate", "plate", "grate", "brick")
+backdrop = "uw_vault"
+music = "underworks"
+ambient = Color(0.4, 0.4, 0.42, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Old Tram Tunnel"
+bounds = Rect2(0, 0, 1280, 360)
+solids = Array[Rect2]([Rect2(0, 0, 16, 360), Rect2(96, 0, 1184, 24), Rect2(16, 320, 1264, 40), Rect2(480, 280, 40, 40), Rect2(560, 262, 160, 8), Rect2(1264, 0, 16, 360)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="LiftVent" type="Node2D" parent="."]
+position = Vector2(56, 320)
+script = ExtResource("e1")
+reach = 260
+kind = "lift"
+width = 24
+
+[node name="ExitToMarket" type="Area2D" parent="."]
+position = Vector2(56, 4)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/underworks/uw_02_market.tscn"
+target_spawn = &"from_tunnel"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToMarket"]
+shape = SubResource("s1")
+
+[node name="Tram" type="Node2D" parent="."]
+position = Vector2(640, 320)
+script = ExtResource("e4")
+texture = ExtResource("e3")
+
+[node name="ForgeGate" type="Node2D" parent="."]
+position = Vector2(1220, 320)
+script = ExtResource("e4")
+texture = ExtResource("e5")
+
+[node name="Gate" type="Area2D" parent="."]
+position = Vector2(1220, 320)
+script = ExtResource("e6")
+prompt = "Look"
+title = "THE FORGE GATE"
+lines = Array[String](["> A heavy door at the end of Line 4, stamped with the seven hammers.", "> It's barred from the far side. The metal is warm, and somewhere behind it a hammer strikes, very slowly.", "> The way to the Fallen Forge. Not open yet."])
+size = Vector2(60, 80)
+lore_id = "uw_forge_gate"
+
+[node name="Letter" parent="." instance=ExtResource("e7")]
+position = Vector2(640, 250)
+kind = 2
+item_id = &"letter"
+display_name = "a lost letter"
+
+[node name="CogTrack" parent="." instance=ExtResource("e7")]
+position = Vector2(900, 300)
+kind = 1
+
+[node name="SpiderA" type="CharacterBody2D" parent="."]
+position = Vector2(820, 320)
+script = ExtResource("e8")
+
+[node name="SpiderB" type="CharacterBody2D" parent="."]
+position = Vector2(1040, 320)
+script = ExtResource("e8")
+
+[node name="Bat" type="CharacterBody2D" parent="."]
+position = Vector2(400, 120)
+script = ExtResource("e9")
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(200, 320)
+script = ExtResource("e10")
+radius = 80
+energy = 0.9
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(1100, 320)
+script = ExtResource("e10")
+radius = 80
+energy = 0.9
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_market" type="Marker2D" parent="Spawns"]
+position = Vector2(120, 320)

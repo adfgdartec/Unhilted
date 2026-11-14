@@ -1,0 +1,113 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Resource" path="res://data/lineages/bellows_kin.tres" id="e1"]
+[ext_resource type="Resource" path="res://data/quests/letters_home.tres" id="e2"]
+[ext_resource type="Script" path="res://scripts/resources/shop_item.gd" id="e3"]
+[ext_resource type="Texture2D" path="res://art/interiors/timetable.png" id="e4"]
+[ext_resource type="Script" path="res://scripts/interior/interior_prop.gd" id="e5"]
+[ext_resource type="Texture2D" path="res://art/interiors/map_b.png" id="e6"]
+[ext_resource type="Texture2D" path="res://art/interiors/ticket_desk.png" id="e7"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="e8"]
+[ext_resource type="Script" path="res://scripts/interior/interior_npc.gd" id="e9"]
+[ext_resource type="Resource" path="res://data/shop/quill_map.tres" id="e10"]
+[ext_resource type="Texture2D" path="res://art/interiors/papers.png" id="e11"]
+[ext_resource type="Texture2D" path="res://art/interiors/crates.png" id="e12"]
+[ext_resource type="Texture2D" path="res://art/interiors/doormat.png" id="e13"]
+[ext_resource type="Script" path="res://scripts/interior/interior_room.gd" id="e14"]
+[ext_resource type="Texture2D" path="res://art/interiors/floor_tile.png" id="e15"]
+[ext_resource type="Texture2D" path="res://art/interiors/wall_depot.png" id="e16"]
+
+[node name="TramDepot" type="Node2D"]
+script = ExtResource("e14")
+interior_id = &"tram_depot"
+display_name = "Line 4 Depot"
+size = Vector2(256, 128)
+floor_texture = ExtResource("e15")
+wall_texture = ExtResource("e16")
+music = "underworks"
+ambient = Color(0.96, 0.9, 0.82, 1)
+exit_x = 128
+grade = &"underworks"
+
+[node name="Timetable" type="Node2D" parent="."]
+script = ExtResource("e5")
+position = Vector2(128, 30)
+texture = ExtResource("e4")
+mode = "wall"
+look_lines = Array[String](["* LINE 4: EVERY 20 MINUTES.", "* Someone has crossed out MINUTES and written YEARS."])
+reach = 44
+
+[node name="MapWall" type="Node2D" parent="."]
+script = ExtResource("e5")
+position = Vector2(214, 28)
+texture = ExtResource("e6")
+mode = "wall"
+look_lines = Array[String](["* A map of the tunnels in a careful hand. Half the lines are dotted: 'not walked yet'."])
+reach = 44
+
+[node name="Desk" type="Node2D" parent="."]
+script = ExtResource("e5")
+position = Vector2(64, 86)
+texture = ExtResource("e7")
+mode = "stand"
+footprint = Vector2(78, 10)
+look_lines = Array[String](["* A ledger of every letter that ever came through. The last page is a list of ones that didn't."])
+
+[node name="Hale" parent="." instance=ExtResource("e8")]
+position = Vector2(64, 68)
+npc_id = &"hale"
+display_name = "Postmistress Hale"
+quest = ExtResource("e2")
+age = "elder"
+idle_lines = Array[String](["Post office is closed. Has been for sixty years."])
+lineage = ExtResource("e1")
+pin_headwear = "bowler"
+pin_goggles = "monocle"
+pin_accessory = "none"
+
+[node name="HaleInRoom" type="Node2D" parent="."]
+script = ExtResource("e9")
+position = Vector2(64, 68)
+npc_path = NodePath("../Hale")
+reach = 40
+
+[node name="Quill" parent="." instance=ExtResource("e8")]
+position = Vector2(200, 118)
+npc_id = &"quill"
+display_name = "Quill"
+shop_items = Array[ExtResource("e3")]([ExtResource("e10")])
+shop_greeting = "A map of the Underworks. Every vault I've walked. 30 scrap: I'm saving for boots."
+prompt = "Trade"
+age = "teen"
+idle_lines = Array[String](["Dot sends letters down the old pneumatic tube. She says your camp's map is better than mine. It is not."])
+lineage = ExtResource("e1")
+pin_headwear = "none"
+pin_goggles = "double"
+pin_accessory = "pack"
+
+[node name="QuillInRoom" type="Node2D" parent="."]
+script = ExtResource("e9")
+position = Vector2(200, 118)
+npc_path = NodePath("../Quill")
+reach = 30
+
+[node name="Papers" type="Node2D" parent="."]
+script = ExtResource("e5")
+position = Vector2(228, 164)
+texture = ExtResource("e11")
+mode = "stand"
+footprint = Vector2(20, 6)
+
+[node name="Crates" type="Node2D" parent="."]
+script = ExtResource("e5")
+position = Vector2(30, 180)
+texture = ExtResource("e12")
+mode = "stand"
+footprint = Vector2(34, 10)
+look_lines = Array[String](["* Mail sacks. Empty. Hale folds them every morning."])
+
+[node name="Doormat" type="Node2D" parent="."]
+script = ExtResource("e5")
+position = Vector2(128, 184)
+texture = ExtResource("e13")
+mode = "floor"

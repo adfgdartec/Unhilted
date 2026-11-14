@@ -1,0 +1,224 @@
+[gd_scene load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="2_exit"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="3_col"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/scrap_drone.tscn" id="4_drone"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="p_script"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="readable"]
+[ext_resource type="Script" path="res://scripts/world/light_shaft.gd" id="shaft"]
+[ext_resource type="Script" path="res://scripts/world/brass_door.gd" id="brassdoor"]
+[ext_resource type="PackedScene" path="res://scenes/world/ability_gate.tscn" id="gate"]
+[ext_resource type="Texture2D" path="res://art/props/pipe_run.png" id="tex_pipe"]
+[ext_resource type="Texture2D" path="res://art/props/lore_tablet.png" id="tex_tablet"]
+[ext_resource type="Texture2D" path="res://art/props/hang_a.png" id="tex_hang_a"]
+[ext_resource type="Texture2D" path="res://art/props/hang_b.png" id="tex_hang_b"]
+[ext_resource type="Texture2D" path="res://art/props/junk_a.png" id="tex_junk_a"]
+[ext_resource type="Texture2D" path="res://art/props/barrel.png" id="tex_barrel"]
+[ext_resource type="Texture2D" path="res://art/props/warning_lamp.png" id="tex_lamp"]
+
+[sub_resource type="RectangleShape2D" id="hole_shape"]
+size = Vector2(60, 8)
+
+[sub_resource type="RectangleShape2D" id="exit_shape"]
+size = Vector2(8, 64)
+
+[node name="Heap02bUndercamp" type="Node2D"]
+script = ExtResource("1_room")
+room_id = &"heap_02b_undercamp"
+region_id = &"heap"
+tileset = "heap_scrap"
+solid_styles = PackedStringArray("ground", "ground", "ground", "ground", "ceiling", "ceiling", "girder", "girder", "girder", "ground", "ground")
+backdrop = "heap_cave"
+ambient = Color(0.68, 0.6, 0.6, 1)
+music = "hollow"
+grade = &"cave"
+weather = "none"
+motes_color = Color(1, 0.8, 0.5, 0.25)
+motes_amount = 26
+display_name = "The Hollow"
+bounds = Rect2(0, 0, 800, 360)
+solids = Array[Rect2]([Rect2(0, 0, 16, 272), Rect2(0, 336, 120, 24), Rect2(180, 336, 620, 24), Rect2(784, 0, 16, 360), Rect2(16, 0, 24, 30), Rect2(80, 0, 704, 30), Rect2(200, 296, 80, 12), Rect2(320, 256, 90, 12), Rect2(460, 216, 80, 12), Rect2(570, 176, 120, 14), Rect2(690, 176, 94, 160)])
+
+[node name="ShaftEntry" type="Node2D" parent="."]
+position = Vector2(60, 30)
+script = ExtResource("shaft")
+length = 306.0
+top_width = 30.0
+bottom_width = 60.0
+slant = 8.0
+color = Color(1, 0.78, 0.5, 0.16)
+land_light = 0.8
+
+[node name="PipeHigh" type="Node2D" parent="."]
+position = Vector2(150, 120)
+script = ExtResource("p_script")
+texture = ExtResource("tex_pipe")
+background = true
+
+[node name="PipeHigh2" type="Node2D" parent="."]
+position = Vector2(214, 120)
+script = ExtResource("p_script")
+texture = ExtResource("tex_pipe")
+background = true
+
+[node name="PipeHigh3" type="Node2D" parent="."]
+position = Vector2(278, 120)
+script = ExtResource("p_script")
+texture = ExtResource("tex_pipe")
+background = true
+flip = true
+
+[node name="PipeLow" type="Node2D" parent="."]
+position = Vector2(470, 300)
+script = ExtResource("p_script")
+texture = ExtResource("tex_pipe")
+background = true
+
+[node name="PipeLow2" type="Node2D" parent="."]
+position = Vector2(534, 300)
+script = ExtResource("p_script")
+texture = ExtResource("tex_pipe")
+background = true
+flip = true
+
+[node name="SteamLeak" type="Node2D" parent="."]
+position = Vector2(500, 294)
+script = ExtResource("p_script")
+emit = "smoke"
+glow_color = Color(1, 0.75, 0.45, 0.25)
+glow_radius = 20.0
+light_radius = 60.0
+light_energy = 0.5
+
+[node name="Hang1" type="Node2D" parent="."]
+position = Vector2(170, 30)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hang_b")
+hanging = true
+background = true
+
+[node name="Hang2" type="Node2D" parent="."]
+position = Vector2(430, 30)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hang_a")
+hanging = true
+background = true
+
+[node name="Junk" type="Node2D" parent="."]
+position = Vector2(130, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_junk_a")
+background = true
+
+[node name="Barrel" type="Node2D" parent="."]
+position = Vector2(600, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_barrel")
+background = true
+
+[node name="Tablet" type="Node2D" parent="."]
+position = Vector2(370, 336)
+script = ExtResource("p_script")
+texture = ExtResource("tex_tablet")
+light_radius = 50.0
+light_energy = 0.6
+glow_color = Color(0.22, 0.95, 1, 0.3)
+glow_radius = 16.0
+glow_offset = Vector2(0, -18)
+
+[node name="TabletRead" type="Area2D" parent="."]
+position = Vector2(370, 336)
+script = ExtResource("readable")
+prompt = "Read"
+title = "OLD TABLET"
+lore_id = "smiths_tablet"
+lines = Array[String](["> The glyphs light up as you lean close. Your blade's wire answers them.", "\"Seven smiths, one blade, to cut the cord that drinks the world.\"", "\"The king feared what it could cut, and broke it, and the smiths with it.\"", "\"Five pieces fell where no one would look. The last was never set in the hilt. It still waits to be.\"", "> Below the text, someone has scratched a newer line: GO DOWN."])
+
+[node name="BrassDoor" type="Node2D" parent="."]
+position = Vector2(737, 176)
+script = ExtResource("brassdoor")
+target_room = "res://scenes/rooms/heap/heap_13_gate.tscn"
+target_spawn = &"from_hollow"
+
+[node name="WarnLamp" type="Node2D" parent="."]
+position = Vector2(680, 176)
+script = ExtResource("p_script")
+texture = ExtResource("tex_lamp")
+frames = 2
+fps = 1.5
+light_radius = 40.0
+light_energy = 0.6
+light_on_frame_zero = true
+glow_color = Color(1, 0.6, 0.25, 0.45)
+glow_radius = 12.0
+glow_offset = Vector2(0, -5)
+
+[node name="TunnelGlow" type="Node2D" parent="."]
+position = Vector2(8, 312)
+script = ExtResource("p_script")
+glow_color = Color(1, 0.78, 0.5, 0.55)
+glow_radius = 44.0
+light_radius = 110.0
+light_energy = 1.1
+glow_flicker = 0.08
+
+[node name="SeepHatch" parent="." instance=ExtResource("gate")]
+position = Vector2(150, 350)
+required_shard = 1
+size = Vector2(60, 14)
+gate_id = "heap_seep_shaft"
+
+[node name="ExitToSeep" type="Area2D" parent="."]
+position = Vector2(150, 356)
+script = ExtResource("2_exit")
+target_room = "res://scenes/rooms/heap/heap_04_seep.tscn"
+target_spawn = &"from_hollow"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToSeep"]
+shape = SubResource("hole_shape")
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_seep" type="Marker2D" parent="Spawns"]
+position = Vector2(90, 336)
+
+[node name="from_gate" type="Marker2D" parent="Spawns"]
+position = Vector2(690, 176)
+
+[node name="from_camp" type="Marker2D" parent="Spawns"]
+position = Vector2(60, 60)
+
+[node name="ExitToCamp" type="Area2D" parent="."]
+position = Vector2(4, 304)
+script = ExtResource("2_exit")
+target_room = "res://scenes/rooms/heap/heap_02_camp.tscn"
+target_spawn = &"from_under"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToCamp"]
+shape = SubResource("exit_shape")
+
+[node name="CapUnder1" parent="." instance=ExtResource("3_col")]
+position = Vector2(240, 278)
+kind = 1
+
+[node name="CapUnder2" parent="." instance=ExtResource("3_col")]
+position = Vector2(768, 158)
+kind = 1
+
+[node name="CoreCell" parent="." instance=ExtResource("3_col")]
+position = Vector2(500, 198)
+kind = 7
+display_name = "Core Cell"
+
+[node name="Goggles" parent="." instance=ExtResource("3_col")]
+position = Vector2(610, 158)
+kind = 4
+item_id = &"mask_brass_goggles"
+
+[node name="ScrapUnder" parent="." instance=ExtResource("3_col")]
+position = Vector2(300, 320)
+amount = 8
+
+[node name="Drone" parent="." instance=ExtResource("4_drone")]
+position = Vector2(560, 336)

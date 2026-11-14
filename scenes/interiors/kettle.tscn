@@ -1,0 +1,103 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Resource" path="res://data/lineages/bellows_kin.tres" id="e1"]
+[ext_resource type="Resource" path="res://data/quests/last_lamplighter.tres" id="e2"]
+[ext_resource type="Texture2D" path="res://art/interiors/window.png" id="e3"]
+[ext_resource type="Script" path="res://scripts/interior/interior_prop.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/interiors/tea_bar.png" id="e5"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="e6"]
+[ext_resource type="Script" path="res://scripts/interior/interior_npc.gd" id="e7"]
+[ext_resource type="Texture2D" path="res://art/interiors/stool.png" id="e8"]
+[ext_resource type="Texture2D" path="res://art/interiors/rug.png" id="e9"]
+[ext_resource type="Texture2D" path="res://art/interiors/doormat.png" id="e10"]
+[ext_resource type="Script" path="res://scripts/interior/interior_room.gd" id="e11"]
+[ext_resource type="Texture2D" path="res://art/interiors/floor_planks.png" id="e12"]
+[ext_resource type="Texture2D" path="res://art/interiors/wall_tea.png" id="e13"]
+
+[node name="Kettle" type="Node2D"]
+script = ExtResource("e11")
+interior_id = &"kettle"
+display_name = "The Kettle"
+size = Vector2(256, 136)
+floor_texture = ExtResource("e12")
+wall_texture = ExtResource("e13")
+music = "underworks"
+ambient = Color(0.96, 0.9, 0.82, 1)
+exit_x = 128
+grade = &"underworks"
+
+[node name="Window" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(216, 30)
+texture = ExtResource("e3")
+mode = "wall"
+look_lines = Array[String](["* Far off, the Lamplighter's Gallery. From here it's just a dark smudge.", "* Wick has been watching it."])
+reach = 44
+
+[node name="Bar" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(72, 110)
+texture = ExtResource("e5")
+mode = "stand"
+footprint = Vector2(90, 12)
+look_lines = Array[String](["* The urn is the size of a boiler, because it used to be one.", "* It sings when it's ready. Nobody has told it to stop."])
+
+[node name="Tamsin" parent="." instance=ExtResource("e6")]
+position = Vector2(96, 86)
+npc_id = &"tamsin"
+display_name = "Tamsin"
+idle_lines = Array[String](["Tea's on. It's always on. The urn doesn't have an off.", "We used to get people from Line 4. Now it's just us and the steam.", "Wick's been sitting by that window for years. If you're going near the Gallery, talk to him."])
+lineage = ExtResource("e1")
+pin_headwear = "bowler"
+pin_goggles = "raised"
+pin_accessory = "apron"
+
+[node name="TamsinInRoom" type="Node2D" parent="."]
+script = ExtResource("e7")
+position = Vector2(96, 86)
+npc_path = NodePath("../Tamsin")
+reach = 44
+
+[node name="Wick" parent="." instance=ExtResource("e6")]
+position = Vector2(190, 122)
+npc_id = &"wick"
+display_name = "Wick"
+quest = ExtResource("e2")
+age = "elder"
+idle_lines = Array[String](["I lit the lamps. Forty years."])
+lineage = ExtResource("e1")
+pin_headwear = "stovepipe"
+pin_goggles = "monocle"
+pin_accessory = "cane"
+
+[node name="WickInRoom" type="Node2D" parent="."]
+script = ExtResource("e7")
+position = Vector2(190, 122)
+npc_path = NodePath("../Wick")
+reach = 30
+
+[node name="Table" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(176, 136)
+texture = ExtResource("e8")
+mode = "stand"
+footprint = Vector2(12, 4)
+
+[node name="Stool" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(140, 156)
+texture = ExtResource("e8")
+mode = "stand"
+footprint = Vector2(12, 4)
+
+[node name="Rug" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(128, 144)
+texture = ExtResource("e9")
+mode = "floor"
+
+[node name="Doormat" type="Node2D" parent="."]
+script = ExtResource("e4")
+position = Vector2(128, 192)
+texture = ExtResource("e10")
+mode = "floor"

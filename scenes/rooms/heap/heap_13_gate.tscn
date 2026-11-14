@@ -1,0 +1,119 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="e1"]
+[ext_resource type="Texture2D" path="res://art/props/pipe_run.png" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e4"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e6"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[node name="Heap13Gate" type="Node2D"]
+script = ExtResource("e6")
+room_id = &"heap_13_gate"
+region_id = &"heap"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("tiles", "girder", "girder", "girder", "girder", "girder", "girder", "tiles", "tiles", "tiles", "tiles")
+backdrop = "intake_interior"
+music = "hollow"
+ambient = Color(0.95, 0.8, 0.66, 1)
+grade = &"intake"
+weather = "none"
+motes_color = Color(1, 0.8, 0.5, 0.35)
+motes_amount = 40
+display_name = "Underworks Gate"
+bounds = Rect2(0, 0, 520, 360)
+solids = Array[Rect2]([Rect2(0, 0, 16, 56), Rect2(0, 120, 120, 16), Rect2(120, 152, 40, 8), Rect2(160, 184, 40, 8), Rect2(200, 216, 40, 8), Rect2(240, 248, 40, 8), Rect2(280, 280, 40, 8), Rect2(300, 336, 220, 24), Rect2(16, 0, 504, 24), Rect2(504, 0, 16, 272), Rect2(0, 136, 16, 224)])
+
+[node name="Stairs" type="Node2D" parent="."]
+script = ExtResource("e1")
+columns = Array[Rect2]([])
+ties = PackedFloat32Array()
+stilts = Array[Rect2]([Rect2(120, 152, 40, 8), Rect2(160, 184, 40, 8), Rect2(200, 216, 40, 8), Rect2(240, 248, 40, 8), Rect2(280, 280, 40, 8)])
+ground_y = 360
+hangers = Array[Rect2]([])
+hang_top = 0
+
+[node name="Pipe0" type="Node2D" parent="."]
+position = Vector2(180, 100)
+script = ExtResource("e3")
+texture = ExtResource("e2")
+background = true
+
+[node name="Pipe1" type="Node2D" parent="."]
+position = Vector2(330, 200)
+script = ExtResource("e3")
+texture = ExtResource("e2")
+background = true
+
+[node name="Pipe2" type="Node2D" parent="."]
+position = Vector2(460, 150)
+script = ExtResource("e3")
+texture = ExtResource("e2")
+background = true
+
+[node name="SteamA" type="Node2D" parent="."]
+position = Vector2(360, 336)
+script = ExtResource("e3")
+glow_color = Color(1, 0.75, 0.45, 0.4)
+glow_radius = 30
+light_radius = 120
+light_energy = 1
+emit = "smoke"
+
+[node name="SteamB" type="Node2D" parent="."]
+position = Vector2(470, 336)
+script = ExtResource("e3")
+glow_color = Color(1, 0.75, 0.45, 0.3)
+glow_radius = 24
+light_radius = 100
+light_energy = 0.8
+emit = "smoke"
+
+[node name="DeepLight" type="Node2D" parent="."]
+position = Vector2(420, 300)
+script = ExtResource("e3")
+glow_color = Color(1, 0.7, 0.4, 0.5)
+glow_radius = 60
+light_radius = 200
+light_energy = 1.2
+
+[node name="Arch" type="Area2D" parent="."]
+position = Vector2(400, 336)
+script = ExtResource("e4")
+prompt = "Read"
+title = "INSCRIPTION"
+lines = Array[String](["> Letters in the smiths' tongue are cut into the arch. Somehow you can read them.", "\"TAL REN VES. Here the last edge goes down, to be made whole.\""])
+size = Vector2(40, 40)
+lore_id = "gate_inscription"
+
+[node name="ExitToUnderworks" type="Area2D" parent="."]
+position = Vector2(516, 304)
+script = ExtResource("e5")
+target_room = "res://scenes/rooms/underworks/uw_01_descent.tscn"
+target_spawn = &"from_heap"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToUnderworks"]
+shape = SubResource("s1")
+
+[node name="ExitToHollow" type="Area2D" parent="."]
+position = Vector2(4, 88)
+script = ExtResource("e5")
+target_room = "res://scenes/rooms/heap/heap_02b_undercamp.tscn"
+target_spawn = &"from_gate"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToHollow"]
+shape = SubResource("s2")
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_hollow" type="Marker2D" parent="Spawns"]
+position = Vector2(40, 120)
+
+[node name="from_underworks" type="Marker2D" parent="Spawns"]
+position = Vector2(470, 336)

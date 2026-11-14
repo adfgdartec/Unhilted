@@ -1,0 +1,317 @@
+[gd_scene load_steps=27 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e1"]
+[ext_resource type="Texture2D" path="res://art/props/front_gauge.png" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/door.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/props/front_kettle.png" id="e5"]
+[ext_resource type="Texture2D" path="res://art/props/front_depot.png" id="e6"]
+[ext_resource type="Texture2D" path="res://art/props/uw_sign_market.png" id="e7"]
+[ext_resource type="Texture2D" path="res://art/props/uw_sign_line4.png" id="e8"]
+[ext_resource type="Texture2D" path="res://art/props/uw_house_a.png" id="e9"]
+[ext_resource type="Texture2D" path="res://art/props/uw_house_b.png" id="e10"]
+[ext_resource type="Texture2D" path="res://art/props/uw_stall.png" id="e11"]
+[ext_resource type="Texture2D" path="res://art/props/uw_flywheel.png" id="e12"]
+[ext_resource type="Texture2D" path="res://art/props/uw_gauge.png" id="e13"]
+[ext_resource type="PackedScene" path="res://scenes/world/charging_dock.tscn" id="e14"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e15"]
+[ext_resource type="Resource" path="res://data/lineages/bellows_kin.tres" id="e16"]
+[ext_resource type="Resource" path="res://data/quests/pressure_drop.tres" id="e17"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="e18"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_point.tscn" id="e19"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e20"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e21"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e22"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s3"]
+size = Vector2(80, 8)
+
+[sub_resource type="RectangleShape2D" id="s4"]
+size = Vector2(8, 64)
+
+[node name="Uw02Market" type="Node2D"]
+script = ExtResource("e22")
+room_id = &"uw_02_market"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "plate", "plate", "brick", "grate", "brick")
+backdrop = "uw_vault"
+music = "underworks"
+ambient = Color(0.72, 0.66, 0.58, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Pipe Market"
+bounds = Rect2(0, 0, 1600, 400)
+solids = Array[Rect2]([Rect2(0, 0, 1600, 24), Rect2(0, 0, 16, 288), Rect2(0, 352, 1300, 48), Rect2(1380, 352, 220, 48), Rect2(1584, 0, 16, 168), Rect2(1440, 232, 160, 12), Rect2(1584, 244, 16, 44)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="ExitToDescent" type="Area2D" parent="."]
+position = Vector2(4, 320)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_01_descent.tscn"
+target_spawn = &"from_market"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToDescent"]
+shape = SubResource("s1")
+
+[node name="ExitToRow" type="Area2D" parent="."]
+position = Vector2(1596, 320)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_03_row.tscn"
+target_spawn = &"from_market"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToRow"]
+shape = SubResource("s2")
+
+[node name="ExitToTunnel" type="Area2D" parent="."]
+position = Vector2(1340, 396)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_12_tunnel.tscn"
+target_spawn = &"from_market"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToTunnel"]
+shape = SubResource("s3")
+
+[node name="ExitToGalleries" type="Area2D" parent="."]
+position = Vector2(1596, 200)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_11_galleries.tscn"
+target_spawn = &"from_market"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGalleries"]
+shape = SubResource("s4")
+
+[node name="FrontGauge" type="Node2D" parent="."]
+position = Vector2(300, 352)
+script = ExtResource("e3")
+texture = ExtResource("e2")
+
+[node name="DoorGauge" type="Area2D" parent="."]
+position = Vector2(320, 352)
+script = ExtResource("e4")
+interior = "res://scenes/interiors/gauge_gear.tscn"
+return_spawn = &"from_gauge"
+prompt = "Enter Gauge & Gear"
+
+[node name="FrontKettle" type="Node2D" parent="."]
+position = Vector2(700, 352)
+script = ExtResource("e3")
+texture = ExtResource("e5")
+
+[node name="DoorKettle" type="Area2D" parent="."]
+position = Vector2(716, 352)
+script = ExtResource("e4")
+interior = "res://scenes/interiors/kettle.tscn"
+return_spawn = &"from_kettle"
+prompt = "Enter The Kettle"
+
+[node name="FrontDepot" type="Node2D" parent="."]
+position = Vector2(1100, 352)
+script = ExtResource("e3")
+texture = ExtResource("e6")
+
+[node name="DoorDepot" type="Area2D" parent="."]
+position = Vector2(1131, 352)
+script = ExtResource("e4")
+interior = "res://scenes/interiors/tram_depot.tscn"
+return_spawn = &"from_depot"
+prompt = "Enter the depot"
+
+[node name="SignMarket" type="Node2D" parent="."]
+position = Vector2(700, 120)
+script = ExtResource("e3")
+texture = ExtResource("e7")
+hanging = true
+
+[node name="SignLine4" type="Node2D" parent="."]
+position = Vector2(1340, 250)
+script = ExtResource("e3")
+texture = ExtResource("e8")
+hanging = true
+
+[node name="HouseA" type="Node2D" parent="."]
+position = Vector2(140, 352)
+script = ExtResource("e3")
+texture = ExtResource("e9")
+background = true
+
+[node name="HouseB" type="Node2D" parent="."]
+position = Vector2(880, 352)
+script = ExtResource("e3")
+texture = ExtResource("e10")
+background = true
+
+[node name="StallA" type="Node2D" parent="."]
+position = Vector2(470, 352)
+script = ExtResource("e3")
+texture = ExtResource("e11")
+
+[node name="StallB" type="Node2D" parent="."]
+position = Vector2(960, 352)
+script = ExtResource("e3")
+texture = ExtResource("e11")
+
+[node name="Flywheel" type="Node2D" parent="."]
+position = Vector2(1240, 230)
+script = ExtResource("e3")
+texture = ExtResource("e12")
+background = true
+frames = 4
+fps = 2
+
+[node name="GaugeBig" type="Node2D" parent="."]
+position = Vector2(560, 230)
+script = ExtResource("e3")
+texture = ExtResource("e13")
+background = true
+frames = 2
+fps = 1
+
+[node name="ChargingDock" parent="." instance=ExtResource("e14")]
+position = Vector2(560, 352)
+spawn_name = &"dock"
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(40, 352)
+script = ExtResource("e15")
+radius = 110
+energy = 1
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(420, 352)
+script = ExtResource("e15")
+radius = 110
+energy = 1
+
+[node name="Lamp2" type="Node2D" parent="."]
+position = Vector2(640, 352)
+script = ExtResource("e15")
+radius = 110
+energy = 1
+
+[node name="Lamp3" type="Node2D" parent="."]
+position = Vector2(840, 352)
+script = ExtResource("e15")
+radius = 110
+energy = 1
+
+[node name="Lamp4" type="Node2D" parent="."]
+position = Vector2(1040, 352)
+script = ExtResource("e15")
+radius = 110
+energy = 1
+
+[node name="Lamp5" type="Node2D" parent="."]
+position = Vector2(1260, 352)
+script = ExtResource("e15")
+radius = 110
+energy = 1
+
+[node name="Lamp6" type="Node2D" parent="."]
+position = Vector2(1480, 352)
+script = ExtResource("e15")
+radius = 110
+energy = 1
+
+[node name="Brask" parent="." instance=ExtResource("e18")]
+position = Vector2(900, 352)
+npc_id = &"brask"
+display_name = "Foreman Brask"
+idle_lines = Array[String](["Gauges are all in the red. Have been for a week."])
+lineage = ExtResource("e16")
+age = "adult"
+quest = ExtResource("e17")
+pin_headwear = "stovepipe"
+pin_goggles = "raised"
+pin_accessory = "apron"
+
+[node name="Pell" parent="." instance=ExtResource("e18")]
+position = Vector2(790, 352)
+npc_id = &"pell"
+display_name = "Pell"
+idle_lines = Array[String](["Are you a tram? You're a bit small for a tram.", "My gran says the Governor used to sing. Now it just screams.", "If you go to the Galleries, swing on the big rings! I'm not allowed. I'm too swingy, gran says."])
+lineage = ExtResource("e16")
+age = "child"
+pin_headwear = "none"
+pin_goggles = "double"
+pin_accessory = "none"
+
+[node name="Corra" parent="." instance=ExtResource("e18")]
+position = Vector2(1220, 352)
+npc_id = &"corra"
+display_name = "Old Corra"
+idle_lines = Array[String](["Sit, sit. Mind the steam.", "The smiths built the Governor to keep the city above warm. Then the city above forgot we were down here.", "That brass blade of yours. Seven hammers on the pommel? ...No. I'm imagining things. Old eyes."])
+lineage = ExtResource("e16")
+age = "elder"
+pin_headwear = "bowler"
+pin_goggles = "monocle"
+pin_accessory = "cane"
+
+[node name="Fenwick" parent="." instance=ExtResource("e18")]
+position = Vector2(470, 352)
+npc_id = &"fenwick"
+display_name = "Fenwick"
+idle_lines = Array[String](["Cogs! Spare cogs! Some are even round!", "Gilda sells the good stuff, I sell the stuff Gilda threw out. Very different."])
+lineage = ExtResource("e16")
+age = "adult"
+pin_headwear = "bowler"
+pin_goggles = "monocle"
+pin_accessory = "brass_arm"
+look_seed = 7
+
+[node name="SwingRing" parent="." instance=ExtResource("e19")]
+position = Vector2(1370, 170)
+chain_length = 40
+swing_only = true
+
+[node name="CogStall" parent="." instance=ExtResource("e20")]
+position = Vector2(470, 280)
+kind = 1
+
+[node name="CogWalk" parent="." instance=ExtResource("e20")]
+position = Vector2(1520, 212)
+kind = 1
+
+[node name="Notice" type="Area2D" parent="."]
+position = Vector2(1180, 352)
+script = ExtResource("e21")
+prompt = "Read"
+title = "NOTICE"
+lines = Array[String](["> NOTICE: LINE 4 SUSPENDED UNTIL FURTHER NOTICE.", "> Further notice, in a different hand: STILL SUSPENDED.", "> In a third, very old hand: ask again in a hundred years."])
+size = Vector2(24, 32)
+lore_id = "uw_notice"
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_descent" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 352)
+
+[node name="from_row" type="Marker2D" parent="Spawns"]
+position = Vector2(1550, 352)
+
+[node name="from_tunnel" type="Marker2D" parent="Spawns"]
+position = Vector2(1270, 352)
+
+[node name="from_galleries" type="Marker2D" parent="Spawns"]
+position = Vector2(1550, 232)
+
+[node name="from_gauge" type="Marker2D" parent="Spawns"]
+position = Vector2(320, 352)
+
+[node name="from_kettle" type="Marker2D" parent="Spawns"]
+position = Vector2(716, 352)
+
+[node name="from_depot" type="Marker2D" parent="Spawns"]
+position = Vector2(1131, 352)
+
+[node name="dock" type="Marker2D" parent="Spawns"]
+position = Vector2(560, 352)

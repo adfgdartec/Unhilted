@@ -1,0 +1,149 @@
+[gd_scene load_steps=25 format=3]
+
+[ext_resource type="Script" path="res://scripts/player/states/slide.gd" id="st_slide"]
+[ext_resource type="Script" path="res://scripts/player/states/wall_slide.gd" id="st_wall"]
+[ext_resource type="Script" path="res://scripts/player/states/swing.gd" id="st_swing"]
+[ext_resource type="Script" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/player/player_stats.gd" id="2_stats"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="3_health"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="4_hurt"]
+[ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="5_hit"]
+[ext_resource type="Script" path="res://scripts/player/player_visuals.gd" id="6_vis"]
+[ext_resource type="Script" path="res://scripts/components/state_machine.gd" id="7_sm"]
+[ext_resource type="Script" path="res://scripts/player/states/idle.gd" id="s_idle"]
+[ext_resource type="Script" path="res://scripts/player/states/run.gd" id="s_run"]
+[ext_resource type="Script" path="res://scripts/player/states/jump.gd" id="s_jump"]
+[ext_resource type="Script" path="res://scripts/player/states/fall.gd" id="s_fall"]
+[ext_resource type="Script" path="res://scripts/player/states/attack.gd" id="s_attack"]
+[ext_resource type="Script" path="res://scripts/player/states/throw.gd" id="s_throw"]
+[ext_resource type="Script" path="res://scripts/player/states/grapple.gd" id="s_grapple"]
+[ext_resource type="Script" path="res://scripts/player/states/dash.gd" id="s_dash"]
+[ext_resource type="Script" path="res://scripts/player/states/zip.gd" id="s_zip"]
+[ext_resource type="Script" path="res://scripts/player/states/hurt.gd" id="s_hurt"]
+[ext_resource type="Script" path="res://scripts/player/states/dead.gd" id="s_dead"]
+
+[sub_resource type="CapsuleShape2D" id="body_shape"]
+radius = 5.0
+height = 28.0
+
+[sub_resource type="RectangleShape2D" id="hurt_shape"]
+size = Vector2(10, 26)
+
+[sub_resource type="RectangleShape2D" id="melee_shape"]
+size = Vector2(24, 22)
+
+[node name="Player" type="CharacterBody2D"]
+collision_layer = 2
+collision_mask = 1
+floor_snap_length = 4.0
+script = ExtResource("1_player")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -14)
+shape = SubResource("body_shape")
+
+[node name="PlayerStats" type="Node" parent="."]
+script = ExtResource("2_stats")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_health = 5
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("4_hurt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -14)
+shape = SubResource("hurt_shape")
+
+[node name="Wire" type="Line2D" parent="."]
+width = 1.0
+default_color = Color(0.22, 0.95, 1, 1)
+
+[node name="Visuals" type="Node2D" parent="."]
+script = ExtResource("6_vis")
+
+[node name="MeleeHitbox" type="Area2D" parent="."]
+position = Vector2(0, -14)
+collision_layer = 0
+collision_mask = 16
+monitorable = false
+script = ExtResource("5_hit")
+start_active = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="MeleeHitbox"]
+position = Vector2(15, 0)
+shape = SubResource("melee_shape")
+
+[node name="BladeAnchor" type="Marker2D" parent="."]
+position = Vector2(6, -14)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(0, -24)
+position_smoothing_enabled = true
+position_smoothing_speed = 10.0
+
+[node name="Upgrades" type="Node" parent="."]
+
+[node name="CoyoteTimer" type="Timer" parent="."]
+process_callback = 0
+one_shot = true
+
+[node name="JumpBufferTimer" type="Timer" parent="."]
+process_callback = 0
+one_shot = true
+
+[node name="DashCooldown" type="Timer" parent="."]
+process_callback = 0
+one_shot = true
+
+[node name="InvulnTimer" type="Timer" parent="."]
+one_shot = true
+
+[node name="StateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("7_sm")
+initial_state = NodePath("Idle")
+
+[node name="Idle" type="Node" parent="StateMachine"]
+script = ExtResource("s_idle")
+
+[node name="Run" type="Node" parent="StateMachine"]
+script = ExtResource("s_run")
+
+[node name="Jump" type="Node" parent="StateMachine"]
+script = ExtResource("s_jump")
+
+[node name="Fall" type="Node" parent="StateMachine"]
+script = ExtResource("s_fall")
+
+[node name="Attack" type="Node" parent="StateMachine"]
+script = ExtResource("s_attack")
+
+[node name="Throw" type="Node" parent="StateMachine"]
+script = ExtResource("s_throw")
+
+[node name="Grapple" type="Node" parent="StateMachine"]
+script = ExtResource("s_grapple")
+
+[node name="Dash" type="Node" parent="StateMachine"]
+script = ExtResource("s_dash")
+
+[node name="Zip" type="Node" parent="StateMachine"]
+script = ExtResource("s_zip")
+
+[node name="Hurt" type="Node" parent="StateMachine"]
+script = ExtResource("s_hurt")
+
+[node name="Dead" type="Node" parent="StateMachine"]
+script = ExtResource("s_dead")
+
+[node name="Slide" type="Node" parent="StateMachine"]
+script = ExtResource("st_slide")
+
+[node name="Wall_Slide" type="Node" parent="StateMachine"]
+script = ExtResource("st_wall")
+
+[node name="Swing" type="Node" parent="StateMachine"]
+script = ExtResource("st_swing")

@@ -1,0 +1,156 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/hazard.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/gear_wheel.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/steam_vent.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e4"]
+[ext_resource type="PackedScene" path="res://scenes/world/charging_dock.tscn" id="e5"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e6"]
+[ext_resource type="Script" path="res://scripts/enemies/bellows_bat.gd" id="e7"]
+[ext_resource type="Texture2D" path="res://art/props/uw_flywheel.png" id="e8"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e9"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e10"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e11"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s3"]
+size = Vector2(8, 64)
+
+[node name="Uw05Gearworks" type="Node2D"]
+script = ExtResource("e11")
+room_id = &"uw_05_gearworks"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "grate", "brick", "plate", "brick", "grate", "brick", "brick")
+backdrop = "uw_works"
+music = "underworks"
+ambient = Color(0.68, 0.6, 0.54, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Gearworks"
+bounds = Rect2(0, 0, 960, 480)
+solids = Array[Rect2]([Rect2(0, 0, 960, 24), Rect2(0, 0, 16, 136), Rect2(0, 200, 160, 12), Rect2(0, 212, 16, 268), Rect2(16, 440, 704, 40), Rect2(720, 300, 240, 180), Rect2(800, 120, 144, 12), Rect2(944, 0, 16, 56), Rect2(944, 132, 16, 104)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="Spikes" type="Area2D" parent="."]
+position = Vector2(160, 428)
+script = ExtResource("e1")
+size = Vector2(560, 12)
+kind = "spikes"
+
+[node name="GearA" type="Node2D" parent="."]
+position = Vector2(300, 250)
+script = ExtResource("e2")
+radius = 70
+platforms = 4
+speed = 0.6
+platform_width = 36
+start_angle = 0
+
+[node name="GearB" type="Node2D" parent="."]
+position = Vector2(540, 250)
+script = ExtResource("e2")
+radius = 70
+platforms = 4
+speed = -0.6
+platform_width = 36
+start_angle = 0.785
+
+[node name="LiftVent" type="Node2D" parent="."]
+position = Vector2(760, 300)
+script = ExtResource("e3")
+reach = 200
+kind = "lift"
+width = 24
+
+[node name="ExitToWorks" type="Area2D" parent="."]
+position = Vector2(4, 168)
+script = ExtResource("e4")
+target_room = "res://scenes/rooms/underworks/uw_04_works.tscn"
+target_spawn = &"from_gearworks"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToWorks"]
+shape = SubResource("s1")
+
+[node name="ExitToGallery" type="Area2D" parent="."]
+position = Vector2(956, 88)
+script = ExtResource("e4")
+target_room = "res://scenes/rooms/underworks/uw_06_gallery.tscn"
+target_spawn = &"from_gearworks"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGallery"]
+shape = SubResource("s2")
+
+[node name="ExitToFalls" type="Area2D" parent="."]
+position = Vector2(956, 268)
+script = ExtResource("e4")
+target_room = "res://scenes/rooms/underworks/uw_07_falls.tscn"
+target_spawn = &"from_gearworks"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToFalls"]
+shape = SubResource("s3")
+
+[node name="ChargingDock" parent="." instance=ExtResource("e5")]
+position = Vector2(850, 300)
+spawn_name = &"dock"
+
+[node name="CogHigh" parent="." instance=ExtResource("e6")]
+position = Vector2(420, 140)
+kind = 1
+
+[node name="BatA" type="CharacterBody2D" parent="."]
+position = Vector2(300, 110)
+script = ExtResource("e7")
+
+[node name="BatB" type="CharacterBody2D" parent="."]
+position = Vector2(560, 110)
+script = ExtResource("e7")
+
+[node name="Flywheel" type="Node2D" parent="."]
+position = Vector2(420, 430)
+script = ExtResource("e9")
+texture = ExtResource("e8")
+background = true
+frames = 4
+fps = 4
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(60, 200)
+script = ExtResource("e10")
+radius = 90
+energy = 0.9
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(880, 120)
+script = ExtResource("e10")
+radius = 90
+energy = 0.9
+
+[node name="WallLamp" type="Node2D" parent="."]
+position = Vector2(700, 340)
+script = ExtResource("e10")
+radius = 70
+energy = 0.9
+wall_mounted = true
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_works" type="Marker2D" parent="Spawns"]
+position = Vector2(60, 200)
+
+[node name="from_gallery" type="Marker2D" parent="Spawns"]
+position = Vector2(900, 120)
+
+[node name="from_falls" type="Marker2D" parent="Spawns"]
+position = Vector2(900, 300)
+
+[node name="dock" type="Marker2D" parent="Spawns"]
+position = Vector2(850, 300)

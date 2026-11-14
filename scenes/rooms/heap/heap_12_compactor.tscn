@@ -1,0 +1,74 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/arena_waves.gd" id="e3"]
+[ext_resource type="Texture2D" path="res://art/props/bale_stack.png" id="e4"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e5"]
+[ext_resource type="Texture2D" path="res://art/props/chute.png" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e7"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(80, 8)
+
+[node name="Heap12Compactor" type="Node2D"]
+script = ExtResource("e7")
+room_id = &"heap_12_compactor"
+region_id = &"heap"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("tiles", "tiles", "tiles", "tiles", "tiles", "girder", "girder", "girder")
+backdrop = "intake_interior"
+music = "industrial"
+ambient = Color(0.82, 0.72, 0.72, 1)
+grade = &"intake"
+weather = "none"
+motes_color = Color(1, 0.7, 0.5, 0.25)
+motes_amount = 30
+display_name = "Compactor Pit"
+bounds = Rect2(0, 0, 640, 360)
+solids = Array[Rect2]([Rect2(0, 0, 16, 360), Rect2(624, 0, 16, 360), Rect2(16, 0, 608, 40), Rect2(0, 336, 220, 24), Rect2(300, 336, 340, 24), Rect2(120, 256, 80, 12), Rect2(440, 256, 80, 12), Rect2(280, 196, 80, 12)])
+
+[node name="PitFrame" type="Node2D" parent="."]
+script = ExtResource("e1")
+columns = Array[Rect2]([])
+ties = PackedFloat32Array()
+stilts = Array[Rect2]([Rect2(120, 256, 80, 12), Rect2(440, 256, 80, 12)])
+ground_y = 336
+hangers = Array[Rect2]([Rect2(280, 196, 80, 12)])
+hang_top = 40
+
+[node name="ExitDown" type="Area2D" parent="."]
+position = Vector2(260, 356)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/heap/heap_08_conveyor.tscn"
+target_spawn = &"from_pit"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitDown"]
+shape = SubResource("s1")
+
+[node name="Arena" type="Node2D" parent="."]
+script = ExtResource("e3")
+trigger = Rect2(380, 200, 200, 136)
+seals = Array[Rect2]([Rect2(220, 320, 80, 16)])
+waves = Array[String](["rustcrawler@200,rustcrawler@460", "compactor@500,rustcrawler@160:52", "compactor@150,compactor@520"])
+floor_y = 336
+reward_kind = 3
+reward_id = &"piston_heart"
+reward_pos = Vector2(320, 180)
+
+[node name="Bales" type="Node2D" parent="."]
+position = Vector2(560, 336)
+script = ExtResource("e5")
+texture = ExtResource("e4")
+background = true
+
+[node name="Chute" type="Node2D" parent="."]
+position = Vector2(80, 336)
+script = ExtResource("e5")
+texture = ExtResource("e6")
+background = true
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_conveyor" type="Marker2D" parent="Spawns"]
+position = Vector2(340, 336)

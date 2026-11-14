@@ -1,0 +1,145 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/hazard.gd" id="e1"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_point.tscn" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e4"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e5"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e7"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s3"]
+size = Vector2(8, 64)
+
+[node name="Uw11Galleries" type="Node2D"]
+script = ExtResource("e7")
+room_id = &"uw_11_galleries"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "brick", "grate", "brick", "plate", "brick", "brick", "plate", "plate")
+backdrop = "uw_vault"
+music = "underworks"
+ambient = Color(0.62, 0.6, 0.56, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Swing Galleries"
+bounds = Rect2(0, 0, 1280, 400)
+solids = Array[Rect2]([Rect2(0, 0, 1280, 24), Rect2(0, 0, 16, 288), Rect2(1264, 0, 16, 136), Rect2(1160, 200, 104, 10), Rect2(1264, 212, 16, 76), Rect2(0, 352, 200, 48), Rect2(440, 320, 48, 80), Rect2(720, 320, 48, 80), Rect2(960, 352, 320, 48), Rect2(200, 384, 760, 16)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="PitA" type="Area2D" parent="."]
+position = Vector2(200, 368)
+script = ExtResource("e1")
+size = Vector2(240, 16)
+kind = "boiling"
+
+[node name="PitB" type="Area2D" parent="."]
+position = Vector2(488, 368)
+script = ExtResource("e1")
+size = Vector2(232, 16)
+kind = "boiling"
+
+[node name="PitC" type="Area2D" parent="."]
+position = Vector2(768, 368)
+script = ExtResource("e1")
+size = Vector2(192, 16)
+kind = "boiling"
+
+[node name="RingA" parent="." instance=ExtResource("e2")]
+position = Vector2(320, 200)
+chain_length = 40
+swing_only = true
+
+[node name="RingB" parent="." instance=ExtResource("e2")]
+position = Vector2(604, 196)
+chain_length = 40
+swing_only = true
+
+[node name="RingC" parent="." instance=ExtResource("e2")]
+position = Vector2(864, 200)
+chain_length = 40
+swing_only = true
+
+[node name="RingLoft" parent="." instance=ExtResource("e2")]
+position = Vector2(1100, 180)
+chain_length = 40
+swing_only = true
+
+[node name="ExitToGovernor" type="Area2D" parent="."]
+position = Vector2(4, 320)
+script = ExtResource("e3")
+target_room = "res://scenes/rooms/underworks/uw_10_governor.tscn"
+target_spawn = &"from_galleries"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGovernor"]
+shape = SubResource("s1")
+
+[node name="ExitToMarket" type="Area2D" parent="."]
+position = Vector2(1276, 320)
+script = ExtResource("e3")
+target_room = "res://scenes/rooms/underworks/uw_02_market.tscn"
+target_spawn = &"from_galleries"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToMarket"]
+shape = SubResource("s2")
+
+[node name="ExitToLoft" type="Area2D" parent="."]
+position = Vector2(1276, 168)
+script = ExtResource("e3")
+target_room = "res://scenes/rooms/underworks/uw_14_loft.tscn"
+target_spawn = &"from_galleries"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToLoft"]
+shape = SubResource("s3")
+
+[node name="Rings" type="Area2D" parent="."]
+position = Vector2(120, 352)
+script = ExtResource("e4")
+prompt = "Read"
+title = "PLAQUE"
+lines = Array[String](["> THE SWING GALLERIES. FOR THE INSPECTION OF THE UPPER WORKS.", "> Hook a ring. Press [throw] again to hang. Lean left and right to swing; up and down climbs the wire.", "> Jump to let go: you keep the speed."])
+size = Vector2(24, 32)
+lore_id = "uw_galleries"
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(80, 352)
+script = ExtResource("e5")
+radius = 90
+energy = 0.9
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(1000, 352)
+script = ExtResource("e5")
+radius = 90
+energy = 0.9
+
+[node name="WallLamp" type="Node2D" parent="."]
+position = Vector2(600, 120)
+script = ExtResource("e5")
+radius = 90
+energy = 0.9
+wall_mounted = true
+
+[node name="CogPillar" parent="." instance=ExtResource("e6")]
+position = Vector2(744, 300)
+kind = 1
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_governor" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 352)
+
+[node name="from_market" type="Marker2D" parent="Spawns"]
+position = Vector2(1230, 352)
+
+[node name="from_loft" type="Marker2D" parent="Spawns"]
+position = Vector2(1220, 200)

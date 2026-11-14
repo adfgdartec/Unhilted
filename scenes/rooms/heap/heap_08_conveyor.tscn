@@ -1,0 +1,189 @@
+[gd_scene load_steps=19 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/conveyor.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/crusher.gd" id="e3"]
+[ext_resource type="PackedScene" path="res://scenes/world/charging_dock.tscn" id="e4"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e5"]
+[ext_resource type="Texture2D" path="res://art/props/bale_stack.png" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e7"]
+[ext_resource type="Texture2D" path="res://art/props/chute.png" id="e8"]
+[ext_resource type="Texture2D" path="res://art/props/warning_lamp.png" id="e9"]
+[ext_resource type="Texture2D" path="res://art/props/warning_sign.png" id="e10"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e11"]
+[ext_resource type="Script" path="res://scripts/enemies/compactor.gd" id="e12"]
+[ext_resource type="Script" path="res://scripts/enemies/rustcrawler.gd" id="e13"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e14"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e15"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s3"]
+size = Vector2(190, 8)
+
+[node name="Heap08Conveyor" type="Node2D"]
+script = ExtResource("e15")
+room_id = &"heap_08_conveyor"
+region_id = &"heap"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("tiles", "tiles", "tiles", "tiles", "tiles", "tiles", "tiles", "girder", "girder", "girder", "girder", "girder", "girder")
+backdrop = "intake_interior"
+music = "industrial"
+ambient = Color(0.82, 0.72, 0.72, 1)
+grade = &"intake"
+weather = "none"
+motes_color = Color(1, 0.7, 0.5, 0.25)
+motes_amount = 30
+display_name = "Conveyor Hall"
+bounds = Rect2(0, 0, 1280, 360)
+solids = Array[Rect2]([Rect2(0, 0, 16, 272), Rect2(1264, 0, 16, 272), Rect2(0, 336, 600, 24), Rect2(600, 348, 420, 12), Rect2(1020, 336, 260, 24), Rect2(16, 0, 344, 40), Rect2(554, 0, 710, 40), Rect2(360, 296, 80, 12), Rect2(484, 256, 70, 12), Rect2(360, 216, 80, 12), Rect2(484, 176, 70, 12), Rect2(360, 136, 80, 12), Rect2(484, 96, 70, 12)])
+
+[node name="LadderFrame" type="Node2D" parent="."]
+script = ExtResource("e1")
+columns = Array[Rect2]([Rect2(360, 136, 80, 200), Rect2(484, 96, 70, 240)])
+ties = PackedFloat32Array(96, 136, 176, 216, 256, 296)
+stilts = Array[Rect2]([])
+ground_y = 336
+hangers = Array[Rect2]([])
+hang_top = 0
+
+[node name="Belt" type="StaticBody2D" parent="."]
+position = Vector2(600, 336)
+script = ExtResource("e2")
+size = Vector2(420, 12)
+speed = -45
+
+[node name="Crusher1" type="Node2D" parent="."]
+position = Vector2(680, 48)
+script = ExtResource("e3")
+width = 48
+drop = 264
+period = 2.4
+offset = 0
+
+[node name="Crusher2" type="Node2D" parent="."]
+position = Vector2(820, 48)
+script = ExtResource("e3")
+width = 48
+drop = 264
+period = 2.4
+offset = 0.8
+
+[node name="Crusher3" type="Node2D" parent="."]
+position = Vector2(960, 48)
+script = ExtResource("e3")
+width = 48
+drop = 264
+period = 2.4
+offset = 1.6
+
+[node name="ChargingDock" parent="." instance=ExtResource("e4")]
+position = Vector2(1130, 336)
+spawn_name = &"dock"
+
+[node name="ExitToCrane" type="Area2D" parent="."]
+position = Vector2(4, 304)
+script = ExtResource("e5")
+target_room = "res://scenes/rooms/heap/heap_07_crane.tscn"
+target_spawn = &"from_conveyor"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToCrane"]
+shape = SubResource("s1")
+
+[node name="ExitToIntake" type="Area2D" parent="."]
+position = Vector2(1276, 304)
+script = ExtResource("e5")
+target_room = "res://scenes/rooms/heap/heap_03_intake.tscn"
+target_spawn = &"from_camp"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToIntake"]
+shape = SubResource("s2")
+
+[node name="ExitToPit" type="Area2D" parent="."]
+position = Vector2(457, 4)
+script = ExtResource("e5")
+target_room = "res://scenes/rooms/heap/heap_12_compactor.tscn"
+target_spawn = &"from_conveyor"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToPit"]
+shape = SubResource("s3")
+
+[node name="Bales" type="Node2D" parent="."]
+position = Vector2(140, 336)
+script = ExtResource("e7")
+texture = ExtResource("e6")
+background = true
+
+[node name="Chute" type="Node2D" parent="."]
+position = Vector2(1060, 336)
+script = ExtResource("e7")
+texture = ExtResource("e8")
+background = true
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(750, 40)
+script = ExtResource("e7")
+texture = ExtResource("e9")
+frames = 2
+fps = 2
+light_radius = 40
+light_energy = 0.6
+light_on_frame_zero = true
+glow_color = Color(1, 0.6, 0.25, 0.45)
+glow_radius = 12
+glow_offset = Vector2(0, -5)
+hanging = true
+
+[node name="Sign" type="Node2D" parent="."]
+position = Vector2(1235, 336)
+script = ExtResource("e7")
+texture = ExtResource("e10")
+
+[node name="BossSign" type="Area2D" parent="."]
+position = Vector2(1235, 336)
+script = ExtResource("e11")
+prompt = "Read"
+title = "SIGN"
+lines = Array[String](["INTAKE UNIT 7. AUTHORISED PERSONNEL ONLY.", "Someone has added, in paint: \"it can't see straight up.\""])
+size = Vector2(24, 32)
+lore_id = "intake_warning"
+
+[node name="Compactor" type="CharacterBody2D" parent="."]
+position = Vector2(220, 336)
+script = ExtResource("e12")
+
+[node name="Crawler1" type="CharacterBody2D" parent="."]
+position = Vector2(760, 40)
+script = ExtResource("e13")
+start_on_ceiling = true
+
+[node name="Crawler2" type="CharacterBody2D" parent="."]
+position = Vector2(900, 40)
+script = ExtResource("e13")
+start_on_ceiling = true
+
+[node name="CapLadder" parent="." instance=ExtResource("e14")]
+position = Vector2(400, 200)
+kind = 1
+
+[node name="ScrapBelt" parent="." instance=ExtResource("e14")]
+position = Vector2(1060, 320)
+amount = 6
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_crane" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 336)
+
+[node name="from_intake" type="Marker2D" parent="Spawns"]
+position = Vector2(1220, 336)
+
+[node name="from_pit" type="Marker2D" parent="Spawns"]
+position = Vector2(520, 96)
+
+[node name="dock" type="Marker2D" parent="Spawns"]
+position = Vector2(1130, 336)

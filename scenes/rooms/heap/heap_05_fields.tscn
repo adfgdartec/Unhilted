@@ -1,0 +1,204 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e2"]
+[ext_resource type="Texture2D" path="res://art/props/car_cube.png" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/props/tyres.png" id="e5"]
+[ext_resource type="Texture2D" path="res://art/props/barrel.png" id="e6"]
+[ext_resource type="Texture2D" path="res://art/props/street_lamp.png" id="e7"]
+[ext_resource type="Texture2D" path="res://art/props/junk_a.png" id="e8"]
+[ext_resource type="Texture2D" path="res://art/props/warning_sign.png" id="e9"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e10"]
+[ext_resource type="Texture2D" path="res://art/props/junk_b.png" id="e11"]
+[ext_resource type="Texture2D" path="res://art/props/crt_pile.png" id="e12"]
+[ext_resource type="Script" path="res://scripts/enemies/compactor.gd" id="e13"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/spotter_drone.tscn" id="e14"]
+[ext_resource type="Script" path="res://scripts/enemies/rustcrawler.gd" id="e15"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e16"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e17"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(100, 8)
+
+[sub_resource type="RectangleShape2D" id="s3"]
+size = Vector2(260, 8)
+
+[sub_resource type="RectangleShape2D" id="s4"]
+size = Vector2(8, 64)
+
+[node name="Heap05Fields" type="Node2D"]
+script = ExtResource("e17")
+room_id = &"heap_05_fields"
+region_id = &"heap"
+tileset = "heap_scrap"
+solid_styles = PackedStringArray("ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "girder", "girder", "girder", "girder", "girder", "girder")
+backdrop = "heap_outdoor"
+music = "industrial"
+ambient = Color(0.88, 0.8, 0.78, 1)
+grade = &"heap"
+weather = "none"
+motes_color = Color(1, 0.84, 0.6, 0.3)
+motes_amount = 30
+display_name = "Scrap Fields"
+bounds = Rect2(0, 0, 1600, 480)
+solids = Array[Rect2]([Rect2(0, 0, 16, 368), Rect2(0, 432, 520, 48), Rect2(520, 404, 180, 76), Rect2(700, 432, 300, 48), Rect2(1100, 432, 500, 48), Rect2(1200, 392, 400, 40), Rect2(1260, 352, 340, 40), Rect2(1320, 312, 280, 40), Rect2(1380, 272, 220, 40), Rect2(1584, 0, 16, 208), Rect2(1256, 232, 80, 12), Rect2(1380, 192, 80, 12), Rect2(1256, 152, 80, 12), Rect2(1380, 112, 80, 12), Rect2(1256, 72, 80, 12), Rect2(1380, 32, 80, 12)])
+
+[node name="CraneMast" type="Node2D" parent="."]
+script = ExtResource("e1")
+columns = Array[Rect2]([Rect2(1256, 72, 80, 280), Rect2(1380, 32, 80, 240)])
+ties = PackedFloat32Array(32, 72, 112, 152, 192, 232, 272)
+stilts = Array[Rect2]([])
+ground_y = 336
+hangers = Array[Rect2]([])
+hang_top = 0
+
+[node name="ExitToCamp" type="Area2D" parent="."]
+position = Vector2(4, 400)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/heap/heap_02_camp.tscn"
+target_spawn = &"from_fields"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToCamp"]
+shape = SubResource("s1")
+
+[node name="ExitToSinkhole" type="Area2D" parent="."]
+position = Vector2(1050, 476)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/heap/heap_10_sinkhole.tscn"
+target_spawn = &"from_fields"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToSinkhole"]
+shape = SubResource("s2")
+
+[node name="ExitToCrane" type="Area2D" parent="."]
+position = Vector2(1370, 4)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/heap/heap_07_crane.tscn"
+target_spawn = &"from_fields"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToCrane"]
+shape = SubResource("s3")
+
+[node name="ExitToGiant" type="Area2D" parent="."]
+position = Vector2(1596, 240)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/heap/heap_09_giant.tscn"
+target_spawn = &"from_fields"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGiant"]
+shape = SubResource("s4")
+
+[node name="CarCube" type="Node2D" parent="."]
+position = Vector2(300, 432)
+script = ExtResource("e4")
+texture = ExtResource("e3")
+background = true
+
+[node name="Tyres" type="Node2D" parent="."]
+position = Vector2(470, 432)
+script = ExtResource("e4")
+texture = ExtResource("e5")
+background = true
+
+[node name="Barrel" type="Node2D" parent="."]
+position = Vector2(560, 404)
+script = ExtResource("e4")
+texture = ExtResource("e6")
+background = true
+
+[node name="Lamp" type="Node2D" parent="."]
+position = Vector2(650, 404)
+script = ExtResource("e4")
+texture = ExtResource("e7")
+background = true
+light_radius = 80
+light_energy = 0.8
+glow_color = Color(1, 0.75, 0.4, 0.5)
+glow_radius = 26
+glow_offset = Vector2(5, -52)
+glow_flicker = 0.25
+
+[node name="JunkA" type="Node2D" parent="."]
+position = Vector2(780, 432)
+script = ExtResource("e4")
+texture = ExtResource("e8")
+background = true
+
+[node name="SinkSign" type="Node2D" parent="."]
+position = Vector2(985, 432)
+script = ExtResource("e4")
+texture = ExtResource("e9")
+
+[node name="SinkholeSign" type="Area2D" parent="."]
+position = Vector2(985, 432)
+script = ExtResource("e10")
+prompt = "Read"
+title = "SIGN"
+lines = Array[String](["DANGER: SINKHOLE. The ground here eats things.", "Underneath, in marker: \"Sprocket's left boot. RIP.\""])
+size = Vector2(24, 32)
+lore_id = "fields_sinkhole"
+
+[node name="JunkB" type="Node2D" parent="."]
+position = Vector2(1160, 432)
+script = ExtResource("e4")
+texture = ExtResource("e11")
+background = true
+
+[node name="Crt" type="Node2D" parent="."]
+position = Vector2(1235, 392)
+script = ExtResource("e4")
+texture = ExtResource("e12")
+background = true
+frames = 2
+fps = 5
+
+[node name="Compactor" type="CharacterBody2D" parent="."]
+position = Vector2(300, 432)
+script = ExtResource("e13")
+
+[node name="Spotter" parent="." instance=ExtResource("e14")]
+position = Vector2(820, 300)
+
+[node name="CrawlerFloor" type="CharacterBody2D" parent="."]
+position = Vector2(880, 432)
+script = ExtResource("e15")
+start_on_ceiling = false
+
+[node name="CrawlerMast" type="CharacterBody2D" parent="."]
+position = Vector2(1296, 164)
+script = ExtResource("e15")
+start_on_ceiling = true
+
+[node name="CapMound" parent="." instance=ExtResource("e16")]
+position = Vector2(610, 384)
+kind = 1
+
+[node name="CapMast" parent="." instance=ExtResource("e16")]
+position = Vector2(1420, 96)
+kind = 1
+
+[node name="ScrapA" parent="." instance=ExtResource("e16")]
+position = Vector2(450, 420)
+amount = 4
+
+[node name="ScrapB" parent="." instance=ExtResource("e16")]
+position = Vector2(1500, 256)
+amount = 4
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_camp" type="Marker2D" parent="Spawns"]
+position = Vector2(60, 432)
+
+[node name="from_sinkhole" type="Marker2D" parent="Spawns"]
+position = Vector2(1150, 432)
+
+[node name="from_crane" type="Marker2D" parent="Spawns"]
+position = Vector2(1420, 32)
+
+[node name="from_giant" type="Marker2D" parent="Spawns"]
+position = Vector2(1550, 272)

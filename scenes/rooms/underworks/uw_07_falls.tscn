@@ -1,0 +1,140 @@
+[gd_scene load_steps=13 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/hazard.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/valve.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e4"]
+[ext_resource type="Script" path="res://scripts/enemies/boiler_bloat.gd" id="e5"]
+[ext_resource type="Script" path="res://scripts/enemies/clock_spider.gd" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e7"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e8"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e9"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s3"]
+size = Vector2(8, 64)
+
+[node name="Uw07Falls" type="Node2D"]
+script = ExtResource("e9")
+room_id = &"uw_07_falls"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "grate", "brick", "grate", "grate", "grate", "grate", "grate", "plate", "brick", "plate", "plate", "grate", "grate", "grate", "grate", "grate", "grate")
+backdrop = "uw_vault"
+music = "underworks"
+ambient = Color(0.62, 0.6, 0.56, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Condensate Falls"
+bounds = Rect2(0, 0, 640, 440)
+solids = Array[Rect2]([Rect2(0, 0, 640, 24), Rect2(0, 0, 16, 88), Rect2(0, 120, 110, 12), Rect2(0, 132, 16, 204), Rect2(140, 160, 80, 12), Rect2(220, 200, 80, 12), Rect2(300, 240, 80, 12), Rect2(380, 280, 80, 12), Rect2(460, 320, 80, 12), Rect2(540, 360, 100, 80), Rect2(624, 0, 16, 296), Rect2(16, 400, 144, 40), Rect2(160, 420, 380, 20), Rect2(16, 360, 56, 8), Rect2(84, 320, 56, 8), Rect2(16, 280, 56, 8), Rect2(84, 240, 56, 8), Rect2(16, 200, 56, 8), Rect2(84, 168, 56, 8)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="Pool" type="Area2D" parent="."]
+position = Vector2(160, 404)
+script = ExtResource("e1")
+size = Vector2(380, 16)
+kind = "boiling"
+
+[node name="ExitToGearworks" type="Area2D" parent="."]
+position = Vector2(4, 88)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/underworks/uw_05_gearworks.tscn"
+target_spawn = &"from_falls"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGearworks"]
+shape = SubResource("s1")
+
+[node name="ExitToCistern" type="Area2D" parent="."]
+position = Vector2(4, 368)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/underworks/uw_13_cistern.tscn"
+target_spawn = &"from_falls"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToCistern"]
+shape = SubResource("s2")
+
+[node name="ExitToGauge" type="Area2D" parent="."]
+position = Vector2(636, 328)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/underworks/uw_08_gauge.tscn"
+target_spawn = &"from_falls"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGauge"]
+shape = SubResource("s3")
+
+[node name="ReliefValve" type="Node2D" parent="."]
+position = Vector2(604, 360)
+script = ExtResource("e3")
+quest_item = &"relief_valve"
+
+[node name="Fall0" type="Node2D" parent="."]
+position = Vector2(250, 404)
+script = ExtResource("e4")
+glow_color = Color(0.85, 0.9, 0.95, 0.3)
+glow_radius = 26
+light_radius = 60
+light_energy = 0.4
+emit = "smoke"
+
+[node name="Fall1" type="Node2D" parent="."]
+position = Vector2(400, 404)
+script = ExtResource("e4")
+glow_color = Color(0.85, 0.9, 0.95, 0.3)
+glow_radius = 26
+light_radius = 60
+light_energy = 0.4
+emit = "smoke"
+
+[node name="Fall2" type="Node2D" parent="."]
+position = Vector2(520, 404)
+script = ExtResource("e4")
+glow_color = Color(0.85, 0.9, 0.95, 0.3)
+glow_radius = 26
+light_radius = 60
+light_energy = 0.4
+emit = "smoke"
+
+[node name="Bloat" type="CharacterBody2D" parent="."]
+position = Vector2(330, 130)
+script = ExtResource("e5")
+
+[node name="Spider" type="CharacterBody2D" parent="."]
+position = Vector2(580, 360)
+script = ExtResource("e6")
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(60, 120)
+script = ExtResource("e7")
+radius = 90
+energy = 0.9
+
+[node name="WallLamp" type="Node2D" parent="."]
+position = Vector2(600, 260)
+script = ExtResource("e7")
+radius = 90
+energy = 0.9
+wall_mounted = true
+
+[node name="CogLedge" parent="." instance=ExtResource("e8")]
+position = Vector2(44, 340)
+kind = 1
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_gearworks" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 120)
+
+[node name="from_cistern" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 400)
+
+[node name="from_gauge" type="Marker2D" parent="Spawns"]
+position = Vector2(590, 360)

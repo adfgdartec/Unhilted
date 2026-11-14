@@ -1,0 +1,92 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/boss_arena.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/enemies/lamplighter.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/props/uw_gauge.png" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e7"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[node name="Uw06Gallery" type="Node2D"]
+script = ExtResource("e7")
+room_id = &"uw_06_gallery"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "brick", "plate")
+backdrop = "uw_vault"
+music = "underworks"
+ambient = Color(0.4, 0.4, 0.42, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Lamplighter's Gallery"
+bounds = Rect2(0, 0, 640, 360)
+solids = Array[Rect2]([Rect2(0, 0, 640, 24), Rect2(0, 0, 16, 256), Rect2(624, 0, 16, 360), Rect2(0, 320, 640, 40)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="ExitToGearworks" type="Area2D" parent="."]
+position = Vector2(4, 288)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_05_gearworks.tscn"
+target_spawn = &"from_gallery"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGearworks"]
+shape = SubResource("s1")
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(120, 320)
+script = ExtResource("e2")
+radius = 100
+energy = 1
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(260, 320)
+script = ExtResource("e2")
+radius = 100
+energy = 1
+
+[node name="Lamp2" type="Node2D" parent="."]
+position = Vector2(400, 320)
+script = ExtResource("e2")
+radius = 100
+energy = 1
+
+[node name="Lamp3" type="Node2D" parent="."]
+position = Vector2(540, 320)
+script = ExtResource("e2")
+radius = 100
+energy = 1
+
+[node name="BossArena" type="Node2D" parent="."]
+script = ExtResource("e3")
+boss_flag = "boss_lamplighter_defeated"
+boss_name = "THE LAMPLIGHTER"
+trigger_x = 140
+door_rect = Rect2(0, 256, 16, 64)
+boss_path = NodePath("Lamplighter")
+reward = "core_cell"
+reward_id = "uw_lamplighter_cell"
+shard_position = Vector2(330, 296)
+victory_text = "The Lamplighter's lantern gutters out. The Gallery's lamps catch, one by one."
+intro_lines = Array[String](["> A tall shape at the end of the Gallery reaches up with a long hook-pole.", "> A lamp goes out. It turns its lantern head toward you."])
+
+[node name="Lamplighter" type="CharacterBody2D" parent="BossArena"]
+position = Vector2(500, 320)
+script = ExtResource("e4")
+
+[node name="Portrait" type="Node2D" parent="."]
+position = Vector2(330, 150)
+script = ExtResource("e6")
+texture = ExtResource("e5")
+background = true
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_gearworks" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 320)

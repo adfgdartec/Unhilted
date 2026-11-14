@@ -1,0 +1,113 @@
+[gd_scene load_steps=17 format=3]
+
+[ext_resource type="Resource" path="res://data/lineages/heapfolk.tres" id="e1"]
+[ext_resource type="Texture2D" path="res://art/interiors/pegboard.png" id="e2"]
+[ext_resource type="Script" path="res://scripts/interior/interior_prop.gd" id="e3"]
+[ext_resource type="Texture2D" path="res://art/interiors/window.png" id="e4"]
+[ext_resource type="Texture2D" path="res://art/interiors/bench.png" id="e5"]
+[ext_resource type="PackedScene" path="res://scenes/world/npc.tscn" id="e6"]
+[ext_resource type="Script" path="res://scripts/interior/interior_npc.gd" id="e7"]
+[ext_resource type="Texture2D" path="res://art/interiors/robot_frame.png" id="e8"]
+[ext_resource type="Texture2D" path="res://art/props/barrel.png" id="e9"]
+[ext_resource type="Texture2D" path="res://art/interiors/engine.png" id="e10"]
+[ext_resource type="Texture2D" path="res://art/props/tyres.png" id="e11"]
+[ext_resource type="Texture2D" path="res://art/interiors/crates.png" id="e12"]
+[ext_resource type="Texture2D" path="res://art/interiors/doormat.png" id="e13"]
+[ext_resource type="Script" path="res://scripts/interior/interior_room.gd" id="e14"]
+[ext_resource type="Texture2D" path="res://art/interiors/floor_concrete.png" id="e15"]
+[ext_resource type="Texture2D" path="res://art/interiors/wall_brick.png" id="e16"]
+
+[node name="MagsGarage" type="Node2D"]
+script = ExtResource("e14")
+interior_id = &"mags_garage"
+display_name = "Mags' Garage"
+size = Vector2(240, 136)
+floor_texture = ExtResource("e15")
+wall_texture = ExtResource("e16")
+music = "camp"
+ambient = Color(1, 0.96, 0.92, 1)
+exit_x = 120
+
+[node name="Pegboard" type="Node2D" parent="."]
+script = ExtResource("e3")
+position = Vector2(56, 32)
+texture = ExtResource("e2")
+mode = "wall"
+look_lines = Array[String](["* Every tool has its outline painted behind it.", "* The outline for the big wrench is empty. Mags has drawn a sad face in it."])
+reach = 44
+
+[node name="Window" type="Node2D" parent="."]
+script = ExtResource("e3")
+position = Vector2(196, 32)
+texture = ExtResource("e4")
+mode = "wall"
+look_lines = Array[String](["* Through the grime: the crane, swinging slowly out over the Intake."])
+reach = 44
+
+[node name="Bench" type="Node2D" parent="."]
+script = ExtResource("e3")
+position = Vector2(58, 86)
+texture = ExtResource("e5")
+mode = "stand"
+footprint = Vector2(74, 10)
+look_lines = Array[String](["* A motor, halfway stripped.", "* The bolts are lined up by size, then by how much Mags likes them."])
+
+[node name="Mags" parent="." instance=ExtResource("e6")]
+position = Vector2(112, 94)
+npc_id = &"mags"
+display_name = "Mags"
+idle_lines = Array[String](["Name's Mags. I fix what the Heap breaks, which is everything.", "That hatch by the tank? Old-world maintenance shaft. I've heard it hiss at night. Like steam. Nobody down here's got steam.", "If you go poking under the camp, bring back anything brass. I'll know what it is. Probably."])
+lineage = ExtResource("e1")
+pin_headwear = "bandana"
+pin_goggles = "raised"
+pin_accessory = "belt"
+
+[node name="MagsInRoom" type="Node2D" parent="."]
+script = ExtResource("e7")
+position = Vector2(112, 94)
+npc_path = NodePath("../Mags")
+reach = 30
+
+[node name="RobotFrame" type="Node2D" parent="."]
+script = ExtResource("e3")
+position = Vector2(148, 84)
+texture = ExtResource("e8")
+mode = "stand"
+footprint = Vector2(20, 8)
+look_lines = Array[String](["* A robot frame on a stand. One arm. No name.", "* Its eye is dark. You look at it for a while. It doesn't look back."])
+
+[node name="Drum" type="Node2D" parent="."]
+script = ExtResource("e3")
+position = Vector2(226, 98)
+texture = ExtResource("e9")
+mode = "stand"
+footprint = Vector2(14, 6)
+look_lines = Array[String](["* Oil, mostly. Some of it is moving."])
+
+[node name="Engine" type="Node2D" parent="."]
+script = ExtResource("e3")
+position = Vector2(184, 156)
+texture = ExtResource("e10")
+mode = "stand"
+footprint = Vector2(32, 10)
+look_lines = Array[String](["* An engine block. Still warm. You don't ask."])
+
+[node name="Tyres" type="Node2D" parent="."]
+script = ExtResource("e3")
+position = Vector2(220, 194)
+texture = ExtResource("e11")
+mode = "stand"
+footprint = Vector2(30, 8)
+
+[node name="Crates" type="Node2D" parent="."]
+script = ExtResource("e3")
+position = Vector2(26, 194)
+texture = ExtResource("e12")
+mode = "stand"
+footprint = Vector2(34, 10)
+
+[node name="Doormat" type="Node2D" parent="."]
+script = ExtResource("e3")
+position = Vector2(120, 192)
+texture = ExtResource("e13")
+mode = "floor"

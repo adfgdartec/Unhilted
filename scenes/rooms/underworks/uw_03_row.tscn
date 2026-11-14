@@ -1,0 +1,177 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/steam_vent.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/valve.gd" id="e3"]
+[ext_resource type="Texture2D" path="res://art/props/uw_house_a.png" id="e4"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e5"]
+[ext_resource type="Texture2D" path="res://art/props/uw_house_b.png" id="e6"]
+[ext_resource type="Texture2D" path="res://art/props/uw_sign_row.png" id="e7"]
+[ext_resource type="Texture2D" path="res://art/props/uw_pipes.png" id="e8"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e9"]
+[ext_resource type="Script" path="res://scripts/enemies/clock_spider.gd" id="e10"]
+[ext_resource type="Script" path="res://scripts/enemies/bellows_bat.gd" id="e11"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e12"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e13"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[node name="Uw03Row" type="Node2D"]
+script = ExtResource("e13")
+room_id = &"uw_03_row"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "brick", "brick", "plate", "grate", "grate", "grate", "plate")
+backdrop = "uw_vault"
+music = "underworks"
+ambient = Color(0.62, 0.6, 0.56, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Bellows Row"
+bounds = Rect2(0, 0, 1280, 400)
+solids = Array[Rect2]([Rect2(0, 0, 1280, 24), Rect2(0, 0, 16, 288), Rect2(1264, 0, 16, 288), Rect2(0, 352, 1280, 48), Rect2(340, 312, 40, 40), Rect2(420, 270, 80, 10), Rect2(560, 230, 100, 10), Rect2(720, 270, 80, 10), Rect2(840, 312, 40, 40)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="ExitToMarket" type="Area2D" parent="."]
+position = Vector2(4, 320)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_02_market.tscn"
+target_spawn = &"from_row"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToMarket"]
+shape = SubResource("s1")
+
+[node name="ExitToWorks" type="Area2D" parent="."]
+position = Vector2(1276, 320)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_04_works.tscn"
+target_spawn = &"from_row"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToWorks"]
+shape = SubResource("s2")
+
+[node name="ScaldVent0" type="Node2D" parent="."]
+position = Vector2(530, 352)
+script = ExtResource("e2")
+reach = 110
+kind = "scald"
+width = 24
+period = 2.4
+on_time = 1
+offset = 0
+
+[node name="ScaldVent1" type="Node2D" parent="."]
+position = Vector2(690, 352)
+script = ExtResource("e2")
+reach = 110
+kind = "scald"
+width = 24
+period = 2.4
+on_time = 1
+offset = 0.8
+
+[node name="ScaldVent2" type="Node2D" parent="."]
+position = Vector2(920, 352)
+script = ExtResource("e2")
+reach = 110
+kind = "scald"
+width = 24
+period = 2.4
+on_time = 1
+offset = 1.6
+
+[node name="ReliefValve" type="Node2D" parent="."]
+position = Vector2(630, 230)
+script = ExtResource("e3")
+quest_item = &"relief_valve"
+
+[node name="House0" type="Node2D" parent="."]
+position = Vector2(180, 352)
+script = ExtResource("e5")
+texture = ExtResource("e4")
+background = true
+
+[node name="House1" type="Node2D" parent="."]
+position = Vector2(300, 352)
+script = ExtResource("e5")
+texture = ExtResource("e6")
+background = true
+
+[node name="House2" type="Node2D" parent="."]
+position = Vector2(980, 352)
+script = ExtResource("e5")
+texture = ExtResource("e4")
+background = true
+
+[node name="House3" type="Node2D" parent="."]
+position = Vector2(1120, 352)
+script = ExtResource("e5")
+texture = ExtResource("e6")
+background = true
+
+[node name="Sign" type="Node2D" parent="."]
+position = Vector2(160, 140)
+script = ExtResource("e5")
+texture = ExtResource("e7")
+hanging = true
+
+[node name="Pipes" type="Node2D" parent="."]
+position = Vector2(640, 140)
+script = ExtResource("e5")
+texture = ExtResource("e8")
+background = true
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(90, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(520, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="Lamp2" type="Node2D" parent="."]
+position = Vector2(900, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="Lamp3" type="Node2D" parent="."]
+position = Vector2(1200, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="SpiderA" type="CharacterBody2D" parent="."]
+position = Vector2(960, 352)
+script = ExtResource("e10")
+
+[node name="SpiderB" type="CharacterBody2D" parent="."]
+position = Vector2(1100, 352)
+script = ExtResource("e10")
+
+[node name="Bat" type="CharacterBody2D" parent="."]
+position = Vector2(700, 140)
+script = ExtResource("e11")
+
+[node name="CogRoof" parent="." instance=ExtResource("e12")]
+position = Vector2(760, 250)
+kind = 1
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_market" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 352)
+
+[node name="from_works" type="Marker2D" parent="Spawns"]
+position = Vector2(1230, 352)

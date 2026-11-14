@@ -1,0 +1,178 @@
+[gd_scene load_steps=14 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/enemies/valve_turret.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/valve.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/steam_vent.gd" id="e4"]
+[ext_resource type="Script" path="res://scripts/enemies/piston_walker.gd" id="e5"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e6"]
+[ext_resource type="Texture2D" path="res://art/props/uw_gauge.png" id="e7"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e8"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e9"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e10"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s3"]
+size = Vector2(80, 8)
+
+[node name="Uw08Gauge" type="Node2D"]
+script = ExtResource("e10")
+room_id = &"uw_08_gauge"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "brick", "brick", "plate", "brick", "plate", "grate", "grate")
+backdrop = "uw_works"
+music = "underworks"
+ambient = Color(0.68, 0.6, 0.54, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "Pressure Gauge Hall"
+bounds = Rect2(0, 0, 1280, 400)
+solids = Array[Rect2]([Rect2(0, 0, 900, 24), Rect2(980, 0, 300, 24), Rect2(0, 0, 16, 288), Rect2(1264, 0, 16, 288), Rect2(0, 352, 1280, 48), Rect2(400, 312, 32, 40), Rect2(520, 312, 40, 40), Rect2(580, 260, 160, 10), Rect2(1100, 300, 80, 12)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="ExitToFalls" type="Area2D" parent="."]
+position = Vector2(4, 320)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_07_falls.tscn"
+target_spawn = &"from_gauge"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToFalls"]
+shape = SubResource("s1")
+
+[node name="ExitToApproach" type="Area2D" parent="."]
+position = Vector2(1276, 320)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_09_approach.tscn"
+target_spawn = &"from_gauge"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToApproach"]
+shape = SubResource("s2")
+
+[node name="ExitToTrials" type="Area2D" parent="."]
+position = Vector2(940, 4)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_15_trials.tscn"
+target_spawn = &"from_gauge"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToTrials"]
+shape = SubResource("s3")
+
+[node name="TurretA" type="CharacterBody2D" parent="."]
+position = Vector2(400, 330)
+script = ExtResource("e2")
+face = -1
+offset = 0
+valve_path = NodePath("../HallValve")
+
+[node name="HallValve" type="Node2D" parent="."]
+position = Vector2(250, 352)
+script = ExtResource("e3")
+
+[node name="Scald0" type="Node2D" parent="."]
+position = Vector2(600, 352)
+script = ExtResource("e4")
+reach = 90
+kind = "scald"
+width = 24
+period = 2.2
+on_time = 0.9
+offset = 0
+
+[node name="Scald1" type="Node2D" parent="."]
+position = Vector2(700, 352)
+script = ExtResource("e4")
+reach = 90
+kind = "scald"
+width = 24
+period = 2.2
+on_time = 0.9
+offset = 1.1
+
+[node name="LiftVent" type="Node2D" parent="."]
+position = Vector2(940, 352)
+script = ExtResource("e4")
+reach = 220
+kind = "lift"
+width = 24
+
+[node name="Walker" type="CharacterBody2D" parent="."]
+position = Vector2(1000, 352)
+script = ExtResource("e5")
+
+[node name="Letter" parent="." instance=ExtResource("e6")]
+position = Vector2(1140, 290)
+kind = 2
+item_id = &"letter"
+display_name = "a lost letter"
+
+[node name="Gauge0" type="Node2D" parent="."]
+position = Vector2(200, 150)
+script = ExtResource("e8")
+texture = ExtResource("e7")
+background = true
+frames = 2
+fps = 1
+
+[node name="Gauge1" type="Node2D" parent="."]
+position = Vector2(640, 150)
+script = ExtResource("e8")
+texture = ExtResource("e7")
+background = true
+frames = 2
+fps = 1
+
+[node name="Gauge2" type="Node2D" parent="."]
+position = Vector2(1060, 150)
+script = ExtResource("e8")
+texture = ExtResource("e7")
+background = true
+frames = 2
+fps = 1
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(60, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(480, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="Lamp2" type="Node2D" parent="."]
+position = Vector2(820, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="Lamp3" type="Node2D" parent="."]
+position = Vector2(1220, 352)
+script = ExtResource("e9")
+radius = 90
+energy = 0.9
+
+[node name="CogCatwalk" parent="." instance=ExtResource("e6")]
+position = Vector2(650, 230)
+kind = 1
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_falls" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 352)
+
+[node name="from_approach" type="Marker2D" parent="Spawns"]
+position = Vector2(1230, 352)
+
+[node name="from_trials" type="Marker2D" parent="Spawns"]
+position = Vector2(880, 352)

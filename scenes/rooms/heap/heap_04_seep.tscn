@@ -1,0 +1,197 @@
+[gd_scene load_steps=16 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/hazard.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="e2"]
+[ext_resource type="PackedScene" path="res://scenes/world/ability_gate.tscn" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/props/hang_a.png" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e6"]
+[ext_resource type="Texture2D" path="res://art/props/hang_b.png" id="e7"]
+[ext_resource type="Texture2D" path="res://art/props/hanging_cables.png" id="e8"]
+[ext_resource type="Script" path="res://scripts/enemies/rustcrawler.gd" id="e9"]
+[ext_resource type="Script" path="res://scripts/enemies/compactor.gd" id="e10"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e11"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e12"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s3"]
+size = Vector2(60, 8)
+
+[node name="Heap04Seep" type="Node2D"]
+script = ExtResource("e12")
+room_id = &"heap_04_seep"
+region_id = &"heap"
+tileset = "heap_scrap"
+solid_styles = PackedStringArray("ground", "ground", "ceiling", "ceiling", "ceiling", "ceiling", "ceiling", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "ground", "girder", "girder", "girder")
+backdrop = "heap_cave"
+music = "cave"
+ambient = Color(0.55, 0.62, 0.55, 1)
+grade = &"cave"
+weather = "none"
+motes_color = Color(0.7, 1, 0.6, 0.18)
+motes_amount = 24
+display_name = "Seep Tunnels"
+bounds = Rect2(0, 0, 3000, 300)
+solids = Array[Rect2]([Rect2(0, 0, 16, 212), Rect2(2984, 0, 16, 212), Rect2(16, 0, 1660, 40), Rect2(1784, 0, 1200, 40), Rect2(1676, 0, 24, 100), Rect2(1760, 0, 24, 100), Rect2(1700, 0, 60, 40), Rect2(0, 276, 420, 24), Rect2(500, 276, 300, 24), Rect2(968, 276, 442, 24), Rect2(1490, 276, 610, 24), Rect2(2268, 276, 732, 24), Rect2(420, 292, 80, 8), Rect2(800, 292, 168, 8), Rect2(1410, 292, 80, 8), Rect2(2100, 292, 168, 8), Rect2(1690, 228, 80, 12), Rect2(1814, 188, 70, 12), Rect2(1690, 148, 80, 12)])
+
+[node name="ShaftFrame" type="Node2D" parent="."]
+script = ExtResource("e2")
+columns = Array[Rect2]([])
+ties = PackedFloat32Array()
+stilts = Array[Rect2]([Rect2(1690, 228, 80, 12), Rect2(1814, 188, 70, 12)])
+ground_y = 276
+hangers = Array[Rect2]([Rect2(1690, 148, 80, 12)])
+hang_top = 100
+
+[node name="Sludge1" type="Area2D" parent="."]
+position = Vector2(420, 280)
+script = ExtResource("e1")
+size = Vector2(80, 12)
+kind = "sludge"
+
+[node name="Sludge2" type="Area2D" parent="."]
+position = Vector2(800, 280)
+script = ExtResource("e1")
+size = Vector2(168, 12)
+kind = "sludge"
+
+[node name="Sludge3" type="Area2D" parent="."]
+position = Vector2(1410, 280)
+script = ExtResource("e1")
+size = Vector2(80, 12)
+kind = "sludge"
+
+[node name="Sludge4" type="Area2D" parent="."]
+position = Vector2(2100, 280)
+script = ExtResource("e1")
+size = Vector2(168, 12)
+kind = "sludge"
+
+[node name="ShaftGate" parent="." instance=ExtResource("e3")]
+position = Vector2(1730, 100)
+required_shard = 1
+size = Vector2(60, 14)
+gate_id = "heap_seep_shaft"
+
+[node name="TramWall" parent="." instance=ExtResource("e3")]
+position = Vector2(48, 276)
+required_shard = 1
+size = Vector2(16, 64)
+
+[node name="ExitToSinkhole" type="Area2D" parent="."]
+position = Vector2(2996, 244)
+script = ExtResource("e4")
+target_room = "res://scenes/rooms/heap/heap_10_sinkhole.tscn"
+target_spawn = &"from_seep"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToSinkhole"]
+shape = SubResource("s1")
+
+[node name="ExitToTram" type="Area2D" parent="."]
+position = Vector2(4, 244)
+script = ExtResource("e4")
+target_room = "res://scenes/rooms/heap/heap_11_tram.tscn"
+target_spawn = &"from_seep"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToTram"]
+shape = SubResource("s2")
+
+[node name="ExitToHollow" type="Area2D" parent="."]
+position = Vector2(1730, 80)
+script = ExtResource("e4")
+target_room = "res://scenes/rooms/heap/heap_02b_undercamp.tscn"
+target_spawn = &"from_seep"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToHollow"]
+shape = SubResource("s3")
+
+[node name="Hang0" type="Node2D" parent="."]
+position = Vector2(300, 40)
+script = ExtResource("e6")
+texture = ExtResource("e5")
+hanging = true
+background = true
+
+[node name="Hang1" type="Node2D" parent="."]
+position = Vector2(980, 40)
+script = ExtResource("e6")
+texture = ExtResource("e7")
+hanging = true
+background = true
+
+[node name="Hang2" type="Node2D" parent="."]
+position = Vector2(1300, 40)
+script = ExtResource("e6")
+texture = ExtResource("e8")
+hanging = true
+background = true
+
+[node name="Hang3" type="Node2D" parent="."]
+position = Vector2(2500, 40)
+script = ExtResource("e6")
+texture = ExtResource("e5")
+hanging = true
+background = true
+
+[node name="Hang4" type="Node2D" parent="."]
+position = Vector2(2800, 40)
+script = ExtResource("e6")
+texture = ExtResource("e7")
+hanging = true
+background = true
+
+[node name="Crawler1" type="CharacterBody2D" parent="."]
+position = Vector2(650, 40)
+script = ExtResource("e9")
+start_on_ceiling = true
+
+[node name="Crawler2" type="CharacterBody2D" parent="."]
+position = Vector2(1200, 40)
+script = ExtResource("e9")
+start_on_ceiling = true
+
+[node name="Crawler3" type="CharacterBody2D" parent="."]
+position = Vector2(2400, 40)
+script = ExtResource("e9")
+start_on_ceiling = true
+
+[node name="CrawlerFloor" type="CharacterBody2D" parent="."]
+position = Vector2(2600, 276)
+script = ExtResource("e9")
+start_on_ceiling = false
+
+[node name="Compactor" type="CharacterBody2D" parent="."]
+position = Vector2(1150, 276)
+script = ExtResource("e10")
+
+[node name="CapPit" parent="." instance=ExtResource("e11")]
+position = Vector2(855, 236)
+kind = 1
+
+[node name="CapEnd" parent="." instance=ExtResource("e11")]
+position = Vector2(2900, 260)
+kind = 1
+
+[node name="ScrapA" parent="." instance=ExtResource("e11")]
+position = Vector2(600, 260)
+amount = 4
+
+[node name="ScrapB" parent="." instance=ExtResource("e11")]
+position = Vector2(2300, 260)
+amount = 4
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_sinkhole" type="Marker2D" parent="Spawns"]
+position = Vector2(2940, 276)
+
+[node name="from_tram" type="Marker2D" parent="Spawns"]
+position = Vector2(90, 276)
+
+[node name="from_hollow" type="Marker2D" parent="Spawns"]
+position = Vector2(1730, 148)

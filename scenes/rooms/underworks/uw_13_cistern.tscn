@@ -1,0 +1,90 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/hazard.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e2"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e3"]
+[ext_resource type="Script" path="res://scripts/enemies/boiler_bloat.gd" id="e4"]
+[ext_resource type="Script" path="res://scripts/world/gas_lamp.gd" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e7"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[node name="Uw13Cistern" type="Node2D"]
+script = ExtResource("e7")
+room_id = &"uw_13_cistern"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "brick", "plate", "plate", "plate", "grate", "grate", "grate", "grate")
+backdrop = "uw_vault"
+music = "underworks"
+ambient = Color(0.4, 0.4, 0.42, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "The Cistern"
+bounds = Rect2(0, 0, 800, 400)
+solids = Array[Rect2]([Rect2(0, 0, 800, 24), Rect2(0, 0, 16, 400), Rect2(784, 0, 16, 288), Rect2(16, 352, 124, 48), Rect2(680, 352, 120, 48), Rect2(140, 384, 540, 16), Rect2(580, 330, 56, 10), Rect2(470, 310, 56, 10), Rect2(360, 330, 56, 10), Rect2(250, 310, 56, 10)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="Water" type="Area2D" parent="."]
+position = Vector2(140, 368)
+script = ExtResource("e1")
+size = Vector2(540, 16)
+kind = "boiling"
+
+[node name="ExitToFalls" type="Area2D" parent="."]
+position = Vector2(796, 320)
+script = ExtResource("e2")
+target_room = "res://scenes/rooms/underworks/uw_07_falls.tscn"
+target_spawn = &"from_cistern"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToFalls"]
+shape = SubResource("s1")
+
+[node name="Letter" parent="." instance=ExtResource("e3")]
+position = Vector2(60, 352)
+kind = 2
+item_id = &"letter"
+display_name = "a lost letter"
+
+[node name="CogStone" parent="." instance=ExtResource("e3")]
+position = Vector2(388, 300)
+kind = 1
+
+[node name="BloatA" type="CharacterBody2D" parent="."]
+position = Vector2(300, 200)
+script = ExtResource("e4")
+
+[node name="BloatB" type="CharacterBody2D" parent="."]
+position = Vector2(540, 180)
+script = ExtResource("e4")
+
+[node name="Lamp0" type="Node2D" parent="."]
+position = Vector2(740, 352)
+script = ExtResource("e5")
+radius = 80
+energy = 0.9
+
+[node name="Lamp1" type="Node2D" parent="."]
+position = Vector2(90, 352)
+script = ExtResource("e5")
+radius = 80
+energy = 0.9
+
+[node name="Mark" type="Area2D" parent="."]
+position = Vector2(110, 352)
+script = ExtResource("e6")
+prompt = "Look"
+title = "SCRATCHES"
+lines = Array[String](["> Tally marks on the wall: hundreds of them. Then a note.", "> \"Waited for the mail tram. It didn't come. Going up to ask. - T.\""])
+size = Vector2(24, 32)
+lore_id = "uw_cistern"
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_falls" type="Marker2D" parent="Spawns"]
+position = Vector2(750, 352)

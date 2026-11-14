@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/scrap_drone.gd" id="1_drone"]
+[ext_resource type="Script" path="res://scripts/components/health_component.gd" id="2_health"]
+[ext_resource type="Script" path="res://scripts/components/hurtbox.gd" id="3_hurt"]
+[ext_resource type="Script" path="res://scripts/components/hitbox.gd" id="4_hit"]
+
+[sub_resource type="RectangleShape2D" id="body_shape"]
+size = Vector2(16, 12)
+
+[sub_resource type="RectangleShape2D" id="hurt_shape"]
+size = Vector2(20, 16)
+
+[sub_resource type="RectangleShape2D" id="hit_shape"]
+size = Vector2(16, 12)
+
+[node name="ScrapDrone" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1_drone")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -6)
+shape = SubResource("body_shape")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("2_health")
+max_health = 3
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("3_hurt")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+position = Vector2(0, -8)
+shape = SubResource("hurt_shape")
+
+[node name="Hitbox" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 8
+monitorable = false
+script = ExtResource("4_hit")
+continuous = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hitbox"]
+position = Vector2(0, -7)
+shape = SubResource("hit_shape")
+
+[node name="FloorRay" type="RayCast2D" parent="."]
+position = Vector2(8, -2)
+target_position = Vector2(0, 10)
+collision_mask = 1

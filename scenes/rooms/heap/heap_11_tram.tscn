@@ -1,0 +1,88 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="e1"]
+[ext_resource type="Texture2D" path="res://art/props/tram.png" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e4"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e6"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e7"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[node name="Heap11Tram" type="Node2D"]
+script = ExtResource("e7")
+room_id = &"heap_11_tram"
+region_id = &"heap"
+tileset = "heap_scrap"
+solid_styles = PackedStringArray("ground", "ground", "ground", "ceiling", "girder")
+backdrop = "heap_cave"
+music = "hollow"
+ambient = Color(0.62, 0.56, 0.62, 1)
+grade = &"cave"
+weather = "none"
+motes_color = Color(1, 0.84, 0.6, 0.3)
+motes_amount = 18
+display_name = "Old Tram Stop"
+bounds = Rect2(0, 0, 600, 300)
+solids = Array[Rect2]([Rect2(0, 0, 16, 300), Rect2(584, 0, 16, 212), Rect2(0, 276, 600, 24), Rect2(16, 0, 568, 36), Rect2(450, 216, 100, 12)])
+
+[node name="Platform" type="Node2D" parent="."]
+script = ExtResource("e1")
+columns = Array[Rect2]([])
+ties = PackedFloat32Array()
+stilts = Array[Rect2]([Rect2(450, 216, 100, 12)])
+ground_y = 276
+hangers = Array[Rect2]([])
+hang_top = 0
+
+[node name="Tram" type="Node2D" parent="."]
+position = Vector2(280, 276)
+script = ExtResource("e3")
+texture = ExtResource("e2")
+light_radius = 70
+light_energy = 0.7
+glow_color = Color(0.22, 0.95, 1, 0.35)
+glow_radius = 14
+glow_offset = Vector2(46, -30)
+
+[node name="TramPlate" type="Area2D" parent="."]
+position = Vector2(280, 276)
+script = ExtResource("e4")
+prompt = "Look"
+title = "TRAM, LINE 4"
+lines = Array[String](["> A plate by the door, enamel under the rust: LINE 4. HEAP - UNDERWORKS. SERVICE SUSPENDED.", "> The timetable lists stops nobody up top has heard of: Pipe Market. Bellows Row. The Forge Gate.", "> Someone lived in here once. A coat still hangs by the driver's seat, brass buttons polished.", "> The cab lamp is on. After all this time, the line still has power somewhere."])
+size = Vector2(90, 40)
+lore_id = "tram_line4"
+
+[node name="Coat" parent="." instance=ExtResource("e5")]
+position = Vector2(500, 200)
+kind = 4
+item_id = &"cloak_wren"
+
+[node name="CapTram" parent="." instance=ExtResource("e5")]
+position = Vector2(120, 260)
+kind = 1
+
+[node name="ExitToSeep" type="Area2D" parent="."]
+position = Vector2(596, 244)
+script = ExtResource("e6")
+target_room = "res://scenes/rooms/heap/heap_04_seep.tscn"
+target_spawn = &"from_tram"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToSeep"]
+shape = SubResource("s1")
+
+[node name="Lantern" type="Node2D" parent="."]
+position = Vector2(150, 120)
+script = ExtResource("e3")
+glow_color = Color(1, 0.75, 0.4, 0.4)
+glow_radius = 22
+light_radius = 80
+light_energy = 0.6
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_seep" type="Marker2D" parent="Spawns"]
+position = Vector2(550, 276)

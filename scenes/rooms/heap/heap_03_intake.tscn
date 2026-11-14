@@ -1,0 +1,128 @@
+[gd_scene load_steps=12 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="2_exit"]
+[ext_resource type="Script" path="res://scripts/world/boss_arena.gd" id="3_arena"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/intake_crane.tscn" id="4_crane"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_point.tscn" id="5_gp"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="p_script"]
+[ext_resource type="Texture2D" path="res://art/props/chute.png" id="tex_chute"]
+[ext_resource type="Texture2D" path="res://art/props/bale_stack.png" id="tex_bale_stack"]
+[ext_resource type="Texture2D" path="res://art/props/warning_lamp.png" id="tex_warning_lamp"]
+[ext_resource type="Texture2D" path="res://art/props/hanging_cables.png" id="tex_hanging_cables"]
+
+[sub_resource type="RectangleShape2D" id="exit_shape"]
+size = Vector2(8, 48)
+
+[node name="Heap03Intake" type="Node2D"]
+script = ExtResource("1_room")
+room_id = &"heap_03_intake"
+region_id = &"heap"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("tiles", "tiles", "tiles", "tiles", "girder", "girder")
+backdrop = "intake_interior"
+ambient = Color(0.82, 0.7, 0.66, 1)
+music = "industrial"
+grade = &"intake"
+motes_color = Color(1, 0.75, 0.45, 0.32)
+motes_amount = 45
+display_name = "The Intake"
+bounds = Rect2(0, 0, 640, 360)
+solids = Array[Rect2]([Rect2(0, 0, 640, 24), Rect2(0, 0, 16, 272), Rect2(0, 320, 640, 40), Rect2(624, 0, 16, 360), Rect2(56, 272, 64, 14), Rect2(520, 272, 64, 14)])
+bg_top = Color(0.08, 0.07, 0.11, 1)
+bg_bottom = Color(0.26, 0.14, 0.12, 1)
+
+[node name="Prop0_chute" type="Node2D" parent="."]
+position = Vector2(136, 48)
+script = ExtResource("p_script")
+texture = ExtResource("tex_chute")
+emit = "trickle"
+emit_offset = Vector2(0, -1)
+background = true
+
+[node name="Prop1_chute" type="Node2D" parent="."]
+position = Vector2(504, 48)
+script = ExtResource("p_script")
+texture = ExtResource("tex_chute")
+emit = "trickle"
+emit_offset = Vector2(0, -1)
+background = true
+
+[node name="Prop2_bale_stack" type="Node2D" parent="."]
+position = Vector2(598, 320)
+script = ExtResource("p_script")
+texture = ExtResource("tex_bale_stack")
+background = true
+
+[node name="Prop3_bale_stack" type="Node2D" parent="."]
+position = Vector2(150, 320)
+script = ExtResource("p_script")
+texture = ExtResource("tex_bale_stack")
+background = true
+
+[node name="Prop4_warning_lamp" type="Node2D" parent="."]
+position = Vector2(28, 140)
+script = ExtResource("p_script")
+texture = ExtResource("tex_warning_lamp")
+light_radius = 70.0
+light_energy = 0.9
+light_on_frame_zero = true
+frames = 2
+fps = 2.0
+glow_color = Color(1, 0.65, 0.2, 0.5)
+glow_radius = 20.0
+glow_offset = Vector2(0, -5)
+
+[node name="Prop5_warning_lamp" type="Node2D" parent="."]
+position = Vector2(612, 140)
+script = ExtResource("p_script")
+texture = ExtResource("tex_warning_lamp")
+light_radius = 70.0
+light_energy = 0.9
+light_on_frame_zero = true
+frames = 2
+fps = 2.0
+glow_color = Color(1, 0.65, 0.2, 0.5)
+glow_radius = 20.0
+glow_offset = Vector2(0, -5)
+
+[node name="Prop6_hanging_cables" type="Node2D" parent="."]
+position = Vector2(250, 72)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hanging_cables")
+background = true
+
+[node name="Prop7_hanging_cables" type="Node2D" parent="."]
+position = Vector2(420, 68)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hanging_cables")
+flip = true
+background = true
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_camp" type="Marker2D" parent="Spawns"]
+position = Vector2(48, 320)
+
+[node name="ExitToConveyor" type="Area2D" parent="."]
+position = Vector2(4, 296)
+script = ExtResource("2_exit")
+target_room = "res://scenes/rooms/heap/heap_08_conveyor.tscn"
+target_spawn = &"from_intake"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToConveyor"]
+shape = SubResource("exit_shape")
+
+[node name="AnchorWest" parent="." instance=ExtResource("5_gp")]
+position = Vector2(40, 170)
+chain_length = 136.0
+
+[node name="AnchorEast" parent="." instance=ExtResource("5_gp")]
+position = Vector2(600, 170)
+chain_length = 136.0
+
+[node name="BossArena" type="Node2D" parent="."]
+script = ExtResource("3_arena")
+intro_lines = Array[String](["> FOREIGN OBJECT ON INTAKE FLOOR.", "> CLASSIFICATION: SCRAP. MODEL: UNKNOWN. AGE: UNKNOWN.", "> RESUMING PROCESSING."])
+
+[node name="IntakeCrane" parent="BossArena" instance=ExtResource("4_crane")]

@@ -1,0 +1,82 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/scaffold.gd" id="e1"]
+[ext_resource type="Script" path="res://scripts/enemies/brass_head.gd" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/readable.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e4"]
+[ext_resource type="Texture2D" path="res://art/props/tyres.png" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="e6"]
+[ext_resource type="Texture2D" path="res://art/props/junk_a.png" id="e7"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e8"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[node name="Heap09Giant" type="Node2D"]
+script = ExtResource("e8")
+room_id = &"heap_09_giant"
+region_id = &"heap"
+tileset = "heap_scrap"
+solid_styles = PackedStringArray("ground", "ground", "ground", "girder", "girder")
+backdrop = "heap_outdoor"
+music = "industrial"
+ambient = Color(0.92, 0.82, 0.76, 1)
+grade = &"heap"
+weather = "none"
+motes_color = Color(1, 0.84, 0.6, 0.3)
+motes_amount = 30
+display_name = "Giant's Brow"
+bounds = Rect2(0, 0, 640, 480)
+solids = Array[Rect2]([Rect2(0, 0, 16, 368), Rect2(0, 432, 640, 48), Rect2(624, 0, 16, 432), Rect2(120, 352, 80, 12), Rect2(300, 312, 80, 12)])
+
+[node name="Stilts" type="Node2D" parent="."]
+script = ExtResource("e1")
+columns = Array[Rect2]([])
+ties = PackedFloat32Array()
+stilts = Array[Rect2]([Rect2(120, 352, 80, 12), Rect2(300, 312, 80, 12)])
+ground_y = 432
+hangers = Array[Rect2]([])
+hang_top = 0
+
+[node name="BrassHead" type="Node2D" parent="."]
+position = Vector2(560, 442)
+script = ExtResource("e2")
+floor_y = 432
+arena_left = 20
+vents = PackedFloat32Array(90, 240, 420)
+drop_pos = Vector2(260, 400)
+
+[node name="MakersMark" type="Area2D" parent="."]
+position = Vector2(470, 432)
+script = ExtResource("e3")
+prompt = "Look"
+title = "MAKER'S MARK"
+lines = Array[String](["> Up close, the giant's brow is stamped with a maker's mark: seven hammers ringed around a blade.", "> The same seven as the tablet in the Hollow. The smiths built this, too.", "> Whatever it was guarding, it guarded it for two thousand years."])
+size = Vector2(40, 40)
+lore_id = "giant_mark"
+
+[node name="ExitToFields" type="Area2D" parent="."]
+position = Vector2(4, 400)
+script = ExtResource("e4")
+target_room = "res://scenes/rooms/heap/heap_05_fields.tscn"
+target_spawn = &"from_giant"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToFields"]
+shape = SubResource("s1")
+
+[node name="Tyres" type="Node2D" parent="."]
+position = Vector2(70, 432)
+script = ExtResource("e6")
+texture = ExtResource("e5")
+background = true
+
+[node name="JunkA" type="Node2D" parent="."]
+position = Vector2(220, 432)
+script = ExtResource("e6")
+texture = ExtResource("e7")
+background = true
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_fields" type="Marker2D" parent="Spawns"]
+position = Vector2(50, 432)

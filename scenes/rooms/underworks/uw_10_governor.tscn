@@ -1,0 +1,89 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="e1"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_point.tscn" id="e2"]
+[ext_resource type="Script" path="res://scripts/world/boss_arena.gd" id="e3"]
+[ext_resource type="Script" path="res://scripts/enemies/great_governor.gd" id="e4"]
+[ext_resource type="PackedScene" path="res://scenes/world/ability_gate.tscn" id="e5"]
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="e6"]
+
+[sub_resource type="RectangleShape2D" id="s1"]
+size = Vector2(8, 64)
+
+[sub_resource type="RectangleShape2D" id="s2"]
+size = Vector2(8, 64)
+
+[node name="Uw10Governor" type="Node2D"]
+script = ExtResource("e6")
+room_id = &"uw_10_governor"
+region_id = &"underworks"
+tileset = "heap_industrial"
+solid_styles = PackedStringArray("brick", "brick", "brick", "plate")
+backdrop = "uw_works"
+music = "governor"
+ambient = Color(0.68, 0.6, 0.54, 1)
+grade = &"underworks"
+weather = "none"
+motes_color = Color(0.95, 0.93, 0.88, 0.22)
+motes_amount = 26
+display_name = "The Great Governor"
+bounds = Rect2(0, 0, 640, 360)
+solids = Array[Rect2]([Rect2(0, 0, 640, 24), Rect2(0, 0, 16, 256), Rect2(624, 0, 16, 256), Rect2(0, 320, 640, 40)])
+bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
+bg_bottom = Color(0.164706, 0.141176, 0.12549, 1)
+
+[node name="ExitToApproach" type="Area2D" parent="."]
+position = Vector2(4, 288)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_09_approach.tscn"
+target_spawn = &"from_governor"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToApproach"]
+shape = SubResource("s1")
+
+[node name="ExitToGalleries" type="Area2D" parent="."]
+position = Vector2(636, 288)
+script = ExtResource("e1")
+target_room = "res://scenes/rooms/underworks/uw_11_galleries.tscn"
+target_spawn = &"from_governor"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToGalleries"]
+shape = SubResource("s2")
+
+[node name="HookL" parent="." instance=ExtResource("e2")]
+position = Vector2(240, 150)
+chain_length = 110
+
+[node name="HookR" parent="." instance=ExtResource("e2")]
+position = Vector2(400, 150)
+chain_length = 110
+
+[node name="BossArena" type="Node2D" parent="."]
+script = ExtResource("e3")
+boss_flag = "boss_governor_defeated"
+boss_name = "THE GREAT GOVERNOR"
+trigger_x = 100
+door_rect = Rect2(0, 256, 16, 64)
+boss_path = NodePath("GreatGovernor")
+reward = "shard"
+shard_number = 2
+shard_position = Vector2(320, 290)
+victory_text = "The Great Governor slows... and settles into a steady, quiet hum."
+intro_lines = Array[String](["> The whole hall is one machine. Its flyballs lift as it notices you.", "> The gauge on its crown swings into the red."])
+
+[node name="GreatGovernor" type="Node2D" parent="BossArena"]
+script = ExtResource("e4")
+
+[node name="ShutGate" parent="." instance=ExtResource("e5")]
+position = Vector2(616, 320)
+required_shard = 2
+size = Vector2(16, 64)
+gate_id = "uw_governor_gate"
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="from_approach" type="Marker2D" parent="Spawns"]
+position = Vector2(40, 320)
+
+[node name="from_galleries" type="Marker2D" parent="Spawns"]
+position = Vector2(600, 320)
