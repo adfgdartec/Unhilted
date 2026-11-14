@@ -444,7 +444,7 @@ func _draw_grate(r: Rect2) -> void:
 	draw_rect(Rect2(r.position.x, r.end.y, r.size.x, 1), Color(0, 0, 0, 0.35))
 
 
-## Riveted brass plate, for machinery floors and the Governor's hall.
+## Riveted brass plate, for machinery floors and The Pendulum's hall.
 func _draw_plate(r: Rect2) -> void:
 	draw_rect(r, BRASS_LO)
 	var y := r.position.y

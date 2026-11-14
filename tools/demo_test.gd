@@ -104,18 +104,18 @@ func _run() -> void:
 	check(shut("ExitToPit"), "the side door to the Compactor Pit is shut")
 	check(await go_through("heap_03_intake"), "Conveyor Hall -> the Intake")
 
-	# the boss: the Governor, the crane's takeover, then the crane
+	# the boss: The Pendulum, the crane's takeover, then the crane
 	var arena = room().get_node("BossArena")
 	var show: IntakeShowdown = arena.get_node("IntakeShowdown")
 	var boss: IntakeCrane = arena.get_node("IntakeCrane")
 	var gov: GreatGovernor = show.governor
 	check(boss.state == IntakeCrane.S.PARKED, "INTAKE UNIT 7 waits up on its rail")
-	check(room().find_children("*", "CrumblePlatform", true, false).size() == 4, "four girder ledges hang beside the Governor's crown")
+	check(room().find_children("*", "CrumblePlatform", true, false).size() == 4, "four girder ledges hang beside The Pendulum's crown")
 	player.global_position = Vector2(200, 320)
 	await frames(5)
 	await skip_dialogue()
 	await frames(10)
-	check(gov.state != GreatGovernor.S.IDLE, "THE GREAT GOVERNOR spins up")
+	check(gov.state != GreatGovernor.S.IDLE, "The Pendulum spins up")
 	check(main.demo.running, "...and the demo keeps going through the fight")
 	player.global_position = Vector2(100, 320)
 	var guard := 0
@@ -124,7 +124,7 @@ func _run() -> void:
 		if gov.state == GreatGovernor.S.OVERPRESSURE:
 			gov._hurtbox.take_hit(2, gov.to_global(GreatGovernor.HEAD))
 		await frames(3)
-	check(gov.hp <= 0, "the Governor goes down in its overpressure windows")
+	check(gov.hp <= 0, "The Pendulum goes down in its overpressure windows")
 	check(gov.off_balance and gov._knocked == 3, "...knocking out its ledges as it loses balance")
 	for i in 1200:
 		await frames(1)

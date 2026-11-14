@@ -39,7 +39,7 @@ const REGIONS := {
 			&"uw_08_gauge": {"name": "Pressure Gauge Hall", "origin": Vector2(6080, 228), "rect": Rect2(0, 0, 1280, 400), "icons": []},
 			&"uw_15_trials": {"name": "Steam Trials", "origin": Vector2(6700, -132), "rect": Rect2(0, 0, 640, 360), "icons": ["secret"]},
 			&"uw_09_approach": {"name": "Governor's Approach", "origin": Vector2(7360, 228), "rect": Rect2(0, 0, 960, 400), "icons": ["dock"]},
-			&"uw_10_governor": {"name": "The Great Governor", "origin": Vector2(8320, 260), "rect": Rect2(0, 0, 640, 360), "icons": ["boss"]},
+			&"uw_10_governor": {"name": "The Pendulum", "origin": Vector2(8320, 260), "rect": Rect2(0, 0, 640, 360), "icons": ["boss"]},
 			&"uw_11_galleries": {"name": "Swing Galleries", "origin": Vector2(8960, 228), "rect": Rect2(0, 0, 1280, 400), "icons": []},
 			&"uw_14_loft": {"name": "Clockmaker's Loft", "origin": Vector2(10020, -132), "rect": Rect2(0, 0, 480, 360), "icons": ["secret"]},
 		},

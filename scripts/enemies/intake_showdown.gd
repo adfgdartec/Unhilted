@@ -1,8 +1,8 @@
 class_name IntakeShowdown
 extends Node2D
-## The demo's boss: THE GREAT GOVERNOR, then INTAKE UNIT 7.
+## The demo's boss: The Pendulum, then INTAKE UNIT 7.
 ##
-##   1. The Governor has broken loose into the Intake. Climb the girder
+##   1. The Pendulum has broken loose into the Intake. Climb the girder
 ##      ledges beside its crown and hit it when it overpressures. Every
 ##      quarter of its health it lurches and smashes a ledge; at the last
 ##      quarter it's off balance; at zero it topples and crashes down.
@@ -14,12 +14,12 @@ extends Node2D
 ##      turn.
 ## Works as BossArena's boss: signal defeated, start(player), set_wrecked(),
 ## MAX_HP. Sits at the room origin next to the IntakeCrane.
-## Demo only: in the full game the Governor is the Underworks boss, so here
+## Demo only: in the full game The Pendulum is the Underworks boss, so here
 ## the showdown steps aside and the arena runs the plain crane fight.
 
 signal defeated
 
-const MAX_HP := 12                     ## the Governor's health in this fight
+const MAX_HP := 12                     ## The Pendulum's health in this fight
 const SHARD_POS := Vector2(334, 292)
 const LEDGES := [                      ## [position, width], knocked out in this order
 	[Vector2(150, 272), 64.0], [Vector2(490, 272), 64.0],

@@ -1,7 +1,7 @@
 class_name Shockwave
 extends Hitbox
 ## A ripple of force that runs along the floor from a stomp. Jump over it.
-## Spawned by PistonWalker (and the Governor's slam); frees itself.
+## Spawned by PistonWalker (and The Pendulum's slam); frees itself.
 
 var dir := 1.0
 var speed := 220.0

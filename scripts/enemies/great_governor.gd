@@ -1,6 +1,6 @@
 class_name GreatGovernor
 extends Node2D
-## BOSS: THE GREAT GOVERNOR. The engine that sets the pressure for the whole
+## BOSS: The Pendulum. The engine that sets the pressure for the whole
 ## Underworks: a brass spindle as tall as the hall, with two heavy flyballs on
 ## arms spinning around it, and a valve-crown on top with one great gauge eye.
 ## It has been running fast for years.
@@ -329,7 +329,7 @@ func _check_balance() -> void:
 		_knocked += 1
 		if _knocked == marks.size():
 			off_balance = true
-			EventBus.toast.emit("The Governor is losing its balance!")
+			EventBus.toast.emit("The Pendulum is losing its balance!")
 			AudioManager.set_music_pitch(1.08, 2.0)
 
 
@@ -342,7 +342,7 @@ func _knock_platform(i: int) -> void:
 		p.call("crumble")
 
 
-## The crane's slam: what's left of the Governor breaks into pieces.
+## The crane's slam: what's left of The Pendulum breaks into pieces.
 func smash() -> void:
 	_smashed = true
 	_tilt = 0.0

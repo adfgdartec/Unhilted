@@ -77,7 +77,7 @@ position = Vector2(330, 320)
 script = ExtResource("e7")
 prompt = "Read"
 title = "THE CLOCKMAKER'S NOTES"
-lines = Array[String](["> Pages of drawings of the Governor. Then drawings of something smaller: a robot, with a blade on a wire.", "> \"The smiths left five pieces of the edge in five places, and a body to carry them.\"", "> \"If it ever wakes, it will come down here looking for the second. Leave it something useful.\""])
+lines = Array[String](["> Pages of drawings of The Pendulum. Then drawings of something smaller: a robot, with a blade on a wire.", "> \"The smiths left five pieces of the edge in five places, and a body to carry them.\"", "> \"If it ever wakes, it will come down here looking for the second. Leave it something useful.\""])
 size = Vector2(40, 40)
 lore_id = "uw_clockmaker"
 

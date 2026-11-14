@@ -9,7 +9,7 @@ gaslamps, swing anchors (Shard II), and the Underworks enemies.
 
 Critical path: 01 Descent -> 02 Pipe Market -> 03 Bellows Row -> 04 Boiler
 Works -> 05 Gearworks -> 07 Condensate Falls -> 08 Pressure Gauge Hall ->
-09 Governor's Approach -> 10 The Great Governor (Shard II) -> 11 Swing
+09 Governor's Approach -> 10 The Pendulum (Shard II) -> 11 Swing
 Galleries -> back up to the Pipe Market's high walkway.
 Side rooms: 06 Lamplighter's Gallery (mini-boss), 12 Old Tram Tunnel (the
 sealed Forge Gate), 13 Cistern, 14 Clockmaker's Loft (secret, Swing),
@@ -206,12 +206,12 @@ def market():
         "Gauges are all in the red. Have been for a week."], quest="pressure_drop", headwear="stovepipe", goggles="raised", accessory="apron")
     r.npc("Pell", 790, 352, "pell", "Pell", [
         "Are you a tram? You're a bit small for a tram.",
-        "My gran says the Governor used to sing. Now it just screams.",
+        "My gran says The Pendulum used to sing. Now it just screams.",
         "If you go to the Galleries, swing on the big rings! I'm not allowed. I'm too swingy, gran says."],
         age="child", headwear="none", goggles="double", accessory="none")
     r.npc("Corra", 1220, 352, "corra", "Old Corra", [
         "Sit, sit. Mind the steam.",
-        "The smiths built the Governor to keep the city above warm. Then the city above forgot we were down here.",
+        "The smiths built The Pendulum to keep the city above warm. Then the city above forgot we were down here.",
         "That brass blade of yours. Seven hammers on the pommel? ...No. I'm imagining things. Old eyes."],
         age="elder", headwear="bowler", goggles="monocle", accessory="cane")
     r.npc("Fenwick", 470, 352, "fenwick", "Fenwick", [
@@ -291,7 +291,7 @@ def works():
     r.lamp("Lamp2", 860, 200)
     r.readable("Plate", 220, 440, "MAKER'S PLATE", [
         "> BOILER 3. INSTALLED BY THE GUILD OF THE SEVEN HAMMERS.",
-        "> PRESSURE SET BY THE GREAT GOVERNOR. DO NOT ADJUST.",
+        "> PRESSURE SET BY The Pendulum. DO NOT ADJUST.",
         "> Somebody has adjusted it. The needle is wedged with a spoon."], lore="uw_boiler_plate")
     r.cog("CogCatwalk", 610, 250)
     return r
@@ -439,9 +439,9 @@ def approach():
     r.dock(200, 352)
     r.anchor("SwingRing", 760, 140)
     r.cog("CogLedge", 900, 180)
-    r.gear("Gear", 510, 150, radius=60, platforms=0, speed=0.3)  # decorative: the Governor's drive train
+    r.gear("Gear", 510, 150, radius=60, platforms=0, speed=0.3)  # decorative: The Pendulum's drive train
     r.readable("Warning", 300, 352, "PLAQUE", [
-        "> THE GREAT GOVERNOR. KEEPS THE PRESSURE OF THE WHOLE UNDERWORKS.",
+        "> The Pendulum. KEEPS THE PRESSURE OF THE WHOLE UNDERWORKS.",
         "> WHEN THE BALLS FLY OUT, IT IS RUNNING FAST. WHEN THE CROWN LIFTS, IT IS ABOUT TO BURST.",
         "> Scratched underneath: hooks either side of the crown. Hit it while it's open. -B."], lore="uw_governor_plaque")
     r.enemy("Bat", "bellows_bat", 510, 180)
@@ -450,9 +450,9 @@ def approach():
     return r
 
 
-# ------------------------------------------------------------------ 10 The Great Governor (boss)
+# ------------------------------------------------------------------ 10 The Pendulum (boss)
 def governor():
-    r = UWBuilder("uw_10_governor", "The Great Governor", (0, 0, 640, 360), music="governor", **{k: v for k, v in WORKS.items() if k != "music"})
+    r = UWBuilder("uw_10_governor", "The Pendulum", (0, 0, 640, 360), music="governor", **{k: v for k, v in WORKS.items() if k != "music"})
     r.solid(0, 0, 640, 24, "brick")
     r.solid(0, 0, 16, 256, "brick")
     r.solid(624, 0, 16, 256, "brick")
@@ -465,14 +465,14 @@ def governor():
     r.hook("HookL", 240, 150, chain=110)
     r.hook("HookR", 400, 150, chain=110)
     r.node("BossArena", "Node2D", "res://scripts/world/boss_arena.gd", props={
-        "boss_flag": S("boss_governor_defeated"), "boss_name": S("THE GREAT GOVERNOR"), "trigger_x": "100",
+        "boss_flag": S("boss_governor_defeated"), "boss_name": S("The Pendulum"), "trigger_x": "100",
         "door_rect": R(0, 256, 16, 64), "boss_path": 'NodePath("GreatGovernor")', "reward": S("shard"),
         "shard_number": "2", "shard_position": V(320, 290),
-        "victory_text": S("The Great Governor slows... and settles into a steady, quiet hum."),
+        "victory_text": S("The Pendulum slows... and settles into a steady, quiet hum."),
         "intro_lines": SA(["> The whole hall is one machine. Its flyballs lift as it notices you.",
                            "> The gauge on its crown swings into the red."])})
     r.node("GreatGovernor", "Node2D", "res://scripts/enemies/great_governor.gd", parent="BossArena")
-    # the way on stays shut until the Governor stops (Shard II opens it)
+    # the way on stays shut until The Pendulum stops (Shard II opens it)
     r.gate("ShutGate", 616, 320, 16, 64, gate_id="uw_governor_gate", shard=2)
     return r
 
@@ -583,7 +583,7 @@ def loft():
     r.prop("Gauge", "uw_gauge", 80, 200, background="true", frames="2", fps="1")
     r.lamp("Lamp0", 300, 320)
     r.readable("Notes", 330, 320, "THE CLOCKMAKER'S NOTES", [
-        "> Pages of drawings of the Governor. Then drawings of something smaller: a robot, with a blade on a wire.",
+        "> Pages of drawings of The Pendulum. Then drawings of something smaller: a robot, with a blade on a wire.",
         "> \"The smiths left five pieces of the edge in five places, and a body to carry them.\"",
         "> \"If it ever wakes, it will come down here looking for the second. Leave it something useful.\""],
         lore="uw_clockmaker", size=(40, 40))

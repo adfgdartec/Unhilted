@@ -429,7 +429,7 @@ def music():
         tt += dur
     render_track("underworks", L, layers)
 
-    # The Great Governor: a runaway engine in 6/8, the beat speeding the bar
+    # The Pendulum: a runaway engine in 6/8, the beat speeding the bar
     bpm = 156
     b = 60 / bpm
     L = b * 96

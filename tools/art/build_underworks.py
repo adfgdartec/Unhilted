@@ -168,7 +168,7 @@ def uw_mid():
 
 def uw_works():
     """Machinery hall layer: boilers, gauge faces, pistons and a governor's
-    spinning silhouette, for the Boiler Works, Gearworks and the Governor."""
+    spinning silhouette, for the Boiler Works, Gearworks and The Pendulum."""
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     d = ImageDraw.Draw(img, "RGBA")
     body = (26, 26, 26, 255)
@@ -714,7 +714,7 @@ def lamplighter():
 
 
 def governor_head():
-    """The Great Governor's head: the brass valve-crown on top of its spindle,
+    """The Pendulum's head: the brass valve-crown on top of its spindle,
     with one great gauge eye. Frames: calm, angry (overpressure), cracked."""
     s = Spr(56, 44, 3)
     for f in range(3):

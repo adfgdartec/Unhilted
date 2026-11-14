@@ -26,7 +26,7 @@ grade = &"underworks"
 weather = "none"
 motes_color = Color(0.95, 0.93, 0.88, 0.22)
 motes_amount = 26
-display_name = "The Great Governor"
+display_name = "The Pendulum"
 bounds = Rect2(0, 0, 640, 360)
 solids = Array[Rect2]([Rect2(0, 0, 640, 24), Rect2(0, 0, 16, 256), Rect2(624, 0, 16, 256), Rect2(0, 320, 640, 40)])
 bg_top = Color(0.0705882, 0.101961, 0.0941176, 1)
@@ -61,14 +61,14 @@ chain_length = 110
 [node name="BossArena" type="Node2D" parent="."]
 script = ExtResource("e3")
 boss_flag = "boss_governor_defeated"
-boss_name = "THE GREAT GOVERNOR"
+boss_name = "The Pendulum"
 trigger_x = 100
 door_rect = Rect2(0, 256, 16, 64)
 boss_path = NodePath("GreatGovernor")
 reward = "shard"
 shard_number = 2
 shard_position = Vector2(320, 290)
-victory_text = "The Great Governor slows... and settles into a steady, quiet hum."
+victory_text = "The Pendulum slows... and settles into a steady, quiet hum."
 intro_lines = Array[String](["> The whole hall is one machine. Its flyballs lift as it notices you.", "> The gauge on its crown swings into the red."])
 
 [node name="GreatGovernor" type="Node2D" parent="BossArena"]

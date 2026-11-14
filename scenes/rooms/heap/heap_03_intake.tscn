@@ -124,7 +124,7 @@ chain_length = 136.0
 
 [node name="BossArena" type="Node2D" parent="."]
 script = ExtResource("3_arena")
-boss_name = "THE GREAT GOVERNOR"
+boss_name = "The Pendulum"
 boss_path = NodePath("IntakeShowdown")
 victory_text = "INTAKE UNIT 7 grinds to a halt. The shard falls free."
 intro_lines = Array[String](["> PRESSURE WARNING: A GOVERNOR HAS BROKEN LOOSE FROM THE WORKS BELOW.", "> It spins up as it notices you. Its crown gauge swings into the red.", "> (Climb the ledges by its crown. Hit the crown when it opens.)"])

@@ -87,7 +87,7 @@ position = Vector2(300, 352)
 script = ExtResource("e7")
 prompt = "Read"
 title = "PLAQUE"
-lines = Array[String](["> THE GREAT GOVERNOR. KEEPS THE PRESSURE OF THE WHOLE UNDERWORKS.", "> WHEN THE BALLS FLY OUT, IT IS RUNNING FAST. WHEN THE CROWN LIFTS, IT IS ABOUT TO BURST.", "> Scratched underneath: hooks either side of the crown. Hit it while it's open. -B."])
+lines = Array[String](["> The Pendulum. KEEPS THE PRESSURE OF THE WHOLE UNDERWORKS.", "> WHEN THE BALLS FLY OUT, IT IS RUNNING FAST. WHEN THE CROWN LIFTS, IT IS ABOUT TO BURST.", "> Scratched underneath: hooks either side of the crown. Hit it while it's open. -B."])
 size = Vector2(24, 32)
 lore_id = "uw_governor_plaque"
 

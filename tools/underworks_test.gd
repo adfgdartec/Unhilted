@@ -542,7 +542,7 @@ func _gauge_and_approach() -> void:
 	ok = await hop_to(Vector2(510, 312)) and await hop_to(Vector2(650, 352))
 	check(ok, "Approach: across the boiling pit by the island")
 	await place(Vector2(880, 352))
-	check(await walk_out(980) == "uw_10_governor", "Approach -> the Great Governor")
+	check(await walk_out(980) == "uw_10_governor", "Approach -> The Pendulum")
 
 
 func ok_print(cond: bool, what: String) -> void:
@@ -651,7 +651,7 @@ func _lamplighter() -> void:
 	check(all_lit, "every lamp in the Gallery lights again")
 
 
-# ------------------------------------------------------------------ 8. the Great Governor
+# ------------------------------------------------------------------ 8. The Pendulum
 func _governor() -> void:
 	await goto("uw_10_governor", &"from_approach")
 	check(GameState.has_shard(2) == false, "no Shard II yet")
@@ -697,7 +697,7 @@ func _governor() -> void:
 	await _skip_dialogue()
 	for i in 90:
 		await frames(1)
-	check(gov.state != GreatGovernor.S.IDLE, "walking in starts the Governor")
+	check(gov.state != GreatGovernor.S.IDLE, "walking in starts The Pendulum")
 	var saw_near := false
 	var saw_vents := false
 	var blocked_floor := false
@@ -715,7 +715,7 @@ func _governor() -> void:
 	check(saw_near, "its flyballs are dangerous on the near pass")
 	check(saw_vents, "floor vents burst during the fight")
 	check(blocked_floor, "hits from the floor glance off the crown's rim")
-	check(gov.state == GreatGovernor.S.WRECKED and GameState.flags.get("boss_governor_defeated", false), "hitting the open crown from the hooks brings the Governor down")
+	check(gov.state == GreatGovernor.S.WRECKED and GameState.flags.get("boss_governor_defeated", false), "hitting the open crown from the hooks brings The Pendulum down")
 	await frames(20)
 	var shard: Collectible = null
 	for n in room().get_node("BossArena").get_children():

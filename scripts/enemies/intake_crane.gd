@@ -24,7 +24,7 @@ extends Node2D
 ## The node sits at the room origin, so local and room coordinates match.
 ##
 ## In the demo's showdown (IntakeShowdown) it starts PARKED up by the rail
-## while the Governor fights, is driven through a CUTSCENE (smash the wreck,
+## while The Pendulum fights, is driven through a CUTSCENE (smash the wreck,
 ## haul it away, take the shard), then fights EMPOWERED: shard-cyan trim,
 ## faster tracking, a shorter stun window, the music wound up.
 

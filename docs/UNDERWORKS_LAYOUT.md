@@ -24,7 +24,7 @@ Heap 13 Gate ──> 01 Descent ──> 02 Pipe Market ──> 03 Bellows Row �
                                       │                     09 Governor's Approach (dock)
                                       │                             │
                                       │                             ▼
-                                      └── 11 Swing Galleries <── 10 THE GREAT GOVERNOR (Shard II)
+                                      └── 11 Swing Galleries <── 10 The Pendulum (Shard II)
                                                │
                                                └──> 14 Clockmaker's Loft (secret, Swing only)
 ```
@@ -42,7 +42,7 @@ Docks: Pipe Market, Gearworks, Governor's Approach.
 | 07 | Condensate Falls | 640x440 | A stair of grates down past the falls over a boiling pool. Ladder of grates up the left wall from the Cistern side. Relief valve 3. |
 | 08 | Pressure Gauge Hall | 1280x400 | A turret on a block (valve to disable), scald vents under a catwalk, a lift vent up to the Steam Trials. Letter 1. |
 | 09 | Governor's Approach | 960x400 | Dock. A boiling pit crossed by an island. A swing ring to a high cog (with Shard II). The plaque that explains the boss. |
-| 10 | The Great Governor | 640x360 | Boss. Two hooks either side of the crown. Drops Shard II; a Shard II wall then opens the way to the Galleries. |
+| 10 | The Pendulum | 640x360 | Boss. Two hooks either side of the crown. Drops Shard II; a Shard II wall then opens the way to the Galleries. |
 | 11 | Swing Galleries | 1280x400 | Swing tutorial: three rings over boiling pits, pillars between. A fourth ring swings you up to the Loft ledge. Exit to the Market's walkway. |
 | 12 | Old Tram Tunnel | 1280x360 | The Line 4 tram (stand on its roof: letter 2). The Forge Gate at the end (sealed: the way to region 3). A lift vent back up the stairwell. |
 | 13 | The Cistern | 800x400 | Stepping grates over boiling water, Boiler Bloats overhead. Letter 3. |

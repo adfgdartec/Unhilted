@@ -73,14 +73,14 @@ running for 2,000 years without knowing what they were for.
 | Shapes | Round and riveted: pipes, gauges, gears, arched brick vaults, spiral stairs, pressure tanks. Curves everywhere (the opposite of the city's straight lines). |
 | Terrain | New `brick` (arched vault brick), `pipe` (walkable pipe runs), `grate` (see-through walkway: steam rises through it), `gear` (rotating platforms). |
 | Backdrop | Layers of vaults receding into haze, giant flywheels turning slowly, a waterfall of condensation, distant lit windows of Bellows Row. |
-| Landmarks | Pipe Market (the town), Bellows Row (houses on pipes), the Great Governor (a building-sized regulator that keeps the whole city's pressure), tram line 4. |
+| Landmarks | Pipe Market (the town), Bellows Row (houses on pipes), The Pendulum (a building-sized regulator that keeps the whole city's pressure), tram line 4. |
 | Music | New: `underworks` (music box and low brass), `pressure` (tense, ticking), boss |
 | Town | **Pipe Market.** **Bellows Kin:** tall and thin, stovepipe hats, leather aprons, brass prosthetics (a hand, a jaw, an ear trumpet), soot-smudged faces, verdigris goggles. Walk-in shops: the gauge-maker, a tea house, the tram depot. |
 | Currency | Brass cogs |
 | Gimmicks | Steam vents that launch you; pressure valves (hit to open/close vents); rotating gear platforms; timed pistons. |
 | Enemies | Piston Walker (stomps), Valve Turret (steam bursts, turn it off by hitting its valve), Bellows Bat (swoops on gusts), Clockwork Spider (on walls and ceilings), Boiler Bloat (swells and bursts) |
 | Mini-boss | The Lamplighter (a tall automaton that snuffs the lamps; fight in the dark) |
-| Boss | **The Great Governor**: a spinning flyball regulator. You swing around its arms. |
+| Boss | **The Pendulum**: a spinning flyball regulator. You swing around its arms. |
 | Shard | **II, Swing**: pendulum swing on hooks and the wire, and wall-zip |
 | Gate back | Swing gaps in the Heap's Crane Yard and Sinkhole (new secrets) |
 
@@ -167,7 +167,7 @@ the sky. The CEO, who is the king who destroyed the smiths, waits at the top.
 ## Build order
 1. **Heap** (done): demo.
 2. **Underworks** (built; room plan in `UNDERWORKS_LAYOUT.md`). Where the build differs from the plan above:
-   - The Great Governor is not fought by swinging (Swing is its reward, so the fight can't need it). You jump the low flyball, slide under the high one, and hit the open crown from two plain hooks.
+   - The Pendulum is not fought by swinging (Swing is its reward, so the fight can't need it). You jump the low flyball, slide under the high one, and hit the open crown from two plain hooks.
    - The Clockwork Spider hops along floors; it doesn't climb walls or ceilings yet.
    - `gear` is a rotating-platform object (`GearWheel`), not a terrain style. The `pipe` terrain style exists but no room uses it as a floor yet.
    - Music: `underworks` (a 3/4 waltz) and `governor` (boss). There is no separate `pressure` track.
