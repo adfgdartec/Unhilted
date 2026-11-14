@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeChip" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/upgrade_chip.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/ui/chips/reflex_core.png" id="9_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"reflex_core"
+display_name = "Reflex Core"
+description = "Longer invulnerability after taking a hit."
+icon = ExtResource("9_icon")
+port_cost = 1
+icon_color = Color(0.6, 0.5, 1, 1)
+add_modifiers = {}
+mult_modifiers = {"invuln_time": 1.6}

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ShardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/shard_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"shard_5"
+number = 5
+display_name = "Shard V: The Final Piece"
+description = "The piece that was never attached. The sword is whole."
+ability = &"complete"

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ShardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/shard_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"shard_1"
+number = 1
+display_name = "Shard I: Edge"
+description = "Thrown, the blade now cuts straight through what it hits. Scrap walls marked in orange will split."
+lore = "The shard slides onto the hilt as if it had been waiting for it. The wire hums brighter."
+ability = &"pierce"

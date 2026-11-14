@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeChip" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/upgrade_chip.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/ui/chips/magnet_coil.png" id="9_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"magnet_coil"
+display_name = "Magnet Coil"
+description = "Scrap is pulled toward you from further away."
+icon = ExtResource("9_icon")
+port_cost = 1
+icon_color = Color(1, 0.75, 0.2, 1)
+add_modifiers = {"magnet_radius": 70}
+mult_modifiers = {}

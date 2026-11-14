@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeChip" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/upgrade_chip.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/ui/chips/scrap_plating.png" id="9_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"scrap_plating"
+display_name = "Scrap Plating"
+description = "+1 max health."
+icon = ExtResource("9_icon")
+port_cost = 2
+icon_color = Color(0.7, 0.7, 0.75, 1)
+add_modifiers = {"max_health": 1}
+mult_modifiers = {}

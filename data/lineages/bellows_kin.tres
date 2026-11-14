@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Lineage" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/lineage.gd" id="1_lin"]
+
+[resource]
+script = ExtResource("1_lin")
+id = &"bellows_kin"
+display_name = "Bellows Kin"
+shared_traits = "The families who kept the old machines running after the city above forgot them. Tall and thin, they stand very straight; long tailored coats with a row of brass buttons; heavy leather aprons for the workshops; many wear brass prosthetics they built themselves. The family signature is a round verdigris-green lens (monocle or goggle) that catches the gaslight."
+coat_colors = Array[Color]([Color(0.24, 0.27, 0.25, 1), Color(0.3, 0.22, 0.2, 1), Color(0.2, 0.22, 0.27, 1), Color(0.33, 0.28, 0.22, 1), Color(0.18, 0.24, 0.22, 1)])
+patch_colors = Array[Color]([])
+skin_tones = Array[Color]([Color(0.92, 0.78, 0.65, 1), Color(0.8, 0.62, 0.48, 1), Color(0.62, 0.44, 0.33, 1), Color(0.42, 0.29, 0.22, 1)])
+hair_colors = Array[Color]([Color(0.15, 0.12, 0.12, 1), Color(0.5, 0.3, 0.2, 1), Color(0.75, 0.72, 0.68, 1), Color(0.3, 0.2, 0.15, 1)])
+accent_colors = Array[Color]([Color(0.31, 0.6, 0.52, 1), Color(0.66, 0.38, 0.23, 1), Color(0.79, 0.59, 0.24, 1), Color(0.55, 0.2, 0.2, 1)])
+trouser_color = Color(0.17, 0.15, 0.15, 1)
+boot_color = Color(0.14, 0.1, 0.09, 1)
+lens_color = Color(0.45, 0.85, 0.7, 1)
+coat_style = "tailored"
+headwear = PackedStringArray("stovepipe", "stovepipe", "bowler", "none")
+goggle_styles = PackedStringArray("monocle", "monocle", "double", "raised")
+accessories = PackedStringArray("none", "apron", "brass_arm", "brass_arm", "belt", "cane")
+height_range = Vector2i(19, 23)
+width_range = Vector2i(7, 9)
+hunch_max = 0

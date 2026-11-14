@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/quest_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/resources/quest_objective.gd" id="2_obj"]
+
+[sub_resource type="Resource" id="obj_1"]
+script = ExtResource("2_obj")
+type = 0
+target_id = &"power_cell"
+count = 1
+description = "Find the power cell"
+
+[resource]
+script = ExtResource("1_script")
+id = &"lost_power_cell"
+title = "The Lost Power Cell"
+description = "Tinker's generator is dead. A power cell fell somewhere in the Pit."
+region_id = &"heap"
+giver_name = "Tinker"
+objectives = Array[ExtResource("2_obj")]([SubResource("obj_1")])
+reward_scrap = 25
+reward_local = 4
+reward_chips = Array[StringName]([&"recall_saw"])
+offer_lines = Array[String](["Whoa! A walking robot? Nobody's built one of those in... ever.", "Name's Tinker. I keep this camp's lights on. Well. Kept.", "Our power cell rolled off the ledge in the Pit, way up past the old crane hook.", "You've got that wire-blade thing. Bet you could reach it. Bring it back and I'll make it worth your while."])
+active_lines = Array[String](["The cell's up high in the Pit, past the crane hook. Click on the hook to throw your blade at it, then click again to pull yourself up!"])
+complete_lines = Array[String](["You found it! Rusty, look! {They} actually found it!", "Here, take these Bottlecaps. And this chip I've been tinkering with. Ha.", "It makes that blade of yours bite twice as hard on the way back. Slot it in at the dock."])
+done_lines = Array[String](["Lights are back on. Rusty owes me a drink, he said you'd never find it.", "Don't go east past Pip's spot. That's the Intake. Corp crane, dumps the city's trash on us and grinds whatever moves.", "...You came out of that pile, didn't you. Huh."])

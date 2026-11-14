@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/quest_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/resources/quest_objective.gd" id="2_obj"]
+
+[sub_resource type="Resource" id="obj_1"]
+script = ExtResource("2_obj")
+type = 0
+target_id = &"relief_valve"
+count = 3
+description = "Open the relief valves"
+
+[resource]
+script = ExtResource("1_script")
+id = &"pressure_drop"
+title = "Pressure Drop"
+description = "The Governor is running fast and the pipes are about to burst. Foreman Brask needs three relief valves opened: in Bellows Row, the Boiler Works and the Condensate Falls."
+region_id = &"underworks"
+giver_name = "Foreman Brask"
+objectives = Array[ExtResource("2_obj")]([SubResource("obj_1")])
+reward_scrap = 40
+reward_local = 6
+reward_chips = Array[StringName]([&"piston_legs"])
+reward_cosmetics = Array[StringName]([])
+offer_lines = Array[String](["You. Tin one. You've got arms, that's enough.", "Every gauge in the Market is in the red. The Great Governor's spinning too fast and nobody can get near it to tell it to stop.", "Until somebody does, the pressure's got to go somewhere. There are three relief valves: one in Bellows Row, one in the Boiler Works, one down by the Falls.", "Give each one a good whack. They're stiff, they've been shut since my grandad's day."])
+active_lines = Array[String](["Three valves: Bellows Row, the Boiler Works, the Falls. Hit them till they turn."])
+complete_lines = Array[String](["Hear that? No, you don't. That's the point. No hissing.", "Here. I built these for a walker that never got finished. Springs in the knees. Put them in your legs, see what happens."])
+done_lines = Array[String](["Pressure's holding. For now. Something still has to slow the Governor down.", "Its crown opens when it overheats. That's the only time I ever saw anyone get a wrench on it."])

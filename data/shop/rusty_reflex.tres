@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="ShopItem" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/shop_item.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+item_type = 0
+item_id = &"reflex_core"
+display_name = "Reflex Core (chip)"
+price = 60
+currency = &"scrap"
+stock = 1

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="QuestData" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/quest_data.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/resources/quest_objective.gd" id="2_obj"]
+
+[sub_resource type="Resource" id="obj_1"]
+script = ExtResource("2_obj")
+type = 0
+target_id = &"lamplighters_lantern"
+count = 1
+description = "Bring back the Lamplighter's lantern"
+
+[resource]
+script = ExtResource("1_script")
+id = &"last_lamplighter"
+title = "The Last Lamplighter"
+description = "Old Wick kept the gaslights with an automaton partner. It went wrong years ago and now puts the lamps out in the Gallery. Wick wants it stopped, and its lantern brought home."
+region_id = &"underworks"
+giver_name = "Wick"
+objectives = Array[ExtResource("2_obj")]([SubResource("obj_1")])
+reward_scrap = 20
+reward_local = 5
+reward_chips = Array[StringName]([&"ball_bearings"])
+reward_cosmetics = Array[StringName]([])
+offer_lines = Array[String](["Sit down a minute. You're the first visitor in a while who isn't steam.", "I lit the lamps here for forty years, me and my partner. A clockwork fellow, tall as a door. Never missed a round.", "Then one night it started going backwards. Putting them out. It's still at it, in the Lamplighter's Gallery.", "It's not cruel. It's just broken. Put it to rest, will you? And bring me its lantern. I'd like it on the shelf."])
+active_lines = Array[String](["The Gallery's past the Gearworks. If the room goes dark, hit a lamp. They catch again."])
+complete_lines = Array[String](["...That's its lantern. Still warm.", "Thank you. Really. Here, take these. Bearings out of its spare legs. It always said I'd need them for something."])
+done_lines = Array[String](["The Gallery's lit again. I can see it from the window, if I squint.", "Strange. I keep listening for its footsteps."])

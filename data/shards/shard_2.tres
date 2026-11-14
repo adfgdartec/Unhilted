@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ShardData" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/shard_data.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"shard_2"
+number = 2
+display_name = "Shard II: Swing"
+description = "The grapple becomes a full pendulum swing."
+ability = &"swing"

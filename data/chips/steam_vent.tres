@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UpgradeChip" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/upgrade_chip.gd" id="1_script"]
+[ext_resource type="PackedScene" path="res://scenes/effects/steam_vent_effect.tscn" id="2_fx"]
+[ext_resource type="Texture2D" path="res://art/ui/chips/steam_vent.png" id="9_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"steam_vent"
+display_name = "Steam Vent"
+description = "Dashing leaves a cloud of scalding steam that hurts enemies."
+icon = ExtResource("9_icon")
+port_cost = 2
+icon_color = Color(0.85, 0.85, 0.9, 1)
+add_modifiers = {}
+mult_modifiers = {}
+effect_scene = ExtResource("2_fx")

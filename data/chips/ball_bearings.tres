@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeChip" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/upgrade_chip.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/ui/chips/ball_bearings.png" id="9_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"ball_bearings"
+display_name = "Ball Bearings"
+description = "Fresh bearings in every joint. Run 10% faster."
+icon = ExtResource("9_icon")
+port_cost = 1
+icon_color = Color(0.94, 0.75, 0.35, 1)
+add_modifiers = {}
+mult_modifiers = {"max_speed": 1.1}

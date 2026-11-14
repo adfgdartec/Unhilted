@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="UpgradeChip" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/upgrade_chip.gd" id="1_script"]
+[ext_resource type="Texture2D" path="res://art/ui/chips/recall_saw.png" id="9_icon"]
+
+[resource]
+script = ExtResource("1_script")
+id = &"recall_saw"
+display_name = "Recall Saw"
+description = "The blade hits twice as hard on its way back."
+icon = ExtResource("9_icon")
+port_cost = 2
+icon_color = Color(1, 0.4, 0.3, 1)
+add_modifiers = {}
+mult_modifiers = {"recall_damage_mult": 2.0}
