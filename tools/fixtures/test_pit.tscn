@@ -1,0 +1,296 @@
+[gd_scene load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/room.gd" id="1_room"]
+[ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="2_exit"]
+[ext_resource type="PackedScene" path="res://scenes/world/collectible.tscn" id="3_col"]
+[ext_resource type="PackedScene" path="res://scenes/world/grapple_point.tscn" id="4_gp"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/scrap_drone.tscn" id="5_drone"]
+[ext_resource type="PackedScene" path="res://scenes/world/ability_gate.tscn" id="6_gate"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/spotter_drone.tscn" id="7_spot"]
+[ext_resource type="Script" path="res://scripts/world/prop.gd" id="p_script"]
+[ext_resource type="Texture2D" path="res://art/props/ancient_casing.png" id="tex_ancient_casing"]
+[ext_resource type="Texture2D" path="res://art/props/junk_a.png" id="tex_junk_a"]
+[ext_resource type="Texture2D" path="res://art/props/crt_pile.png" id="tex_crt_pile"]
+[ext_resource type="Texture2D" path="res://art/props/tyres.png" id="tex_tyres"]
+[ext_resource type="Texture2D" path="res://art/props/barrel.png" id="tex_barrel"]
+[ext_resource type="Texture2D" path="res://art/props/junk_b.png" id="tex_junk_b"]
+[ext_resource type="Texture2D" path="res://art/props/car_cube.png" id="tex_car_cube"]
+[ext_resource type="Texture2D" path="res://art/props/hanging_cables.png" id="tex_hanging_cables"]
+[ext_resource type="Script" path="res://scripts/world/light_shaft.gd" id="shaft"]
+[ext_resource type="Texture2D" path="res://art/props/hang_a.png" id="tex_hang_a"]
+[ext_resource type="Texture2D" path="res://art/props/hang_b.png" id="tex_hang_b"]
+[ext_resource type="Texture2D" path="res://art/props/hang_c.png" id="tex_hang_c"]
+
+[sub_resource type="RectangleShape2D" id="exit_shape"]
+size = Vector2(8, 64)
+
+[node name="TestPit" type="Node2D"]
+script = ExtResource("1_room")
+room_id = &"test_pit"
+region_id = &"heap"
+tileset = "heap_scrap"
+solid_styles = PackedStringArray("ground", "ground", "ground", "ground", "ground", "girder", "container", "girder", "ground", "girder", "container", "girder", "girder", "ground", "ceiling", "ceiling", "ceiling", "ceiling", "ceiling", "ceiling")
+backdrop = "heap_cave"
+ambient = Color(0.6, 0.54, 0.66, 1)
+music = "cave"
+grade = &"cave"
+weather = "none"
+motes_color = Color(1, 0.86, 0.66, 0.22)
+motes_amount = 30
+display_name = "Test Pit (old Under the Heap layout)"
+bounds = Rect2(0, 0, 1280, 480)
+solids = Array[Rect2]([Rect2(0, 0, 16, 480), Rect2(0, 432, 520, 48), Rect2(520, 464, 80, 16), Rect2(600, 432, 680, 48), Rect2(1264, 0, 16, 368), Rect2(150, 384, 96, 16), Rect2(270, 336, 80, 16), Rect2(170, 228, 70, 16), Rect2(700, 400, 120, 32), Rect2(780, 352, 48, 16), Rect2(840, 300, 80, 16), Rect2(940, 216, 200, 16), Rect2(1140, 120, 16, 112), Rect2(392, 420, 72, 12), Rect2(16, 0, 1248, 40), Rect2(16, 40, 110, 26), Rect2(300, 40, 180, 22), Rect2(520, 40, 150, 46), Rect2(860, 40, 180, 30), Rect2(1150, 40, 114, 46)])
+bg_top = Color(0.1, 0.09, 0.14, 1)
+bg_bottom = Color(0.24, 0.17, 0.2, 1)
+
+[node name="WakePod" type="Node2D" parent="."]
+position = Vector2(66, 434)
+script = ExtResource("p_script")
+texture = ExtResource("tex_ancient_casing")
+light_radius = 40.0
+light_energy = 0.45
+glow_color = Color(0.22, 0.95, 1, 0.35)
+glow_radius = 14.0
+glow_offset = Vector2(17, -14)
+
+[node name="Prop1_junk_a" type="Node2D" parent="."]
+position = Vector2(150, 432)
+script = ExtResource("p_script")
+texture = ExtResource("tex_junk_a")
+background = true
+
+[node name="Prop2_crt_pile" type="Node2D" parent="."]
+position = Vector2(262, 432)
+script = ExtResource("p_script")
+texture = ExtResource("tex_crt_pile")
+light_radius = 34.0
+light_energy = 0.5
+frames = 2
+fps = 6.0
+background = true
+glow_color = Color(0.3, 0.75, 0.85, 0.25)
+glow_radius = 16.0
+glow_offset = Vector2(-7, -8)
+
+[node name="Prop3_tyres" type="Node2D" parent="."]
+position = Vector2(470, 432)
+script = ExtResource("p_script")
+texture = ExtResource("tex_tyres")
+background = true
+
+[node name="Prop4_barrel" type="Node2D" parent="."]
+position = Vector2(504, 432)
+script = ExtResource("p_script")
+texture = ExtResource("tex_barrel")
+background = true
+
+[node name="Prop5_junk_b" type="Node2D" parent="."]
+position = Vector2(640, 432)
+script = ExtResource("p_script")
+texture = ExtResource("tex_junk_b")
+background = true
+
+[node name="Prop6_car_cube" type="Node2D" parent="."]
+position = Vector2(760, 400)
+script = ExtResource("p_script")
+texture = ExtResource("tex_car_cube")
+background = true
+
+[node name="Prop9_junk_a" type="Node2D" parent="."]
+position = Vector2(1000, 216)
+script = ExtResource("p_script")
+texture = ExtResource("tex_junk_a")
+background = true
+
+[node name="Prop10_tyres" type="Node2D" parent="."]
+position = Vector2(1190, 432)
+script = ExtResource("p_script")
+texture = ExtResource("tex_tyres")
+background = true
+
+[node name="Prop11_junk_b" type="Node2D" parent="."]
+position = Vector2(890, 432)
+script = ExtResource("p_script")
+texture = ExtResource("tex_junk_b")
+background = true
+
+[node name="Spawns" type="Node2D" parent="."]
+
+[node name="wake" type="Marker2D" parent="Spawns"]
+position = Vector2(80, 432)
+
+[node name="from_camp" type="Marker2D" parent="Spawns"]
+position = Vector2(1216, 432)
+
+[node name="ExitToCamp" type="Area2D" parent="."]
+position = Vector2(1276, 400)
+script = ExtResource("2_exit")
+target_room = "res://scenes/rooms/heap/heap_02_camp.tscn"
+target_spawn = &"from_pit"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitToCamp"]
+shape = SubResource("exit_shape")
+
+[node name="HookTutorial" parent="." instance=ExtResource("4_gp")]
+position = Vector2(234, 200)
+chain_length = 160.0
+
+[node name="CraneHook" parent="." instance=ExtResource("4_gp")]
+position = Vector2(950, 170)
+chain_length = 100.0
+
+[node name="ChipLongTether" parent="." instance=ExtResource("3_col")]
+position = Vector2(310, 320)
+kind = 3
+item_id = &"long_tether"
+
+[node name="VestHazard" parent="." instance=ExtResource("3_col")]
+position = Vector2(205, 214)
+kind = 4
+item_id = &"shirt_hazard_vest"
+
+[node name="PowerCell" parent="." instance=ExtResource("3_col")]
+position = Vector2(1030, 198)
+kind = 2
+item_id = &"power_cell"
+display_name = "Power Cell"
+
+[node name="Cap1" parent="." instance=ExtResource("3_col")]
+position = Vector2(198, 370)
+kind = 1
+
+[node name="Cap2" parent="." instance=ExtResource("3_col")]
+position = Vector2(560, 452)
+kind = 1
+
+[node name="Cap3" parent="." instance=ExtResource("3_col")]
+position = Vector2(990, 198)
+kind = 1
+
+[node name="Cap4" parent="." instance=ExtResource("3_col")]
+position = Vector2(760, 384)
+kind = 1
+
+[node name="ScrapWall" parent="." instance=ExtResource("6_gate")]
+position = Vector2(1100, 216)
+required_shard = 1
+size = Vector2(14, 60)
+
+[node name="ChipScrapPlating" parent="." instance=ExtResource("3_col")]
+position = Vector2(1124, 198)
+kind = 3
+item_id = &"scrap_plating"
+
+[node name="Drone1" parent="." instance=ExtResource("5_drone")]
+position = Vector2(440, 432)
+
+[node name="Drone2" parent="." instance=ExtResource("5_drone")]
+position = Vector2(1060, 432)
+
+[node name="Scrap1" parent="." instance=ExtResource("3_col")]
+position = Vector2(120, 420)
+amount = 3
+
+[node name="Scrap2" parent="." instance=ExtResource("3_col")]
+position = Vector2(660, 420)
+amount = 3
+
+[node name="Spotter1" parent="." instance=ExtResource("7_spot")]
+position = Vector2(640, 340)
+
+[node name="ShaftWake" type="Node2D" parent="."]
+position = Vector2(132, 66)
+script = ExtResource("shaft")
+length = 366.0
+top_width = 8.0
+bottom_width = 54.0
+slant = -62.0
+color = Color(1, 0.84, 0.6, 0.2)
+land_light = 1.0
+
+[node name="ShaftMid" type="Node2D" parent="."]
+position = Vector2(700, 40)
+script = ExtResource("shaft")
+length = 360.0
+top_width = 10.0
+bottom_width = 50.0
+slant = 30.0
+land_light = 0.7
+
+[node name="ShaftLedge" type="Node2D" parent="."]
+position = Vector2(1076, 40)
+script = ExtResource("shaft")
+length = 176.0
+top_width = 6.0
+bottom_width = 30.0
+slant = -16.0
+land_light = 0.6
+
+[node name="ShaftClimb" type="Node2D" parent="."]
+position = Vector2(290, 40)
+script = ExtResource("shaft")
+length = 296.0
+top_width = 5.0
+bottom_width = 30.0
+slant = 18.0
+color = Color(1, 0.84, 0.6, 0.12)
+land_light = 0.4
+
+[node name="TunnelGlow" type="Node2D" parent="."]
+position = Vector2(1262, 404)
+script = ExtResource("p_script")
+glow_color = Color(1, 0.8, 0.55, 0.5)
+glow_radius = 54.0
+light_radius = 130.0
+light_energy = 1.1
+
+[node name="Hang1" type="Node2D" parent="."]
+position = Vector2(62, 66)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hang_a")
+hanging = true
+background = true
+
+[node name="Hang2" type="Node2D" parent="."]
+position = Vector2(362, 62)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hang_b")
+hanging = true
+background = true
+
+[node name="Hang3" type="Node2D" parent="."]
+position = Vector2(592, 86)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hang_c")
+hanging = true
+background = true
+
+[node name="Hang4" type="Node2D" parent="."]
+position = Vector2(784, 40)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hang_b")
+hanging = true
+background = true
+flip = true
+
+[node name="Hang5" type="Node2D" parent="."]
+position = Vector2(905, 70)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hanging_cables")
+hanging = true
+background = true
+
+[node name="Hang6" type="Node2D" parent="."]
+position = Vector2(1196, 86)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hang_a")
+hanging = true
+background = true
+flip = true
+
+[node name="Hang7" type="Node2D" parent="."]
+position = Vector2(452, 62)
+script = ExtResource("p_script")
+texture = ExtResource("tex_hanging_cables")
+hanging = true
+background = true

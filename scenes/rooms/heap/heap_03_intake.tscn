@@ -1,10 +1,11 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=13 format=3]
 
 [ext_resource type="Script" path="res://scripts/world/room.gd" id="1_room"]
 [ext_resource type="Script" path="res://scripts/world/room_exit.gd" id="2_exit"]
 [ext_resource type="Script" path="res://scripts/world/boss_arena.gd" id="3_arena"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/intake_crane.tscn" id="4_crane"]
 [ext_resource type="PackedScene" path="res://scenes/world/grapple_point.tscn" id="5_gp"]
+[ext_resource type="Script" path="res://scripts/enemies/intake_showdown.gd" id="6_show"]
 [ext_resource type="Script" path="res://scripts/world/prop.gd" id="p_script"]
 [ext_resource type="Texture2D" path="res://art/props/chute.png" id="tex_chute"]
 [ext_resource type="Texture2D" path="res://art/props/bale_stack.png" id="tex_bale_stack"]
@@ -123,6 +124,12 @@ chain_length = 136.0
 
 [node name="BossArena" type="Node2D" parent="."]
 script = ExtResource("3_arena")
-intro_lines = Array[String](["> FOREIGN OBJECT ON INTAKE FLOOR.", "> CLASSIFICATION: SCRAP. MODEL: UNKNOWN. AGE: UNKNOWN.", "> RESUMING PROCESSING."])
+boss_name = "THE GREAT GOVERNOR"
+boss_path = NodePath("IntakeShowdown")
+victory_text = "INTAKE UNIT 7 grinds to a halt. The shard falls free."
+intro_lines = Array[String](["> PRESSURE WARNING: A GOVERNOR HAS BROKEN LOOSE FROM THE WORKS BELOW.", "> It spins up as it notices you. Its crown gauge swings into the red.", "> (Climb the ledges by its crown. Hit the crown when it opens.)"])
 
 [node name="IntakeCrane" parent="BossArena" instance=ExtResource("4_crane")]
+
+[node name="IntakeShowdown" type="Node2D" parent="BossArena"]
+script = ExtResource("6_show")
